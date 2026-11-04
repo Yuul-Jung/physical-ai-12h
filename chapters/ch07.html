@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>07차시 — 선형회귀와 심층 신경망</title><link href="../assets/css/ch07.css" rel="stylesheet"/><style>.audit-chapter-nav{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:2em auto;padding:14px;border-top:1px solid #ccd7e1;max-width:960px;font:500 14px/1.5 system-ui,sans-serif}.audit-chapter-nav a{color:#134e78;text-decoration:underline;padding:5px 8px}.audit-note,.verified-supplement{max-width:100%;margin-top:2em} .verified-supplement pre,.audit-note pre{white-space:pre-wrap;word-break:break-word} @media print {.audit-chapter-nav {display:none!important} .verified-supplement pre,.audit-note pre{white-space:pre-wrap;overflow-wrap:anywhere}}</style></head><body><header><nav><a href="../index.html">전체 목차</a><a href="ch06.html">← 06차시</a><span>07차시 · 딥러닝</span><a aria-label="다음 차시, 제작 예정" href="ch08.html">08차시 →</a></nav></header><main><h1 id="차시-딥러닝-기본-원리-선형회귀와-심층-신경망">📘 07차시 — 딥러닝 기본 원리: 선형회귀와 심층 신경망</h1>
+<blockquote>
+<p>자율주행 자동차 로봇을 활용한 피지컬 AI · 2일차 09:00–10:00 · 필수 실습 60분 / 선택 심화 별도</p>
+<p><strong>검증 범위:</strong> PyTorch CPU 환경에서 합성 데이터 학습·평가 및 자동 테스트. 알티노 AI 제조사 SDK·실제 주행·실차 안전 성능은 미검증.</p>
+</blockquote>
+<h2 id="차시-개요-및-실습-운영표">01. 차시 개요 및 실습 운영표</h2>
+<p>이번 차시는 앞선 Python·NumPy·OpenCV 차시의 배열과 센서 처리 결과를 <strong>학습 가능한 모델</strong>로 연결한다. 사람이 정한 조건문으로 모든 판단을 작성하는 방식과 달리, 머신러닝은 입력·정답 사례로부터 매개변수를 조정한다. 단, 학습 모델의 예측은 물리적 안전 제약이나 실제 로봇 제어 명령을 대신하지 않는다. 여기서는 자율주행 차량의 ’속도에 따른 교육용 목표 거리’를 예측하는 합성 문제를 사용한다. 이 값은 실제 제동거리 공식이나 안전 정지거리 기준이 아니다.</p>
+<table>
+<colgroup>
+<col style="width: 33%"/>
+<col style="width: 33%"/>
+<col style="width: 33%"/>
+</colgroup>
+<thead>
+<tr class="header">
+<th>시간</th>
+<th>필수 수행</th>
+<th>확인 산출물</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0~10분</td>
+<td>데이터·정답·모델·손실 이해</td>
+<td>데이터 표와 구조도</td>
+</tr>
+<tr class="even">
+<td>10~20분</td>
+<td>합성 데이터 생성·학습/평가 분리</td>
+<td>입력 160개, 학습 128개, 평가 32개</td>
+</tr>
+<tr class="odd">
+<td>20~35분</td>
+<td>선형회귀 모델 학습</td>
+<td>손실 감소 확인</td>
+</tr>
+<tr class="even">
+<td>35~50분</td>
+<td>1→8→1 신경망 학습</td>
+<td>두 모델 평가값 비교</td>
+</tr>
+<tr class="odd">
+<td>50~60분</td>
+<td>평가 지표·출력 파일·자동 테스트 확인</td>
+<td>JSON·CSV 및 테스트 통과</td>
+</tr>
+</tbody>
+</table>
+<p><strong>선택 심화:</strong> 학습률·은닉층 크기·잡음 수준을 바꾸고 학습 결과를 비교한다. 실제 차량 구동, 카메라 실시간 추론 및 대형 영상 학습은 이번 60분 필수 실습에서 제외한다.</p>
+<h2 id="전체-시스템에서-딥러닝이-담당하는-역할">02. 전체 시스템에서 딥러닝이 담당하는 역할</h2>
+<p>센서 → 데이터 전처리 → 특징/입력 구성 → 모델 예측 → 검증된 판단 로직 → 제어기 → 구동부의 순서로 기능을 나눈다. 모델 출력이 직접 모터에 연결되면 오인식·센서 오류·학습 범위 밖 입력에서 위험해질 수 있다. 따라서 모델은 <strong>관측·추정 계층</strong>에 두고, 제어 계층에는 별도 제한·감시·비상정지 기능이 필요하다.</p>
+<figure>
+<svg aria-labelledby="t d" height="260" role="img" viewbox="0 0 940 260" width="940" xmlns="http://www.w3.org/2000/svg"><title id="t">학습 및 추론 구조</title><desc id="d">속도 데이터에서 정답 거리와 예측 거리를 비교하고 오차를 역전파하여 가중치를 갱신하는 구조</desc><rect fill="#f6f9fc" height="260" rx="16" width="940"></rect><g font-family="sans-serif" font-size="17" text-anchor="middle"><rect fill="#d9eafb" height="75" rx="10" stroke="#3074ad" width="155" x="25" y="70"></rect><text x="102" y="100">speed</text><text x="102" y="123">입력 속도</text><rect fill="#e3f4e5" height="75" rx="10" stroke="#32824a" width="175" x="230" y="70"></rect><text x="317" y="100">model(speed)</text><text x="317" y="123">거리 예측</text><rect fill="#fff0d7" height="75" rx="10" stroke="#b97c1b" width="175" x="460" y="70"></rect><text x="548" y="100">MSELoss</text><text x="548" y="123">정답과 오차 비교</text><rect fill="#f5e7fa" height="75" rx="10" stroke="#9359aa" width="220" x="695" y="70"></rect><text x="805" y="100">backward + step</text><text x="805" y="123">기울기·가중치 갱신</text><g fill="none" stroke="#375a76" stroke-width="3"><path d="M180 108H230"></path><path d="M405 108H460"></path><path d="M635 108H695"></path><path d="M805 145V210H317V145" stroke-dasharray="8 5"></path></g><g fill="#375a76"><path d="M224 102l8 6-8 6z"></path><path d="M454 102l8 6-8 6z"></path><path d="M689 102l8 6-8 6z"></path></g><text fill="#4d5260" font-size="14" x="560" y="201">학습 시 반복 · 추론 시에는 갱신하지 않음</text></g></svg>
+<figcaption aria-hidden="true">학습 루프 구조도</figcaption>
+</figure>
+<p>그림의 <code>speed</code>, <code>model(speed)</code>, <code>MSELoss</code>, <code>backward</code>, <code>step</code>은 실습 코드의 실제 데이터·연산에 대응한다. <code>train()</code>은 학습 데이터에서 오차를 줄이고 <code>evaluate()</code>는 분리한 평가 데이터로 일반화 정도를 확인한다. 학습과 추론을 구별하는 것이 이번 차시의 핵심이다. 추론은 이미 결정된 가중치를 사용해 출력을 계산하며 일반적으로 역전파나 최적화 단계가 없다.</p>
+<h2 id="머신러닝딥러닝신경망의-관계">03. 머신러닝·딥러닝·신경망의 관계</h2>
+<p>머신러닝(Machine Learning, 기계학습)은 사례로부터 규칙 또는 매개변수를 학습하는 방법을 포괄한다. 딥러닝(Deep Learning, 심층학습)은 여러 층을 가진 신경망을 주로 활용하는 머신러닝의 한 갈래다. 신경망의 층 수가 늘었다고 모든 문제에서 성능이 좋아지는 것은 아니다. 입력과 출력의 관계가 단순한 직선이면 선형회귀가 더 적절할 수 있다.</p>
+<table>
+<colgroup>
+<col style="width: 33%"/>
+<col style="width: 33%"/>
+<col style="width: 33%"/>
+</colgroup>
+<thead>
+<tr class="header">
+<th>방법</th>
+<th>특징</th>
+<th>이번 차시의 예</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>규칙 기반</td>
+<td>사람이 임계값과 분기 직접 설정</td>
+<td><code>speed &gt; 5</code>이면 경고</td>
+</tr>
+<tr class="even">
+<td>선형회귀</td>
+<td>입력의 선형 결합을 학습</td>
+<td><code>y = wx + b</code></td>
+</tr>
+<tr class="odd">
+<td>다층 퍼셉트론(MLP)</td>
+<td>선형 변환과 비선형 활성화를 반복</td>
+<td>1→8→1 신경망</td>
+</tr>
+<tr class="even">
+<td>합성곱 신경망(CNN)</td>
+<td>영상의 공간적 특징을 학습</td>
+<td>이후 이미지 분류·객체 인식 차시 연결</td>
+</tr>
+</tbody>
+</table>
+<p>선형회귀는 ’딥러닝보다 낮은 단계’라는 뜻이 아니라, 간단하고 해석하기 쉬운 비교 기준이다. 실제 시스템에서는 문제 복잡도·학습 데이터량·실행 속도·설명 가능성·안전 요구를 함께 고려해 모델을 선정한다.</p>
+<h2 id="합성-데이터와-물리적-의미의-한계">04. 합성 데이터와 물리적 의미의 한계</h2>
+<p>실습에서는 속도 <code>speed</code>를 0~8m/s 범위에서 생성하고 교육용 목표값 <code>target</code>을 <code>0.4 + 0.08 × speed + noise</code>로 만든다. <code>noise</code>는 측정 오차처럼 보이는 작은 난수다. 목표는 모델이 직선 관계를 복원할 수 있는지 확인하는 것이며, <strong>0.4와 0.08은 실제 차량에서 측정하거나 승인받은 안전 상수가 아니다.</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">속도</th>
+<th style="text-align: right;">잡음 없는 교육용 정답</th>
+<th>해석</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0m/s</td>
+<td style="text-align: right;">0.40m</td>
+<td>모델의 절편 설명용</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2m/s</td>
+<td style="text-align: right;">0.56m</td>
+<td>속도가 2 증가하면 0.16 증가</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4m/s</td>
+<td style="text-align: right;">0.72m</td>
+<td>입력과 출력의 선형 관계</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8m/s</td>
+<td style="text-align: right;">1.04m</td>
+<td>학습 입력 범위의 상단</td>
+</tr>
+</tbody>
+</table>
+<p>현실의 제동거리는 반응 시간, 노면 마찰, 경사, 타이어, 제동 시스템, 제어 지연 등에 따라 달라진다. 이상화한 일정 감속 모델에서는 제동거리 항이 속도의 제곱에 비례한다. 따라서 이번 합성 식을 실제 주행 안전거리 계산에 사용하는 것은 기술적으로 잘못이다. 이후 로봇 실습에서는 실제 측정값과 안전 규정을 바탕으로 별도 제어 기준을 검증해야 한다.</p>
+<h2 id="데이터-배열자료형형상-이해">05. 데이터 배열·자료형·형상 이해</h2>
+<p><code>make_dataset()</code>은 <code>speed</code>와 <code>target</code>을 각각 <code>(160, 1)</code> 모양의 <code>torch.Tensor</code>로 만든다. 첫 번째 차원 160은 표본 개수, 두 번째 차원 1은 특징 수다. <code>float32</code>는 신경망 학습에 흔히 사용하는 실수 자료형이다. <code>np.random.default_rng(seed)</code>는 합성 데이터의 재현성을 위해 난수 발생기를 명시적으로 만든다.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a aria-hidden="true" href="#cb1-1" tabindex="-1"></a>speed, target <span class="op">=</span> make_dataset(n<span class="op">=</span><span class="dv">160</span>, seed<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb1-2"><a aria-hidden="true" href="#cb1-2" tabindex="-1"></a><span class="bu">print</span>(speed.shape, target.shape)</span>
+<span id="cb1-3"><a aria-hidden="true" href="#cb1-3" tabindex="-1"></a><span class="co"># torch.Size([160, 1]) torch.Size([160, 1])</span></span></code></pre></div>
+<p>표본 1개는 ’속도 입력 1개와 목표 거리 1개’의 짝이다. 입력과 정답의 표본 순서가 어긋나면 학습 대상 자체가 바뀐다. 학습 데이터에서 입력만 섞고 정답을 섞지 않는 실수를 피하기 위해 <code>split_dataset()</code>에서는 같은 무작위 인덱스를 입력과 정답에 함께 적용한다. <code>torch.randperm()</code>은 중복 없는 무작위 순서를 생성한다.</p>
+<h2 id="학습용평가용-데이터-분리">06. 학습용·평가용 데이터 분리</h2>
+<p>모델을 만든 뒤 같은 데이터로만 정확도를 재면, 단순 암기나 데이터 누출을 발견하기 어렵다. 여기서는 160개 중 128개(80%)를 학습에, 32개(20%)를 최종 평가에 사용한다. 평가 데이터는 <code>train()</code>에 넣지 않는다. <code>torch.Generator().manual_seed(11)</code>로 데이터 분할을 재현 가능하게 만든다.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a aria-hidden="true" href="#cb2-1" tabindex="-1"></a>train_set, test_set <span class="op">=</span> split_dataset(speed, target)</span>
+<span id="cb2-2"><a aria-hidden="true" href="#cb2-2" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(train_set[<span class="dv">0</span>]), <span class="bu">len</span>(test_set[<span class="dv">0</span>]))</span>
+<span id="cb2-3"><a aria-hidden="true" href="#cb2-3" tabindex="-1"></a><span class="co"># 128 32</span></span></code></pre></div>
+<p>학습 중 모델 구조·학습률을 반복 조정하면서 평가 데이터를 계속 참고하면 평가 데이터도 사실상 개발에 사용된다. 실무에서는 학습(train)·검증(validation)·시험(test) 세 집합으로 나누고 최종 시험 데이터는 모델 선택에 사용하지 않는다. 이번 차시는 60분 제한으로 두 집합만 사용하며, 이 한계를 명시한다. 이미지 데이터에서는 같은 장면의 연속 프레임을 무작위로 분리하면 데이터 누출이 발생할 수 있으므로 촬영 구간이나 주행 세션 단위 분할을 고려해야 한다.</p>
+<h2 id="선형회귀의-계산-구조">07. 선형회귀의 계산 구조</h2>
+<p>선형회귀 모델의 예측은 <code>ŷ = wx + b</code>로 나타낸다. <code>x</code>는 속도, <code>w</code>는 학습되는 기울기, <code>b</code>는 학습되는 절편, <code>ŷ</code>는 예측값이다. 예를 들어 <code>w</code>가 0.08이고 <code>b</code>가 0.40이면 속도 4에 대한 예측은 0.72가 된다. 학습 시작 시에는 <code>w</code>, <code>b</code>가 이 값으로 설정되어 있지 않으며, 오차를 줄이는 과정에서 조정된다.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a aria-hidden="true" href="#cb3-1" tabindex="-1"></a>linear <span class="op">=</span> torch.nn.Linear(<span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb3-2"><a aria-hidden="true" href="#cb3-2" tabindex="-1"></a><span class="co"># 입력 특징 1개를 출력 1개로 변환하는 학습 가능 선형층</span></span>
+<span id="cb3-3"><a aria-hidden="true" href="#cb3-3" tabindex="-1"></a>prediction <span class="op">=</span> linear(torch.tensor([[<span class="fl">4.0</span>]]))</span></code></pre></div>
+<p><code>Linear(1, 1)</code>의 학습 매개변수는 가중치 1개와 편향 1개로 총 2개다. 입력이 여러 특징을 가진다면 출력에 영향을 주는 가중치 수도 늘어난다. 실제 차량의 제어 변수를 학습할 때는 단위와 입력 범위를 먼저 정해야 하며, 속도(m/s)와 속도(km/h)를 혼용하면 같은 숫자라도 물리적으로 전혀 다른 뜻이 된다.</p>
+<h2 id="손실-함수와-평균제곱오차">08. 손실 함수와 평균제곱오차</h2>
+<p>손실 함수(Loss Function, 오차를 수치화하는 함수)는 예측과 정답의 차이를 학습 가능한 수치로 만든다. 평균제곱오차(MSE, Mean Squared Error)는 각 예측 오차를 제곱한 후 평균을 낸다. <code>MSE = (1/N) × Σ(ŷᵢ − yᵢ)²</code>이다. 예측 0.5, 0.8과 정답 0.4, 1.0이 있으면 오차는 0.1과 -0.2이며 제곱은 0.01과 0.04이다. 평균은 0.025가 된다.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a aria-hidden="true" href="#cb4-1" tabindex="-1"></a>loss_fn <span class="op">=</span> torch.nn.MSELoss()</span>
+<span id="cb4-2"><a aria-hidden="true" href="#cb4-2" tabindex="-1"></a>loss <span class="op">=</span> loss_fn(prediction, target_batch)</span></code></pre></div>
+<p>제곱하기 때문에 큰 오차의 영향이 더 커진다. MSE의 단위는 목표값 단위의 제곱이며, 목표가 m라면 MSE 단위는 m²이다. 평균절대오차(MAE, Mean Absolute Error)는 절댓값의 평균으로 목표 단위(m)를 그대로 유지하므로 결과 해석이 쉬울 수 있다. 본 실습에서는 학습에 MSE를 사용하고 평가 결과에 MSE와 MAE를 모두 기록한다.</p>
+<h2 id="경사하강법과-역전파">09. 경사하강법과 역전파</h2>
+<p>가중치의 변화가 손실을 어떻게 바꾸는지 알려주는 값이 기울기(gradient)다. PyTorch의 자동미분은 연산 그래프를 추적해 <code>loss.backward()</code> 호출 시 각 매개변수의 기울기를 계산한다. 최적화기(optimizer)는 이 기울기를 사용해 매개변수를 조정한다. <code>Adam</code>은 모멘트 추정값을 이용하는 대표적인 최적화기이며, 본 예제는 <code>lr=0.025</code>를 사용한다.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a aria-hidden="true" href="#cb5-1" tabindex="-1"></a>optimizer.zero_grad()  <span class="co"># 이전 반복의 기울기 누적 제거</span></span>
+<span id="cb5-2"><a aria-hidden="true" href="#cb5-2" tabindex="-1"></a>loss.backward()        <span class="co"># 연산 그래프를 따라 기울기 계산</span></span>
+<span id="cb5-3"><a aria-hidden="true" href="#cb5-3" tabindex="-1"></a>optimizer.step()       <span class="co"># 가중치와 편향 갱신</span></span></code></pre></div>
+<p><code>zero_grad()</code>를 생략하면 기본적으로 기울기가 누적되어 의도하지 않은 갱신이 일어날 수 있다. <code>backward()</code>는 매개변수를 직접 갱신하지 않으며 <code>step()</code>이 갱신을 수행한다. 학습률이 너무 크면 손실이 진동하거나 발산하고, 너무 작으면 제한된 반복 횟수 내에 충분히 학습하지 못할 수 있다. 실습에서는 매 반복의 손실을 <code>history</code>에 저장해 처음과 마지막을 비교한다.</p>
+<h2 id="선형회귀-학습-루프의-실제-동작">10. 선형회귀 학습 루프의 실제 동작</h2>
+<p><code>train()</code>은 매 반복에서 입력 전체를 모델에 넣고 예측을 계산한다. 이어서 MSE 손실을 계산하고 기울기를 구해 가중치를 갱신한다. 이번 데이터 128개는 작으므로 한 번에 처리하는 전체 배치 학습을 사용한다. 영상 데이터처럼 규모가 크면 미니배치 데이터로더를 사용하는 방식이 일반적이다.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a aria-hidden="true" href="#cb6-1" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(epochs):</span>
+<span id="cb6-2"><a aria-hidden="true" href="#cb6-2" tabindex="-1"></a>    model.train()</span>
+<span id="cb6-3"><a aria-hidden="true" href="#cb6-3" tabindex="-1"></a>    pred <span class="op">=</span> model(x)</span>
+<span id="cb6-4"><a aria-hidden="true" href="#cb6-4" tabindex="-1"></a>    loss <span class="op">=</span> loss_fn(pred, y)</span>
+<span id="cb6-5"><a aria-hidden="true" href="#cb6-5" tabindex="-1"></a>    optimizer.zero_grad()</span>
+<span id="cb6-6"><a aria-hidden="true" href="#cb6-6" tabindex="-1"></a>    loss.backward()</span>
+<span id="cb6-7"><a aria-hidden="true" href="#cb6-7" tabindex="-1"></a>    optimizer.step()</span>
+<span id="cb6-8"><a aria-hidden="true" href="#cb6-8" tabindex="-1"></a>    history.append(<span class="bu">float</span>(loss.detach()))</span></code></pre></div>
+<p><code>model.train()</code>은 학습 모드 전환이다. 드롭아웃·배치정규화 같은 층이 있을 때 동작에 영향을 준다. 이번 선형층에는 해당 층이 없지만 학습과 평가 코드를 구분하기 위해 명시한다. <code>loss.detach()</code>는 추적 중인 연산 그래프에서 분리된 손실 값을 기록하는 용도다. 이때의 손실 감소는 학습 데이터에 대한 최적화 결과이며, 독립 평가 데이터의 오차 감소를 자동으로 보장하지 않는다.</p>
+<h2 id="다층-퍼셉트론의-구조와-비선형성">11. 다층 퍼셉트론의 구조와 비선형성</h2>
+<p>MLP(Multi-Layer Perceptron, 다층 퍼셉트론)는 선형층과 비선형 활성화 함수를 결합한다. 이번 구조는 입력 1개 → 은닉 뉴런 8개 → 출력 1개다. <code>ReLU</code>는 입력이 0보다 작으면 0을 출력하고, 0 이상이면 입력을 그대로 통과시킨다. 비선형성이 없으면 여러 선형층을 겹쳐도 전체가 하나의 선형 변환과 동등해질 수 있다.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a aria-hidden="true" href="#cb7-1" tabindex="-1"></a><span class="kw">def</span> build_mlp():</span>
+<span id="cb7-2"><a aria-hidden="true" href="#cb7-2" tabindex="-1"></a>    <span class="cf">return</span> nn.Sequential(</span>
+<span id="cb7-3"><a aria-hidden="true" href="#cb7-3" tabindex="-1"></a>        nn.Linear(<span class="dv">1</span>, <span class="dv">8</span>),  <span class="co"># 입력 속도 1개 → 은닉 특징 8개</span></span>
+<span id="cb7-4"><a aria-hidden="true" href="#cb7-4" tabindex="-1"></a>        nn.ReLU(),        <span class="co"># 비선형 활성화</span></span>
+<span id="cb7-5"><a aria-hidden="true" href="#cb7-5" tabindex="-1"></a>        nn.Linear(<span class="dv">8</span>, <span class="dv">1</span>)   <span class="co"># 은닉 특징 8개 → 예측 거리 1개</span></span>
+<span id="cb7-6"><a aria-hidden="true" href="#cb7-6" tabindex="-1"></a>    )</span></code></pre></div>
+<p>첫 번째 선형층의 매개변수는 가중치 8개와 편향 8개로 16개, 마지막 층은 가중치 8개와 편향 1개로 9개이므로 전체는 25개다. 선형회귀의 2개보다 많다. 하지만 합성 데이터의 정답 생성 관계는 직선이므로 더 많은 매개변수를 가진 MLP가 반드시 더 작은 시험 오차를 보이지 않는다. <strong>복잡한 모델의 장점은 복잡한 관계를 표현할 수 있다는 가능성이지 항상 더 높은 정확도라는 보장이 아니다.</strong></p>
+<h2 id="평가-지표와-결과-해석">12. 평가 지표와 결과 해석</h2>
+<p><code>evaluate()</code>는 <code>model.eval()</code>과 <code>torch.no_grad()</code>를 사용해 학습과 다른 모드에서 예측한다. <code>no_grad()</code>는 평가 중 불필요한 자동미분 그래프를 만들지 않도록 한다. 결과는 MSE와 MAE로 저장한다. 실행 검증 환경에서는 선형회귀의 시험 MAE가 약 0.019m, MLP의 시험 MAE도 약 0.019m로 나타났다. 이는 난수 시드와 설치 버전·실행 환경에 따라 소폭 달라질 수 있다.</p>
+<table>
+<thead>
+<tr class="header">
+<th>항목</th>
+<th style="text-align: right;">선형회귀</th>
+<th style="text-align: right;">MLP</th>
+<th>해석</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>학습 표본</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">128</td>
+<td>동일한 학습 집합</td>
+</tr>
+<tr class="even">
+<td>평가 표본</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">32</td>
+<td>동일한 평가 집합</td>
+</tr>
+<tr class="odd">
+<td>시험 MSE</td>
+<td style="text-align: right;">약 0.00054</td>
+<td style="text-align: right;">약 0.00054</td>
+<td>제곱오차의 평균</td>
+</tr>
+<tr class="even">
+<td>시험 MAE</td>
+<td style="text-align: right;">약 0.019m</td>
+<td style="text-align: right;">약 0.019m</td>
+<td>평균 절대 오차</td>
+</tr>
+</tbody>
+</table>
+<p>두 모델이 비슷한 성능을 보인 것은 데이터가 선형 관계로 생성되었기 때문이다. 시험 오차가 낮더라도 실제 차량에 적용 가능한 안전 모델이라는 뜻은 아니다. 특히 실제 제동거리·장애물 회피·보행자 안전 같은 고위험 기능에는 현장 데이터와 엄격한 독립 검증, 비상정지 로직이 필요하다.</p>
+<h2 id="따라-하기-설치실행출력-파일">13. 따라 하기 — 설치·실행·출력 파일</h2>
+<p>아래 명령은 Ubuntu(우분투, 리눅스 운영체제)에서 Python 3과 <code>venv</code>가 설치되어 있다는 전제다. 먼저 <code>codes/ch07</code> 폴더로 이동한다. 기존 가상환경이 있으면 새 환경을 만들지 않고 해당 환경을 사용할 수 있다. PyTorch의 설치 명령은 CPU·GPU·운영체제에 따라 달라질 수 있으므로 공식 설치 선택기를 확인한다.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a aria-hidden="true" href="#cb8-1" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv .venv                 <span class="co"># 독립된 Python 실행 환경 생성</span></span>
+<span id="cb8-2"><a aria-hidden="true" href="#cb8-2" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate            <span class="co"># 가상환경 활성화</span></span>
+<span id="cb8-3"><a aria-hidden="true" href="#cb8-3" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install numpy torch    <span class="co"># 수치 배열 및 딥러닝 패키지 설치</span></span>
+<span id="cb8-4"><a aria-hidden="true" href="#cb8-4" tabindex="-1"></a><span class="ex">python</span> deep_learning_lab.py <span class="at">--outdir</span> outputs  <span class="co"># 합성 데이터 학습·평가 실행</span></span>
+<span id="cb8-5"><a aria-hidden="true" href="#cb8-5" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> unittest <span class="at">-v</span> test_deep_learning_lab.py  <span class="co"># 자동 테스트 실행</span></span></code></pre></div>
+<p>실행 후 <code>outputs/metrics.json</code>에는 학습·평가 표본 수와 MSE·MAE, 손실의 시작/종료 값이 기록된다. <code>outputs/predictions.csv</code>에는 속도 0, 4, 8m/s에 대한 두 모델의 예측이 저장된다. <code>metrics.json</code>은 정량 결과를 확인하기 위한 파일이고 <code>predictions.csv</code>는 스프레드시트에서 입력과 예측의 관계를 비교하기 위한 파일이다. 두 파일은 실습에서 직접 생성하므로 경로가 없으면 <code>--outdir</code> 옵션을 확인한다.</p>
+<h2 id="전체-실행-코드-데이터-생성부터-평가까지">14. 전체 실행 코드 — 데이터 생성부터 평가까지</h2>
+<p>아래 코드는 배포 패키지의 <code>codes/ch07/deep_learning_lab.py</code> 전체 내용과 동일하다. 코드가 길어도 함수별 역할을 구분해 읽으면 된다. <code>make_dataset()</code>은 정답 데이터를 만들고, <code>split_dataset()</code>은 학습·평가 데이터를 나누며, <code>train()</code>은 가중치를 갱신하고, <code>evaluate()</code>는 시험 지표를 계산한다. <code>run()</code>은 전체 실행 흐름을 묶는다.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a aria-hidden="true" href="#cb9-1" tabindex="-1"></a><span class="co">"""CH07: deterministic CPU-only linear regression and neural network practice."""</span></span>
+<span id="cb9-2"><a aria-hidden="true" href="#cb9-2" tabindex="-1"></a><span class="im">import</span> argparse</span>
+<span id="cb9-3"><a aria-hidden="true" href="#cb9-3" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb9-4"><a aria-hidden="true" href="#cb9-4" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb9-5"><a aria-hidden="true" href="#cb9-5" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb9-6"><a aria-hidden="true" href="#cb9-6" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb9-7"><a aria-hidden="true" href="#cb9-7" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb9-8"><a aria-hidden="true" href="#cb9-8" tabindex="-1"></a></span>
+<span id="cb9-9"><a aria-hidden="true" href="#cb9-9" tabindex="-1"></a></span>
+<span id="cb9-10"><a aria-hidden="true" href="#cb9-10" tabindex="-1"></a><span class="kw">def</span> seed_all(seed<span class="op">=</span><span class="dv">7</span>):</span>
+<span id="cb9-11"><a aria-hidden="true" href="#cb9-11" tabindex="-1"></a>    np.random.seed(seed)</span>
+<span id="cb9-12"><a aria-hidden="true" href="#cb9-12" tabindex="-1"></a>    torch.manual_seed(seed)</span>
+<span id="cb9-13"><a aria-hidden="true" href="#cb9-13" tabindex="-1"></a></span>
+<span id="cb9-14"><a aria-hidden="true" href="#cb9-14" tabindex="-1"></a></span>
+<span id="cb9-15"><a aria-hidden="true" href="#cb9-15" tabindex="-1"></a><span class="kw">def</span> make_dataset(n<span class="op">=</span><span class="dv">160</span>, seed<span class="op">=</span><span class="dv">7</span>):</span>
+<span id="cb9-16"><a aria-hidden="true" href="#cb9-16" tabindex="-1"></a>    <span class="co">"""Synthetic target: stop distance (m) = 0.4 + 0.08 * speed (m/s)."""</span></span>
+<span id="cb9-17"><a aria-hidden="true" href="#cb9-17" tabindex="-1"></a>    <span class="cf">if</span> n <span class="op">&lt;</span> <span class="dv">16</span>:</span>
+<span id="cb9-18"><a aria-hidden="true" href="#cb9-18" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'n must be &gt;= 16'</span>)</span>
+<span id="cb9-19"><a aria-hidden="true" href="#cb9-19" tabindex="-1"></a>    rng <span class="op">=</span> np.random.default_rng(seed)</span>
+<span id="cb9-20"><a aria-hidden="true" href="#cb9-20" tabindex="-1"></a>    speed <span class="op">=</span> rng.uniform(<span class="fl">0.0</span>, <span class="fl">8.0</span>, size<span class="op">=</span>(n, <span class="dv">1</span>)).astype(np.float32)</span>
+<span id="cb9-21"><a aria-hidden="true" href="#cb9-21" tabindex="-1"></a>    noise <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.025</span>, size<span class="op">=</span>(n, <span class="dv">1</span>)).astype(np.float32)</span>
+<span id="cb9-22"><a aria-hidden="true" href="#cb9-22" tabindex="-1"></a>    target <span class="op">=</span> <span class="fl">0.4</span> <span class="op">+</span> <span class="fl">0.08</span> <span class="op">*</span> speed <span class="op">+</span> noise</span>
+<span id="cb9-23"><a aria-hidden="true" href="#cb9-23" tabindex="-1"></a>    <span class="cf">return</span> torch.from_numpy(speed), torch.from_numpy(target)</span>
+<span id="cb9-24"><a aria-hidden="true" href="#cb9-24" tabindex="-1"></a></span>
+<span id="cb9-25"><a aria-hidden="true" href="#cb9-25" tabindex="-1"></a></span>
+<span id="cb9-26"><a aria-hidden="true" href="#cb9-26" tabindex="-1"></a><span class="kw">def</span> split_dataset(x, y, train_ratio<span class="op">=</span><span class="fl">0.8</span>):</span>
+<span id="cb9-27"><a aria-hidden="true" href="#cb9-27" tabindex="-1"></a>    <span class="co">"""Preserve a reproducible shuffled hold-out; no overlap."""</span></span>
+<span id="cb9-28"><a aria-hidden="true" href="#cb9-28" tabindex="-1"></a>    g <span class="op">=</span> torch.Generator().manual_seed(<span class="dv">11</span>)</span>
+<span id="cb9-29"><a aria-hidden="true" href="#cb9-29" tabindex="-1"></a>    idx <span class="op">=</span> torch.randperm(<span class="bu">len</span>(x), generator<span class="op">=</span>g)</span>
+<span id="cb9-30"><a aria-hidden="true" href="#cb9-30" tabindex="-1"></a>    cut <span class="op">=</span> <span class="bu">int</span>(<span class="bu">len</span>(x) <span class="op">*</span> train_ratio)</span>
+<span id="cb9-31"><a aria-hidden="true" href="#cb9-31" tabindex="-1"></a>    <span class="cf">return</span> (x[idx[:cut]], y[idx[:cut]]), (x[idx[cut:]], y[idx[cut:]])</span>
+<span id="cb9-32"><a aria-hidden="true" href="#cb9-32" tabindex="-1"></a></span>
+<span id="cb9-33"><a aria-hidden="true" href="#cb9-33" tabindex="-1"></a></span>
+<span id="cb9-34"><a aria-hidden="true" href="#cb9-34" tabindex="-1"></a><span class="kw">def</span> train(model, train_set, epochs<span class="op">=</span><span class="dv">300</span>, lr<span class="op">=</span><span class="fl">0.03</span>):</span>
+<span id="cb9-35"><a aria-hidden="true" href="#cb9-35" tabindex="-1"></a>    x, y <span class="op">=</span> train_set</span>
+<span id="cb9-36"><a aria-hidden="true" href="#cb9-36" tabindex="-1"></a>    loss_fn <span class="op">=</span> nn.MSELoss()</span>
+<span id="cb9-37"><a aria-hidden="true" href="#cb9-37" tabindex="-1"></a>    optimizer <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span>lr)</span>
+<span id="cb9-38"><a aria-hidden="true" href="#cb9-38" tabindex="-1"></a>    history <span class="op">=</span> []</span>
+<span id="cb9-39"><a aria-hidden="true" href="#cb9-39" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(epochs):</span>
+<span id="cb9-40"><a aria-hidden="true" href="#cb9-40" tabindex="-1"></a>        model.train()</span>
+<span id="cb9-41"><a aria-hidden="true" href="#cb9-41" tabindex="-1"></a>        pred <span class="op">=</span> model(x)</span>
+<span id="cb9-42"><a aria-hidden="true" href="#cb9-42" tabindex="-1"></a>        loss <span class="op">=</span> loss_fn(pred, y)</span>
+<span id="cb9-43"><a aria-hidden="true" href="#cb9-43" tabindex="-1"></a>        optimizer.zero_grad()</span>
+<span id="cb9-44"><a aria-hidden="true" href="#cb9-44" tabindex="-1"></a>        loss.backward()</span>
+<span id="cb9-45"><a aria-hidden="true" href="#cb9-45" tabindex="-1"></a>        optimizer.step()</span>
+<span id="cb9-46"><a aria-hidden="true" href="#cb9-46" tabindex="-1"></a>        history.append(<span class="bu">float</span>(loss.detach()))</span>
+<span id="cb9-47"><a aria-hidden="true" href="#cb9-47" tabindex="-1"></a>    <span class="cf">return</span> history</span>
+<span id="cb9-48"><a aria-hidden="true" href="#cb9-48" tabindex="-1"></a></span>
+<span id="cb9-49"><a aria-hidden="true" href="#cb9-49" tabindex="-1"></a></span>
+<span id="cb9-50"><a aria-hidden="true" href="#cb9-50" tabindex="-1"></a><span class="kw">def</span> evaluate(model, data):</span>
+<span id="cb9-51"><a aria-hidden="true" href="#cb9-51" tabindex="-1"></a>    model.<span class="bu">eval</span>()</span>
+<span id="cb9-52"><a aria-hidden="true" href="#cb9-52" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb9-53"><a aria-hidden="true" href="#cb9-53" tabindex="-1"></a>        x, y <span class="op">=</span> data</span>
+<span id="cb9-54"><a aria-hidden="true" href="#cb9-54" tabindex="-1"></a>        pred <span class="op">=</span> model(x)</span>
+<span id="cb9-55"><a aria-hidden="true" href="#cb9-55" tabindex="-1"></a>        mse <span class="op">=</span> torch.mean((pred <span class="op">-</span> y) <span class="op">**</span> <span class="dv">2</span>).item()</span>
+<span id="cb9-56"><a aria-hidden="true" href="#cb9-56" tabindex="-1"></a>        mae <span class="op">=</span> torch.mean(torch.<span class="bu">abs</span>(pred <span class="op">-</span> y)).item()</span>
+<span id="cb9-57"><a aria-hidden="true" href="#cb9-57" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'mse'</span>: <span class="bu">round</span>(mse, <span class="dv">6</span>), <span class="st">'mae'</span>: <span class="bu">round</span>(mae, <span class="dv">6</span>)}</span>
+<span id="cb9-58"><a aria-hidden="true" href="#cb9-58" tabindex="-1"></a></span>
+<span id="cb9-59"><a aria-hidden="true" href="#cb9-59" tabindex="-1"></a></span>
+<span id="cb9-60"><a aria-hidden="true" href="#cb9-60" tabindex="-1"></a><span class="kw">def</span> build_mlp():</span>
+<span id="cb9-61"><a aria-hidden="true" href="#cb9-61" tabindex="-1"></a>    <span class="cf">return</span> nn.Sequential(nn.Linear(<span class="dv">1</span>, <span class="dv">8</span>), nn.ReLU(), nn.Linear(<span class="dv">8</span>, <span class="dv">1</span>))</span>
+<span id="cb9-62"><a aria-hidden="true" href="#cb9-62" tabindex="-1"></a></span>
+<span id="cb9-63"><a aria-hidden="true" href="#cb9-63" tabindex="-1"></a></span>
+<span id="cb9-64"><a aria-hidden="true" href="#cb9-64" tabindex="-1"></a><span class="kw">def</span> run(outdir<span class="op">=</span><span class="st">'outputs'</span>):</span>
+<span id="cb9-65"><a aria-hidden="true" href="#cb9-65" tabindex="-1"></a>    seed_all()</span>
+<span id="cb9-66"><a aria-hidden="true" href="#cb9-66" tabindex="-1"></a>    x, y <span class="op">=</span> make_dataset()</span>
+<span id="cb9-67"><a aria-hidden="true" href="#cb9-67" tabindex="-1"></a>    train_set, test_set <span class="op">=</span> split_dataset(x, y)</span>
+<span id="cb9-68"><a aria-hidden="true" href="#cb9-68" tabindex="-1"></a>    linear <span class="op">=</span> nn.Linear(<span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb9-69"><a aria-hidden="true" href="#cb9-69" tabindex="-1"></a>    linear_history <span class="op">=</span> train(linear, train_set, epochs<span class="op">=</span><span class="dv">400</span>, lr<span class="op">=</span><span class="fl">0.025</span>)</span>
+<span id="cb9-70"><a aria-hidden="true" href="#cb9-70" tabindex="-1"></a>    seed_all()</span>
+<span id="cb9-71"><a aria-hidden="true" href="#cb9-71" tabindex="-1"></a>    mlp <span class="op">=</span> build_mlp()</span>
+<span id="cb9-72"><a aria-hidden="true" href="#cb9-72" tabindex="-1"></a>    mlp_history <span class="op">=</span> train(mlp, train_set, epochs<span class="op">=</span><span class="dv">400</span>, lr<span class="op">=</span><span class="fl">0.025</span>)</span>
+<span id="cb9-73"><a aria-hidden="true" href="#cb9-73" tabindex="-1"></a>    metrics <span class="op">=</span> {</span>
+<span id="cb9-74"><a aria-hidden="true" href="#cb9-74" tabindex="-1"></a>        <span class="st">'train_count'</span>: <span class="bu">len</span>(train_set[<span class="dv">0</span>]), <span class="st">'test_count'</span>: <span class="bu">len</span>(test_set[<span class="dv">0</span>]),</span>
+<span id="cb9-75"><a aria-hidden="true" href="#cb9-75" tabindex="-1"></a>        <span class="st">'linear'</span>: evaluate(linear, test_set), <span class="st">'mlp'</span>: evaluate(mlp, test_set),</span>
+<span id="cb9-76"><a aria-hidden="true" href="#cb9-76" tabindex="-1"></a>        <span class="st">'linear_first_last_loss'</span>: [<span class="bu">round</span>(linear_history[<span class="dv">0</span>], <span class="dv">6</span>), <span class="bu">round</span>(linear_history[<span class="op">-</span><span class="dv">1</span>], <span class="dv">6</span>)],</span>
+<span id="cb9-77"><a aria-hidden="true" href="#cb9-77" tabindex="-1"></a>        <span class="st">'mlp_first_last_loss'</span>: [<span class="bu">round</span>(mlp_history[<span class="dv">0</span>], <span class="dv">6</span>), <span class="bu">round</span>(mlp_history[<span class="op">-</span><span class="dv">1</span>], <span class="dv">6</span>)],</span>
+<span id="cb9-78"><a aria-hidden="true" href="#cb9-78" tabindex="-1"></a>    }</span>
+<span id="cb9-79"><a aria-hidden="true" href="#cb9-79" tabindex="-1"></a>    outdir <span class="op">=</span> Path(outdir)</span>
+<span id="cb9-80"><a aria-hidden="true" href="#cb9-80" tabindex="-1"></a>    outdir.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-81"><a aria-hidden="true" href="#cb9-81" tabindex="-1"></a>    (outdir <span class="op">/</span> <span class="st">'metrics.json'</span>).write_text(json.dumps(metrics, indent<span class="op">=</span><span class="dv">2</span>), encoding<span class="op">=</span><span class="st">'utf-8'</span>)</span>
+<span id="cb9-82"><a aria-hidden="true" href="#cb9-82" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb9-83"><a aria-hidden="true" href="#cb9-83" tabindex="-1"></a>        speeds <span class="op">=</span> torch.tensor([[<span class="fl">0.0</span>], [<span class="fl">4.0</span>], [<span class="fl">8.0</span>]])</span>
+<span id="cb9-84"><a aria-hidden="true" href="#cb9-84" tabindex="-1"></a>        rows <span class="op">=</span> [<span class="st">'speed_mps,linear_m,mlp_m'</span>]</span>
+<span id="cb9-85"><a aria-hidden="true" href="#cb9-85" tabindex="-1"></a>        <span class="cf">for</span> speed, a, b <span class="kw">in</span> <span class="bu">zip</span>(speeds, linear(speeds), mlp(speeds)):</span>
+<span id="cb9-86"><a aria-hidden="true" href="#cb9-86" tabindex="-1"></a>            rows.append(<span class="ss">f'</span><span class="sc">{</span>speed<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">,</span><span class="sc">{</span>a<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">,</span><span class="sc">{</span>b<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">'</span>)</span>
+<span id="cb9-87"><a aria-hidden="true" href="#cb9-87" tabindex="-1"></a>    (outdir <span class="op">/</span> <span class="st">'predictions.csv'</span>).write_text(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join(rows) <span class="op">+</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span>, encoding<span class="op">=</span><span class="st">'utf-8'</span>)</span>
+<span id="cb9-88"><a aria-hidden="true" href="#cb9-88" tabindex="-1"></a>    <span class="bu">print</span>(json.dumps(metrics, ensure_ascii<span class="op">=</span><span class="va">False</span>, indent<span class="op">=</span><span class="dv">2</span>))</span>
+<span id="cb9-89"><a aria-hidden="true" href="#cb9-89" tabindex="-1"></a>    <span class="cf">return</span> metrics</span>
+<span id="cb9-90"><a aria-hidden="true" href="#cb9-90" tabindex="-1"></a></span>
+<span id="cb9-91"><a aria-hidden="true" href="#cb9-91" tabindex="-1"></a></span>
+<span id="cb9-92"><a aria-hidden="true" href="#cb9-92" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">'__main__'</span>:</span>
+<span id="cb9-93"><a aria-hidden="true" href="#cb9-93" tabindex="-1"></a>    parser <span class="op">=</span> argparse.ArgumentParser()</span>
+<span id="cb9-94"><a aria-hidden="true" href="#cb9-94" tabindex="-1"></a>    parser.add_argument(<span class="st">'--outdir'</span>, default<span class="op">=</span><span class="st">'outputs'</span>)</span>
+<span id="cb9-95"><a aria-hidden="true" href="#cb9-95" tabindex="-1"></a>    args <span class="op">=</span> parser.parse_args()</span>
+<span id="cb9-96"><a aria-hidden="true" href="#cb9-96" tabindex="-1"></a>    run(args.outdir)</span></code></pre></div>
+<h2 id="테스트오류-점검실험-기록">15. 테스트·오류 점검·실험 기록</h2>
+<p>자동 테스트는 ① 입력·정답 배열 모양 ② 난수 재현성 ③ 학습·평가 개수 ④ 잘못된 표본 개수 예외 ⑤ MLP 출력 모양 ⑥ 학습 손실 감소 ⑦ 평가 지표의 비음수 조건 ⑧ 전체 실행 및 파일 생성·허용 오차를 확인한다. 테스트가 통과했다는 사실은 코드의 해당 조건이 충족되었다는 뜻이며, 모든 물리적 조건을 검증했다는 의미는 아니다.</p>
+<table>
+<colgroup>
+<col style="width: 33%"/>
+<col style="width: 33%"/>
+<col style="width: 33%"/>
+</colgroup>
+<thead>
+<tr class="header">
+<th>증상</th>
+<th>원인 후보</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ModuleNotFoundError: torch</code></td>
+<td>다른 Python 환경 실행</td>
+<td><code>which python</code>, <code>python -m pip show torch</code> 확인</td>
+</tr>
+<tr class="even">
+<td>손실이 <code>nan</code>으로 변함</td>
+<td>과도한 학습률·잘못된 입력</td>
+<td>입력 범위·유한값·학습률 확인</td>
+</tr>
+<tr class="odd">
+<td>예측 모양 오류</td>
+<td><code>(N,)</code>과 <code>(N,1)</code> 혼동</td>
+<td><code>tensor.shape</code> 출력 후 입력 정렬</td>
+</tr>
+<tr class="even">
+<td>CPU에서 실행이 느림</td>
+<td>패키지 초기화·과도한 반복</td>
+<td>첫 실행 시간을 분리해 측정</td>
+</tr>
+<tr class="odd">
+<td>결과 파일 없음</td>
+<td>다른 작업 디렉터리</td>
+<td><code>--outdir outputs</code>와 현재 경로 확인</td>
+</tr>
+<tr class="even">
+<td>평가 오차가 더 큼</td>
+<td>표본 분할·잡음·과적합</td>
+<td>학습·평가 데이터 분리와 지표 확인</td>
+</tr>
+</tbody>
+</table>
+<p><strong>적대적 점검:</strong> 선형 관계에서 MLP가 항상 우월하다는 주장을 금지한다. 교육용 목표 거리를 실제 제동거리로 해석하지 않는다. 동일 시험 집합으로 반복적인 모델 선택을 하지 않는다. 실물 제어 미검증을 문서에 명시한다. 안전 임계값과 주행 허용 조건을 이번 학습 모델의 예측값으로 대체하지 않는다.</p>
+<h2 id="선택-심화-조건을-바꾸어-재실험">16. 선택 심화 — 조건을 바꾸어 재실험</h2>
+<p><strong>실험 A — 학습률:</strong> <code>lr=0.025</code>를 <code>0.0025</code>와 <code>0.1</code>로 각각 바꾸고 손실 감소 속도를 비교한다. 너무 높은 학습률에서 손실이 불안정해질 수 있다. 실험 결과가 달라지면 처음과 마지막 손실을 함께 기록한다.</p>
+<p><strong>실험 B — 비선형 데이터:</strong> 목표값 생성 식에 속도의 제곱 항을 추가한 뒤 선형회귀와 MLP의 시험 MAE를 비교한다. 다만 표본 수·잡음·학습 반복 횟수에 따라 결과가 달라질 수 있으므로 ’MLP가 반드시 이긴다’는 결론을 미리 정하지 않는다.</p>
+<p><strong>실험 C — 과적합:</strong> 표본 수를 줄이거나 은닉 뉴런 수를 크게 늘려 학습 오차와 시험 오차를 비교한다. 학습 오차만 감소하고 시험 오차가 커지는 현상을 관찰한다. 실제 영상 인식 모델에서는 촬영 환경·조도·배경·카메라 각도 차이가 일반화 성능을 크게 바꿀 수 있다.</p>
+<h2 id="다음-차시-연결과-핵심-정리">17. 다음 차시 연결과 핵심 정리</h2>
+<p>이번 차시의 입력은 숫자 1개였지만 다음 08차시에서는 영상의 픽셀 또는 추출 특징이 입력이 된다. 모델의 출력도 연속 거리값에서 이미지 클래스별 점수로 바뀐다. 회귀는 연속값을 예측하고 분류는 범주를 예측한다. 입력과 출력이 달라져도 <strong>데이터 준비 → 학습·평가 분리 → 모델 정의 → 손실 계산 → 역전파 → 평가</strong>라는 기본 흐름은 이어진다.</p>
+<p>핵심 확인 질문: ① 학습과 추론의 차이는 무엇인가? ② <code>zero_grad</code>, <code>backward</code>, <code>step</code>의 역할은 무엇인가? ③ 선형 데이터에서 MLP가 반드시 우수하지 않은 이유는 무엇인가? ④ 시험 MAE 0.019m가 실제 주행 안전을 보장하지 않는 이유는 무엇인가? 각 질문에 모델 구조·데이터 조건·물리적 안전을 연결해 답한다.</p>
+<h2 id="공식-참고자료-및-검증-범위">18. 공식 참고자료 및 검증 범위</h2>
+<ul>
+<li><a href="https://pytorch.org/get-started/locally/">PyTorch 공식 시작 안내</a> — 운영체제·CPU/GPU별 설치 선택</li>
+<li><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Linear.html">PyTorch <code>nn.Linear</code> 문서</a> — 선형층 입력·출력 및 매개변수</li>
+<li><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.MSELoss.html">PyTorch <code>MSELoss</code> 문서</a> — 평균제곱오차</li>
+<li><a href="https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html">PyTorch Autograd 튜토리얼</a> — 자동미분과 역전파</li>
+<li><a href="https://docs.pytorch.org/docs/stable/optim.html">PyTorch Optimizer 문서</a> — 매개변수 갱신</li>
+<li><a href="https://numpy.org/doc/stable/reference/random/generator.html">NumPy 난수 생성 문서</a> — 재현 가능한 합성 데이터</li>
+<li><a href="https://docs.python.org/3/library/venv.html">Python <code>venv</code> 문서</a> — 가상환경 구성</li>
+</ul>
+<p><strong>검증 완료:</strong> 합성 데이터 기반 CPU 코드, 자동 테스트, 결과 파일 생성. <strong>미검증:</strong> 알티노 AI 전용 SDK, Jetson 탑재 환경에서의 동일 실행, 실제 카메라·라이다 데이터 학습, 실물 주행 및 안전성. 실제 로봇에 적용하기 전에 제조사 제공 인터페이스와 전기적·기계적 안전 조건을 별도 확인해야 한다.</p>
+<h2 id="수치-예제-손실을-직접-계산하고-모델-갱신을-추적">19. 수치 예제 — 손실을 직접 계산하고 모델 갱신을 추적</h2>
+<p>학습을 단순히 <code>train()</code> 함수 호출로 이해하지 않도록 표본 3개를 이용해 계산 과정을 확인한다. 정답이 각각 0.40, 0.56, 0.72이고 모델 예측이 0.45, 0.50, 0.80이라고 가정한다. 표본별 오차는 0.05, -0.06, 0.08이다. 제곱 오차는 0.0025, 0.0036, 0.0064이고 합계는 0.0125이다. 따라서 세 표본의 MSE는 약 0.004167m²이다. 모델의 출력이 정답과 완전히 같다면 MSE는 0이다. 그러나 학습 데이터에 대한 MSE가 0이라고 해서 새로운 환경에서도 오차가 0이라는 뜻은 아니다.</p>
+<table>
+<thead>
+<tr class="header">
+<th>표본</th>
+<th style="text-align: right;">속도(m/s)</th>
+<th style="text-align: right;">정답(m)</th>
+<th style="text-align: right;">예측(m)</th>
+<th style="text-align: right;">오차(m)</th>
+<th style="text-align: right;">제곱오차(m²)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.40</td>
+<td style="text-align: right;">0.45</td>
+<td style="text-align: right;">+0.05</td>
+<td style="text-align: right;">0.0025</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.56</td>
+<td style="text-align: right;">0.50</td>
+<td style="text-align: right;">-0.06</td>
+<td style="text-align: right;">0.0036</td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.72</td>
+<td style="text-align: right;">0.80</td>
+<td style="text-align: right;">+0.08</td>
+<td style="text-align: right;">0.0064</td>
+</tr>
+<tr class="even">
+<td>합계</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">0.0125</td>
+</tr>
+</tbody>
+</table>
+<p>다음 코드를 별도 Python 셸에서 실행하면 같은 계산을 재현할 수 있다. <code>torch.tensor</code>의 기본 부동소수점 표현 때문에 출력 마지막 자리에서 반올림 차이가 발생할 수 있다. 수학적 결과와 컴퓨터의 근삿값을 구별한다.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a aria-hidden="true" href="#cb10-1" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb10-2"><a aria-hidden="true" href="#cb10-2" tabindex="-1"></a></span>
+<span id="cb10-3"><a aria-hidden="true" href="#cb10-3" tabindex="-1"></a>target <span class="op">=</span> torch.tensor([<span class="fl">0.40</span>, <span class="fl">0.56</span>, <span class="fl">0.72</span>])</span>
+<span id="cb10-4"><a aria-hidden="true" href="#cb10-4" tabindex="-1"></a>pred <span class="op">=</span> torch.tensor([<span class="fl">0.45</span>, <span class="fl">0.50</span>, <span class="fl">0.80</span>])</span>
+<span id="cb10-5"><a aria-hidden="true" href="#cb10-5" tabindex="-1"></a>error <span class="op">=</span> pred <span class="op">-</span> target</span>
+<span id="cb10-6"><a aria-hidden="true" href="#cb10-6" tabindex="-1"></a>squared <span class="op">=</span> error <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb10-7"><a aria-hidden="true" href="#cb10-7" tabindex="-1"></a>mse <span class="op">=</span> squared.mean()</span>
+<span id="cb10-8"><a aria-hidden="true" href="#cb10-8" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'오차:'</span>, error)</span>
+<span id="cb10-9"><a aria-hidden="true" href="#cb10-9" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'제곱오차:'</span>, squared)</span>
+<span id="cb10-10"><a aria-hidden="true" href="#cb10-10" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'MSE:'</span>, <span class="bu">round</span>(mse.item(), <span class="dv">6</span>))</span>
+<span id="cb10-11"><a aria-hidden="true" href="#cb10-11" tabindex="-1"></a><span class="co"># MSE: 0.004167</span></span></code></pre></div>
+<p>이 예제에서 <code>error</code>는 정답과 예측의 차이를 가진 길이 3의 배열이다. <code>error ** 2</code>는 각 원소를 독립적으로 제곱하는 요소별 연산이다. <code>mean()</code>은 원소 수로 나누어 평균을 계산한다. 이러한 텐서 연산은 앞선 NumPy 차시에서 배운 배열 연산과 개념적으로 연결된다. 다만 PyTorch의 텐서는 자동미분과 GPU 계산을 지원한다는 점에서 추가 기능을 가진다.</p>
+<h2 id="모델-매개변수와-입력-범위의-관계">20. 모델 매개변수와 입력 범위의 관계</h2>
+<p>선형회귀에서 학습되는 매개변수는 <code>weight</code>와 <code>bias</code>이다. 학습이 완료된 후 <code>linear.weight</code>와 <code>linear.bias</code>를 출력하면 모델이 찾아낸 직선의 기울기와 절편을 관찰할 수 있다. 데이터에 잡음이 포함되어 있으므로 정확히 0.08과 0.40이 나오지 않을 수 있다. <code>print(linear.weight.item(), linear.bias.item())</code>는 스칼라 매개변수의 현재 값을 확인하는 명령이다. 이 코드는 <code>run()</code> 내부에서 선형 모델을 학습한 직후 실행해야 한다.</p>
+<p>모델이 학습한 범위를 벗어난 입력은 외삽(extrapolation)이다. 예를 들어 0~8m/s에서만 학습한 모델에 20m/s를 넣으면 선형회귀는 계산 결과를 반환하지만 그 예측을 신뢰할 근거가 부족하다. 특히 신경망은 학습 범위 밖에서 예상하지 못한 값을 낼 수 있다. 모델의 출력값이 존재한다는 사실과 출력값이 안전하고 정확하다는 판단은 다르다.</p>
+<p>실습에서는 입력을 정규화하지 않았지만 입력 변수의 단위가 여러 개로 늘어나면 특징별 크기 차이가 학습을 방해할 수 있다. 예를 들어 속도는 0~8, 거리 센서는 0~2000, 영상 픽셀 값은 0~255의 범위를 가진다. 이를 하나의 신경망에 직접 입력하면 어떤 특징의 값이 수치적으로 큰지에 따라 최적화가 불안정해질 수 있다. 학습 데이터에서 구한 평균·표준편차로 입력을 표준화하고, 평가·추론에도 동일한 변환을 적용하는 방법이 있다. 평가 데이터 전체를 미리 사용해 평균·표준편차를 구하면 데이터 누출이 발생할 수 있으므로 변환 기준은 학습 데이터에서 결정해야 한다.</p>
+<h2 id="회귀와-분류의-손실-함수-비교">21. 회귀와 분류의 손실 함수 비교</h2>
+<p>이번 실습은 연속 거리값을 예측하므로 회귀 문제다. 회귀에서 흔히 쓰는 손실은 MSE나 MAE이다. 다음 차시의 이미지 분류에서는 각 클래스의 점수를 출력하고 정답 클래스와 비교하는 방식이 필요하다. PyTorch에서는 다중 클래스 분류에 <code>CrossEntropyLoss</code>를 흔히 사용한다. 이 손실은 모델의 로짓(logit, 정규화 전 클래스 점수)과 정답 클래스 인덱스를 입력받는 경우가 일반적이다. 따라서 회귀 코드의 <code>MSELoss</code>를 분류 문제에 무조건 그대로 사용하는 것은 적절하지 않다.</p>
+<table>
+<colgroup>
+<col style="width: 33%"/>
+<col style="width: 33%"/>
+<col style="width: 33%"/>
+</colgroup>
+<thead>
+<tr class="header">
+<th>항목</th>
+<th>이번 차시: 회귀</th>
+<th>다음 차시: 분류</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>입력</td>
+<td>속도 수치 1개</td>
+<td>이미지 또는 이미지 특징</td>
+</tr>
+<tr class="even">
+<td>정답</td>
+<td>연속 거리값</td>
+<td>클래스 번호</td>
+</tr>
+<tr class="odd">
+<td>출력층</td>
+<td>뉴런 1개</td>
+<td>클래스 수에 대응하는 출력</td>
+</tr>
+<tr class="even">
+<td>대표 손실</td>
+<td><code>MSELoss</code></td>
+<td><code>CrossEntropyLoss</code></td>
+</tr>
+<tr class="odd">
+<td>대표 지표</td>
+<td>MAE, MSE</td>
+<td>정확도, 정밀도, 재현율</td>
+</tr>
+<tr class="even">
+<td>오류 사례</td>
+<td>실제값보다 0.2m 크게 예측</td>
+<td>정지 표지판을 다른 클래스로 분류</td>
+</tr>
+</tbody>
+</table>
+<p>실제 자율주행에서는 회귀와 분류가 함께 사용될 수 있다. 카메라로 신호등의 색을 분류하면서 다른 모델이 차선 위치를 연속값으로 추정하는 것이 한 예다. 그러나 각 모델의 출력은 확률·거리·좌표 등 의미와 단위가 다르다. 서로 다른 출력값을 그대로 더하거나 같은 임계값으로 비교하지 않고, 데이터 형식과 신뢰도 해석을 먼저 정의해야 한다.</p>
+<h2 id="종합-점검표와-실습-기록-양식">22. 종합 점검표와 실습 기록 양식</h2>
+<p>실습을 완료하면 다음 표에 실제 실행값을 기록한다. 코드가 동작하더라도 학습 데이터와 평가 데이터의 개수가 잘못되었거나 출력 파일을 확인하지 않았다면 실습 완료로 처리하지 않는다. 예상값은 동일한 시드와 CPU 실행 환경에서의 참고값이다. 패키지 버전에 따른 작은 수치 차이는 허용하되, 오차가 크게 증가하면 원인을 확인한다.</p>
+<table>
+<thead>
+<tr class="header">
+<th>점검</th>
+<th>기대 결과</th>
+<th>실제 확인</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>speed.shape</code></td>
+<td><code>(160, 1)</code></td>
+<td>기록</td>
+</tr>
+<tr class="even">
+<td><code>target.shape</code></td>
+<td><code>(160, 1)</code></td>
+<td>기록</td>
+</tr>
+<tr class="odd">
+<td>학습 표본 수</td>
+<td>128개</td>
+<td>기록</td>
+</tr>
+<tr class="even">
+<td>평가 표본 수</td>
+<td>32개</td>
+<td>기록</td>
+</tr>
+<tr class="odd">
+<td>선형회귀 손실</td>
+<td>시작보다 종료가 작음</td>
+<td>기록</td>
+</tr>
+<tr class="even">
+<td>MLP 손실</td>
+<td>시작보다 종료가 작음</td>
+<td>기록</td>
+</tr>
+<tr class="odd">
+<td>선형회귀 MAE</td>
+<td>약 0.019m</td>
+<td>기록</td>
+</tr>
+<tr class="even">
+<td>MLP MAE</td>
+<td>약 0.019m</td>
+<td>기록</td>
+</tr>
+<tr class="odd">
+<td><code>metrics.json</code></td>
+<td>생성됨</td>
+<td>기록</td>
+</tr>
+<tr class="even">
+<td><code>predictions.csv</code></td>
+<td>생성됨</td>
+<td>기록</td>
+</tr>
+<tr class="odd">
+<td>자동 테스트</td>
+<td>8개 통과</td>
+<td>기록</td>
+</tr>
+</tbody>
+</table>
+<p><strong>실습 보고 문장 예시:</strong> “합성 데이터 160개를 128개 학습과 32개 평가로 나누어 두 모델을 학습했다. 두 모델의 평가 MAE는 약 0.019m였다. 단순 선형 관계에서는 복잡한 MLP가 선형회귀보다 우수하다고 단정할 수 없었다. 이 결과는 실제 알티노 AI 주행 성능 검증이 아니다.” 이처럼 데이터 조건, 비교 결과, 적용 한계를 한 문단 안에 기록한다.</p>
+<h2 id="안전성재현성공개-배포-전-확인">23. 안전성·재현성·공개 배포 전 확인</h2>
+<p>딥러닝 모델은 학습 시점의 데이터 분포와 다르게 동작할 수 있다. 실제 주행 로봇에 연결할 경우 모델 예측값을 제어기에 전달하기 전에 유효 입력 범위, 결측값, 센서 갱신 주기, 통신 지연, 명령 유효 시간, 최대 속도, 긴급 정지 조건을 별도로 검증해야 한다. 학습 데이터에서 좋은 수치를 얻었다는 사실만으로 제어 허용 범위를 확대해서는 안 된다.</p>
+<p>배포 패키지에는 실행 코드, 테스트 코드, 결과 파일, 교재와 구조도를 포함한다. 가상환경 폴더나 사용자의 홈 경로, 인증 토큰, 장비의 내부 네트워크 주소는 포함하지 않는다. 교재의 실습 명령은 프로젝트 상대경로를 사용한다. 사용자가 파일을 다른 디렉터리로 옮겨도 코드와 데이터의 관계가 유지되는지 확인한다. 실제 장비 캡처 화면을 나중에 추가한다면 사용자 이름·계정·시리얼 번호·네트워크 정보가 포함되지 않도록 먼저 검토한다.</p>
+</main><footer>자율주행 자동차 로봇을 활용한 피지컬 AI · 07/12</footer><nav aria-label="차시 이동" class="audit-chapter-nav"><a href="ch06.html">← 06차시</a><a href="../index.html">전체 목차</a><a href="ch08.html">08차시 →</a></nav></body></html>

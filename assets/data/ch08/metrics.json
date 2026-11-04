@@ -1,0 +1,30 @@
+{
+  "classes": [
+    "circle",
+    "square",
+    "triangle"
+  ],
+  "train_count": 96,
+  "test_count": 24,
+  "accuracy": 0.875,
+  "confusion_matrix": [
+    [
+      7,
+      0,
+      1
+    ],
+    [
+      1,
+      7,
+      0
+    ],
+    [
+      1,
+      0,
+      7
+    ]
+  ],
+  "first_prediction": "triangle",
+  "first_confidence": 0.9621,
+  "note": "합성 도형 평가 정확도이며 실제 도로 객체 성능이 아님"
+}

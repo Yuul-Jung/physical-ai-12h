@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>03차시 | 카메라·라이다</title><style>@page{size:A4;margin:14mm 16mm 15mm}*{box-sizing:border-box}body{font-family:"Noto Sans CJK KR","Noto Sans KR",sans-serif;color:#17243a;background:#f1f5f9;line-height:1.53;margin:0}main{max-width:950px;margin:0 auto;background:white;padding:32px 45px}h1{font-size:27px;color:#12375d}h2{font-size:22px;border-bottom:2px solid #bfdbfe;padding-bottom:8px;color:#16446f}h3{font-size:16px;color:#16446f}p,li{font-size:13.5px}table{border-collapse:collapse;width:100%;font-size:12px}td,th{border:1px solid #cbd5e1;padding:6px}th{background:#eaf2fc}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef2f6;border-left:3px solid #2563eb;padding:10px;font:10px/1.4 monospace}code{overflow-wrap:anywhere}blockquote{border-left:4px solid #60a5fa;padding:8px 16px;background:#eff6ff}nav{background:#e8f1fc;padding:10px 16px;border-radius:8px}nav a{margin-right:16px}section{margin-top:28px}img{max-width:100%}.diagram{width:100%;margin:15px 0}.pagebreak{break-before:page;page-break-before:always}footer{margin-top:28px;font-size:11px;color:#64748b}@media print{body{background:white}main{max-width:none;padding:0}nav{display:none}section{margin-top:0}h2{break-after:avoid}pre{break-inside:auto}table{break-inside:avoid}a{color:inherit;text-decoration:none}}</style><style>.audit-chapter-nav{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:2em auto;padding:14px;border-top:1px solid #ccd7e1;max-width:960px;font:500 14px/1.5 system-ui,sans-serif}.audit-chapter-nav a{color:#134e78;text-decoration:underline;padding:5px 8px}.audit-note,.verified-supplement{max-width:100%;margin-top:2em} .verified-supplement pre,.audit-note pre{white-space:pre-wrap;word-break:break-word} @media print {.audit-chapter-nav {display:none!important} .verified-supplement pre,.audit-note pre{white-space:pre-wrap;overflow-wrap:anywhere}}</style></head><body><main><h1>03차시 | 카메라·라이다 데이터 출력과 제어 기초</h1><p>피지컬 AI · 1일차 3교시 · 60분 · 모의 센서 데이터 실습 검증 / 알티노 AI 실제 연결 미검증</p><nav><a href="ch02.html">← 02차시</a><a href="../index.html">전체 목차</a><span aria-disabled="true">04차시 → 제작 예정</span></nav><figure class="diagram"><svg aria-label="카메라와 라이다 입력이 별도 처리된 뒤 판단 상태로 합쳐지는 구조" role="img" viewbox="0 0 950 180" xmlns="http://www.w3.org/2000/svg"><rect fill="#f1f5f9" height="180" rx="16" width="950"></rect><g font-family="sans-serif" font-size="17" text-anchor="middle"><rect fill="#dbeafe" height="50" rx="9" width="160" x="24" y="25"></rect><text x="104" y="56">카메라 프레임</text><rect fill="#dcfce7" height="50" rx="9" width="160" x="24" y="105"></rect><text x="104" y="136">라이다 스캔</text><rect fill="#dbeafe" height="50" rx="9" width="210" x="290" y="25"></rect><text x="395" y="56">배열·영상 확인</text><rect fill="#dcfce7" height="50" rx="9" width="210" x="290" y="105"></rect><text x="395" y="136">거리 필터·좌표 변환</text><rect fill="#fef3c7" height="50" rx="9" width="260" x="650" y="65"></rect><text x="780" y="96">판단 상태·파일 저장</text></g><g fill="none" stroke="#64748b" stroke-width="3"><path d="M184 50 H290 M184 130 H290 M500 50 H570 V90 H650 M500 130 H570 V90"></path></g></svg><figcaption>그림 1. 센서 데이터 처리 구조 — 교육용 개념도, 실물 배선도 아님</figcaption></figure><h2>목차</h2><ol><li><a href="#s01">01 | 차시 개요와 실습 성공 기준</a></li><li><a href="#s02">02 | 카메라·라이다·제어기의 역할 분리</a></li><li><a href="#s03">03 | 영상 프레임의 데이터 구조</a></li><li><a href="#s04">04 | 카메라 입력을 여는 절차</a></li><li><a href="#s05">05 | 라이다 스캔 메타데이터 해석</a></li><li><a href="#s06">06 | 거리 유효성 검사와 결측값 처리</a></li><li><a href="#s07">07 | 극좌표에서 직교좌표로 변환</a></li><li><a href="#s08">08 | 전방 장애물 거리 판단</a></li><li><a href="#s09">09 | CSV 저장과 데이터 재현성</a></li><li><a href="#s10">10 | 실습 코드 전체 실행과 결과 해석</a></li><li><a href="#s11">11 | 오류 점검·테스트·안전</a></li><li><a href="#s12">12 | 종합 실습·평가·다음 차시 연결</a></li></ol><section class="pagebreak" id="s01"><h2>01 | 차시 개요와 실습 성공 기준</h2><p>이 차시는 카메라가 제공하는 <strong>2차원 영상 프레임</strong>과 라이다가 제공하는 <strong>각도별 거리 측정값</strong>을 구분하고, 두 종류의 데이터를 Python에서 확인하는 과정이다. 카메라는 물체의 색·형상·질감을 기록하지만 단일 영상의 픽셀만으로 절대거리를 직접 알 수 없다. 2차원 평면 라이다는 지정 각도 방향의 거리를 제공하지만 물체의 색상이나 문자 내용을 제공하지 않는다. 두 센서는 상호 보완 관계이다.</p>
+<p><strong>필수 성취 기준:</strong> (1) 카메라 프레임의 가로·세로·채널을 설명한다. (2) 모의 라이다 측정값에서 무효값을 제외한다. (3) 각도·거리 데이터를 x·y 좌표로 변환한다. (4) 전방 최단거리와 측정 실패를 구별한다. (5) CSV 및 PNG를 저장하고 확인한다.</p>
+<p><strong>60분 운영:</strong> 0~10분 센서와 데이터 흐름, 10~25분 영상 생성·확인, 25~45분 라이다 각도·거리·좌표 실습, 45~55분 전방 안전거리 판단, 55~60분 결과 제출 및 오류 확인. 실제 카메라 연결과 라이브 시각화는 장비·시간이 확보되었을 때 수행하는 선택 심화이다.</p>
+<p><strong>필요물:</strong> Python 3, NumPy, OpenCV, 텍스트 편집기, 저장 공간. 기본 실습은 로봇 없이 수행 가능하다. 실제 알티노 AI의 카메라와 라이다에 접근하는 제조사 SDK는 이 차시에서 검증하지 않았다. 로봇 주행 명령은 포함하지 않는다.</p>
+<p><strong>제출물:</strong> <code>demo_camera.png</code>, <code>scan.csv</code>, 콘솔 출력 3줄, 무효 데이터 필터링 설명 3문장. 시험 결과가 실제 장비 센서값이 아니라 <strong>모의 데이터</strong>임을 표시한다.</p>
+</section><section class="pagebreak" id="s02"><h2>02 | 카메라·라이다·제어기의 역할 분리</h2><p>카메라는 광학계와 이미지 센서가 빛을 받아 픽셀 배열을 만드는 장치이다. 라이다는 레이저의 반사 신호를 이용하여 거리를 추정하는 장치이다. 센서 드라이버는 원시 데이터 수신과 장치별 프로토콜 처리를 담당하고, 응용 프로그램은 영상 분석이나 거리 판단을 수행한다. <strong>센서 데이터를 읽는 것</strong>과 <strong>차량을 움직이는 것</strong>은 서로 다른 책임이다.</p>
+<pre><code class="language-text">[카메라] → [영상 입력/드라이버] → [프레임 배열] → [시각화/인식]
+[라이다] → [센서 드라이버] → [각도·거리 배열] → [필터/좌표/장애물 판단]
+                                         ↓
+                                 [판단 결과·상태 출력]
+                                         ↓ (별도 승인·검증 후)
+                                   [주행 제어 계층]
+</code></pre>
+<p>기본 예제는 입력 장치가 없어도 동일한 데이터 처리 과정을 이해할 수 있도록 <strong>합성 이미지와 모의 스캔</strong>을 만든다. 따라서 센서 제조사에 종속되지 않는다. 장치 연결 시에는 입력 계층만 실제 카메라 또는 라이다 드라이버로 교체하고, 이후 처리 코드는 재사용하는 구조를 권장한다.</p>
+<p><strong>관찰 포인트:</strong> 영상 데이터는 행·열·색 채널을 가진 배열이다. 스캔 데이터는 각도 시작값, 각도 간격, 거리 배열을 함께 가져야 의미가 있다. 거리 배열만 복사하면 어느 방향의 장애물인지 복원할 수 없다. 센서가 서로 다른 시점에 측정한 데이터라면 동시 측정이라고 가정해서는 안 된다.</p>
+<p><strong>응용 질문:</strong> 카메라에서 빨간 물체가 보인다는 사실만으로 그 물체가 0.5m 앞에 있다고 단정할 수 있는가? 라이다가 0.5m를 측정했다는 사실만으로 그것이 신호등이라고 판별할 수 있는가? 두 질문 모두 추가 정보가 필요하다.</p>
+</section><section class="pagebreak" id="s03"><h2>03 | 영상 프레임의 데이터 구조</h2><p>영상 프레임은 일반적으로 <code>(높이, 너비, 채널)</code> 순서의 배열로 표현된다. 예제의 크기는 <code>(360, 640, 3)</code>이며, 전체 색상 요소는 <code>360 × 640 × 3</code>개이다. <code>uint8</code> 형식의 일반적인 8비트 채널 이미지라면 한 요소가 1바이트이므로 이미지 배열 자체의 데이터는 약 691,200바이트이다. PNG 파일 크기는 압축 때문에 다를 수 있다.</p>
+<p>OpenCV의 일반적인 컬러 프레임은 BGR(파랑·초록·빨강) 순서를 사용한다. <code>image[:] = (40, 40, 40)</code>은 모든 픽셀의 세 채널을 회색으로 채운다. <code>cv2.rectangle</code>과 <code>cv2.circle</code>은 사각형과 원을 그린다. 이 코드는 실제 카메라를 촬영하는 것이 아니라 <strong>프레임과 동일한 형태의 테스트 이미지</strong>를 생성한다.</p>
+<pre><code class="language-python">import numpy as np
+image = np.zeros((360, 640, 3), dtype=np.uint8)
+print(image.shape)  # (360, 640, 3)
+print(image.dtype)  # uint8
+</code></pre>
+<p><strong>실습:</strong> 이미지의 너비를 640에서 320으로 변경하고 저장한다. 배열의 크기는 <code>(360, 320, 3)</code>으로 달라진다. <code>shape</code>의 순서를 <code>(너비, 높이, 채널)</code>로 해석하면 좌표 계산과 크기 조절에서 오류가 발생한다. 픽셀 좌표의 원점은 일반적으로 이미지 좌측 위이고 x는 오른쪽, y는 아래쪽으로 증가한다.</p>
+<p><strong>확인:</strong> 합성 영상에 원과 사각형이 나타나야 한다. 실제 장면이나 차선이 나타나는 것이 아니다. 영상에 텍스트가 그려져 있어도 OCR(문자 인식)을 수행한 것은 아니다.</p>
+</section><section class="pagebreak" id="s04"><h2>04 | 카메라 입력을 여는 절차</h2><p>실제 일반 카메라 또는 영상 파일은 <code>cv2.VideoCapture</code>로 열 수 있다. 카메라 번호 <code>0</code>은 흔한 기본값이지만 장비마다 다르다. 제조사 전용 스트림이 별도 프로토콜을 사용하면 단순 카메라 번호로 접근되지 않을 수 있다. <strong>알티노 AI의 카메라가 <code>VideoCapture(0)</code>으로 열리는지는 미검증</strong>이다.</p>
+<pre><code class="language-python">import cv2
+cap = cv2.VideoCapture(0)
+try:
+    if not cap.isOpened():
+        raise RuntimeError('카메라 열기 실패')
+    ok, frame = cap.read()
+    if not ok or frame is None:
+        raise RuntimeError('프레임 읽기 실패')
+    print(frame.shape)
+finally:
+    cap.release()
+</code></pre>
+<p><code>isOpened()</code>는 입력 소스 열기에 성공했는지 확인한다. <code>read()</code>는 성공 여부와 영상 배열을 반환한다. 프레임을 읽지 못하면 이전 화면을 현재 화면으로 오인하지 않아야 한다. <code>release()</code>는 장치 점유를 해제한다. 실제 시스템에서는 읽기 실패, 시간 초과, 재연결 정책을 추가해야 한다.</p>
+<p><strong>장치 점검 순서:</strong> 장치 연결 → OS에서 인식 확인 → 다른 프로그램의 카메라 점유 확인 → 입력 번호 또는 경로 확인 → 단일 프레임 획득 → 저장된 PNG 확인. 헤드리스 서버에서는 <code>imshow()</code> 창이 표시되지 않을 수 있으므로 <code>imwrite()</code>로 파일을 저장하는 방식이 유용하다.</p>
+<p><strong>실습 명령:</strong> <code>python sensor_lab.py --camera 0 --out outputs/ch03</code>은 범용 카메라 입력을 시도한다. 카메라가 없거나 권한이 없으면 예외가 발생한다. 기본 모의 실습은 <code>--camera</code> 인자를 빼고 실행한다.</p>
+</section><section class="pagebreak" id="s05"><h2>05 | 라이다 스캔 메타데이터 해석</h2><p>2차원 라이다의 대표적인 데이터 표현은 시작 각도 <code>angle_min</code>, 각도 증가량 <code>angle_increment</code>, 측정 거리 배열 <code>ranges</code>이다. ROS의 <code>sensor_msgs/msg/LaserScan</code> 메시지는 여기에 종료 각도, 최소·최대 측정거리, 시간 정보와 선택적 반사 강도도 포함한다. 이 교재의 <code>Scan</code> 클래스는 개념 학습을 위해 각도를 <strong>도(degree)</strong> 단위로 저장한다. ROS 표준 메시지의 각도는 <strong>라디안(radian)</strong> 단위이므로 그대로 대입하면 안 된다.</p>
+<p><strong>각도 계산:</strong> <code>angle_i = angle_min_deg + i × angle_step_deg</code>. 예제는 시작 각도 -90°, 간격 10°, 총 19개 측정값이다. 첫 번째 값은 -90°, 10번째 값(인덱스 9)은 0°, 마지막 값은 +90°에 대응한다. 이 수치는 실제 알티노 AI의 스캔 범위나 분해능을 뜻하지 않는다.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:right">인덱스</th>
+<th style="text-align:right">각도</th>
+<th style="text-align:right">예제 거리</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">0</td>
+<td style="text-align:right">-90°</td>
+<td style="text-align:right">2.8m</td>
+<td>측면 방향</td>
+</tr>
+<tr>
+<td style="text-align:right">8</td>
+<td style="text-align:right">-10°</td>
+<td style="text-align:right">0.9m</td>
+<td>전방 왼쪽/오른쪽 중 한쪽</td>
+</tr>
+<tr>
+<td style="text-align:right">9</td>
+<td style="text-align:right">0°</td>
+<td style="text-align:right">0.6m</td>
+<td>정면</td>
+</tr>
+<tr>
+<td style="text-align:right">10</td>
+<td style="text-align:right">+10°</td>
+<td style="text-align:right">0.8m</td>
+<td>반대쪽 전방</td>
+</tr>
+<tr>
+<td style="text-align:right">18</td>
+<td style="text-align:right">+90°</td>
+<td style="text-align:right">2.8m</td>
+<td>반대 측면</td>
+</tr>
+</tbody>
+</table>
+<p>부호 방향은 좌표계 정의에 의존한다. ROS 표준 평면 좌표계에서 x가 전방이고 z가 위쪽이면 양의 각도는 반시계 방향이다. 실물 로봇에서 센서가 반대로 설치되거나 회전하면 외부 좌표 변환이 필요하다.</p>
+<p><strong>실습:</strong> <code>sample_scan()</code>의 <code>values[9]</code>를 0.6에서 1.2로 변경하고 전방 최솟값을 다시 확인한다. 주변 값 0.8과 0.9가 있으므로 전방 최솟값은 0.8m로 바뀐다.</p>
+</section><section class="pagebreak" id="s06"><h2>06 | 거리 유효성 검사와 결측값 처리</h2><p>라이다 데이터에는 측정 실패, 반사 부족, 범위 초과 등으로 인해 <code>inf</code>, <code>nan</code> 또는 측정 범위 밖의 숫자가 들어올 수 있다. 이 값을 무조건 장애물이 없다는 뜻으로 해석하면 위험하다. 이 차시에서는 <code>math.isfinite()</code>로 유한한 숫자만 선택하고, 최소·최대 유효거리 범위를 검사한다.</p>
+<pre><code class="language-python">from math import isfinite
+
+def valid_distance(value, minimum=0.05, maximum=8.0):
+    return isfinite(value) and minimum &lt;= value &lt;= maximum
+
+for distance in [0.6, float('inf'), float('nan'), 0.01, 9.0]:
+    print(distance, valid_distance(distance))
+</code></pre>
+<p>예상 결과는 <code>0.6</code>만 <code>True</code>이고 나머지는 <code>False</code>이다. 실제 센서의 최소·최대 거리는 제품 사양과 설정에 따라 다르므로 예제의 0.05~8.0m를 실제 사양으로 사용하지 않는다. 데이터가 모두 무효라면 <code>nearest_front()</code>는 <code>None</code>을 반환한다. <strong>None은 안전하다는 뜻이 아니라 판단할 수 없다는 뜻</strong>이다.</p>
+<p><strong>중요한 예외:</strong> 일부 장치의 무효 거리 표현은 0, 음수 또는 별도 상태 코드일 수 있다. 실제 센서 드라이버와 메시지 명세를 먼저 확인해야 한다. 유효 거리라도 반사 특성, 유리, 검은 표면, 경사면 등으로 오차가 발생할 수 있다. 이 교재는 센서의 정확도를 보증하지 않는다.</p>
+<p><strong>실습:</strong> 모든 측정값을 <code>float('inf')</code>로 변경한다. CSV에는 헤더만 기록되고, 전방 최단거리는 <code>None</code>이 되어야 한다. 실제 주행 제어 계층에서는 이러한 상태를 별도의 센서 오류 또는 안전 정지 조건으로 취급하는 정책이 필요하다.</p>
+</section><section class="pagebreak" id="s07"><h2>07 | 극좌표에서 직교좌표로 변환</h2><p>라이다는 보통 방향(각도)과 거리로 주변 물체를 나타낸다. 지도나 그래프에 점을 표시하려면 극좌표를 직교좌표로 변환한다. 센서 중심을 원점으로 두고 정면을 x축 양의 방향으로 정하면 <code>x = r cos(θ)</code>, <code>y = r sin(θ)</code>이다. Python의 <code>math.sin</code>과 <code>math.cos</code>는 라디안을 받으므로 <code>math.radians()</code>로 도 단위를 변환한다.</p>
+<pre><code class="language-python">from math import radians, cos, sin
+angle_deg = 90
+r = 2.0
+theta = radians(angle_deg)
+x = r * cos(theta)
+y = r * sin(theta)
+print(round(x, 3), round(y, 3))  # 0.0 2.0
+</code></pre>
+<p>정면 0°의 거리 0.6m는 <code>(x, y) = (0.6, 0.0)</code>이 된다. +90° 방향의 거리 2m는 <code>(0, 2)</code>가 된다. 좌표계 방향을 잘못 정의하면 장애물 위치가 좌우로 뒤집힌다. 센서의 위치가 차체 중심에서 떨어져 있다면 센서 좌표를 차체 좌표로 변환하는 추가 작업이 필요하다.</p>
+<p><strong>수치 오차:</strong> <code>cos(90°)</code>의 계산 결과는 부동소수점 표현 때문에 정확히 0이 아니라 매우 작은 수가 될 수 있다. 따라서 부동소수점 비교는 <code>== 0</code> 대신 허용오차를 사용한다. 자동 테스트는 <code>assertAlmostEqual</code>을 이용한다.</p>
+<p><strong>실습:</strong> -90°, 0°, +90° 각각 거리 1m인 세 점의 좌표를 계산한다. 기대 위치는 <code>(0,-1)</code>, <code>(1,0)</code>, <code>(0,1)</code>이다. 이는 센서 좌표계의 점이며 세계 좌표계의 위치는 아니다.</p>
+</section><section class="pagebreak" id="s08"><h2>08 | 전방 장애물 거리 판단</h2><p>전방 안전거리를 평가하려면 전체 스캔에서 가장 가까운 점을 찾는 것이 아니라 <strong>전방 각도 영역</strong>을 먼저 선택해야 한다. 예제는 -20°~+20°의 유효 측정값 중 최소 거리를 선택한다. 이 범위는 교육용 가정이며 실제 차량의 폭, 조향각, 제동거리, 센서 장착 위치에 따라 달라져야 한다.</p>
+<pre><code class="language-python">scan = sample_scan()
+front_min = scan.nearest_front(half_angle_deg=20)
+print(front_min)  # 0.6
+</code></pre>
+<p>전방 측정값이 0.6m이면 장애물이 0.6m 떨어져 있다는 측정 결과를 얻은 것이다. 이것만으로 곧바로 '주행 가능/불가'를 확정할 수는 없다. 제동거리에는 속도, 제동 성능, 제어 지연, 통신 지연, 노면 상태, 측정 오차가 영향을 준다. 특히 센서가 <code>None</code>을 반환하는 경우 999m 같은 임의의 큰 숫자로 대체해 안전 판정을 내려서는 안 된다.</p>
+<p><strong>교육용 상태 구분 예:</strong> <code>None → SENSOR_UNKNOWN</code>, <code>거리 &lt; 임의 임계값 → NEAR_OBJECT</code>, <code>그 외 → MEASURED_CLEAR</code>. 이 상태명은 실제 알티노 AI SDK의 API가 아니라 응용 프로그램에서 사용할 수 있는 설명용 개념이다. 본 차시의 예제는 실제 모터 명령을 보내지 않는다.</p>
+<p><strong>실습:</strong> 전방 각도 범위를 ±5°, ±20°, ±45°로 바꾸어 최솟값을 비교한다. 주변 측정값이 바뀌지 않으면 0°의 0.6m가 모든 범위에 포함되어 결과가 동일할 수 있다. 특정 측면의 거리를 더 짧게 수정하면 각도 범위에 따라 결과가 달라진다.</p>
+</section><section class="pagebreak" id="s09"><h2>09 | CSV 저장과 데이터 재현성</h2><p>센서 데이터를 파일로 저장하면 실물 장비가 없는 환경에서도 같은 입력으로 알고리즘을 반복 검증할 수 있다. <code>save_scan_csv()</code>는 각도, 거리, x, y를 CSV(쉼표로 구분된 표 데이터)로 기록한다. CSV 첫 줄은 <code>angle_deg,range_m,x_m,y_m</code>이다. 각 행은 유효 측정값 한 개를 나타낸다.</p>
+<pre><code class="language-text">angle_deg,range_m,x_m,y_m
+-90.0000,2.8000,0.0000,-2.8000
+... (중간 데이터 생략)
+0.0000,0.6000,0.6000,0.0000
+</code></pre>
+<p>예제의 원시 스캔은 19개 값이지만 <code>inf</code>, <code>nan</code> 2개를 제외한 유효 점 17개만 기록한다. 따라서 헤더 포함 18줄이 저장된다. 무효값을 버리면 후속 분석이 간단하지만 원본 데이터가 사라진다. 실제 프로젝트에서는 원시 데이터 파일과 정제 데이터 파일을 구분하여 보관하는 편이 좋다.</p>
+<p><strong>재현성 기록:</strong> 실습 날짜, 센서 모델, 측정 단위, 각도 기준, 데이터 샘플 수, 유효값 필터 조건, 프로그램 버전, 파일 생성 시간을 함께 기록한다. 실제 센서가 제공하는 타임스탬프가 있다면 시스템 시간과 혼동하지 않는다. 이번 CSV에는 타임스탬프가 없으므로 시간 동기화 분석에는 사용할 수 없다.</p>
+<p><strong>실습:</strong> <code>scan.csv</code>를 텍스트 편집기 또는 스프레드시트로 열어 0° 행의 x가 0.6이고 y가 0인지 확인한다. <code>nan</code>과 <code>inf</code>가 출력 파일에 남아 있지 않은지도 확인한다.</p>
+</section><section class="pagebreak" id="s10"><h2>10 | 실습 코드 전체 실행과 결과 해석</h2><p>아래 프로그램은 ① 모의 라이다 스캔 생성, ② 유효 거리 필터링, ③ 전방 최단거리 계산, ④ CSV 저장, ⑤ 테스트 카메라 이미지 생성 순서로 동작한다. 장치 연결이 필요하지 않다. 실제 카메라 입력을 사용하려면 <code>--camera</code> 인자를 추가하지만 알티노 AI 카메라 호환성은 검증되지 않았다.</p>
+<p><strong>실행 준비</strong></p>
+<pre><code class="language-bash">python -m venv .venv
+# Ubuntu: 가상환경 활성화
+source .venv/bin/activate
+python -m pip install numpy opencv-python
+python codes/ch03/sensor_lab.py --out outputs/ch03
+</code></pre>
+<p>Ubuntu에서 <code>python -m venv</code>는 독립된 패키지 환경을 만들고, <code>source</code>는 해당 환경을 현재 셸에 활성화한다. <code>python -m pip install</code>은 필요한 라이브러리를 설치한다. 실제 교육실에서는 인터넷 접근과 패키지 버전 호환성을 사전에 확인한다.</p>
+<p><strong>예상 콘솔 출력</strong></p>
+<pre><code class="language-text">전방 최소 유효 거리(m): 0.6
+유효 라이다 점 수: 17
+라이다 CSV: outputs/ch03/scan.csv
+카메라 이미지: outputs/ch03/demo_camera.png 배열 형상: (360, 640, 3)
+</code></pre>
+<p>출력 경로는 실행 위치와 <code>--out</code> 값에 따라 달라진다. <code>demo_camera.png</code>는 실제 촬영물이 아니라 사각형과 원을 그린 합성 이미지이다. CSV는 실제 거리 센서의 측정 기록이 아니라 교육용 샘플 데이터이다.</p>
+<p><strong>확인:</strong> 이미지가 저장되지 않으면 쓰기 권한과 폴더 경로를 점검한다. <code>ModuleNotFoundError</code>가 발생하면 현재 활성화한 가상환경에 패키지가 설치되었는지 확인한다. <code>--camera</code> 입력 실패는 로봇 자체의 고장이라고 단정하지 않는다.</p>
+<h3>전체 실행 코드 — sensor_lab.py</h3>
+<pre><code class="language-python">"""03차시: 실제 로봇 제어가 없는 카메라·라이다 학습용 예제."""
+from dataclasses import dataclass
+from math import cos, sin, isfinite, radians
+from pathlib import Path
+import argparse
+import csv
+
+@dataclass(frozen=True)
+class Scan:
+    angle_min_deg: float
+    angle_step_deg: float
+    ranges_m: tuple[float, ...]
+    min_m: float = 0.05
+    max_m: float = 8.0
+
+    def points(self):
+        """유효한 측정값을 (각도, 거리, x, y)로 반환."""
+        if self.angle_step_deg &lt;= 0 or self.min_m &lt;= 0 or self.max_m &lt;= self.min_m:
+            raise ValueError('스캔 메타데이터가 올바르지 않습니다')
+        for i, distance in enumerate(self.ranges_m):
+            if not isfinite(distance) or not self.min_m &lt;= distance &lt;= self.max_m:
+                continue
+            angle = self.angle_min_deg + i * self.angle_step_deg
+            theta = radians(angle)
+            yield (angle, distance, distance * cos(theta), distance * sin(theta))
+
+    def nearest_front(self, half_angle_deg=20):
+        """전방 부채꼴 유효 거리의 최솟값. 유효 측정이 없으면 None."""
+        if not 0 &lt;= half_angle_deg &lt;= 180:
+            raise ValueError('전방 각도 범위 오류')
+        front = [d for a, d, _, _ in self.points() if abs(a) &lt;= half_angle_deg]
+        return min(front) if front else None
+
+
+def sample_scan():
+    """-90°부터 +90°까지 10° 간격의 모의 스캔."""
+    values = [2.8] * 19
+    values[8], values[9], values[10] = 0.9, 0.6, 0.8
+    values[2], values[17] = float('inf'), float('nan')
+    return Scan(-90, 10, tuple(values))
+
+
+def save_scan_csv(scan, path):
+    """좌표 변환 결과를 CSV로 기록."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['angle_deg', 'range_m', 'x_m', 'y_m'])
+        for row in scan.points():
+            writer.writerow([f'{v:.4f}' for v in row])
+    return path
+
+
+def create_demo_frame(path, width=640, height=360):
+    """카메라 없이 생성 가능한 테스트 영상 한 장."""
+    import cv2
+    import numpy as np
+    image = np.zeros((height, width, 3), dtype=np.uint8)
+    image[:] = (40, 40, 40)  # OpenCV BGR 순서
+    cv2.rectangle(image, (100, 90), (260, 260), (0, 180, 255), -1)
+    cv2.circle(image, (440, 170), 75, (50, 220, 50), -1)
+    cv2.putText(image, 'CAMERA DEMO', (120, 45), cv2.FONT_HERSHEY_SIMPLEX,
+                1.0, (255, 255, 255), 2)
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not cv2.imwrite(str(path), image):
+        raise OSError('이미지 저장 실패')
+    return path, image.shape
+
+
+def capture_one_frame(source, path):
+    """실제 연결된 일반 카메라 또는 영상 파일에서 한 프레임 저장."""
+    import cv2
+    source = int(source) if str(source).isdigit() else source
+    cap = cv2.VideoCapture(source)
+    try:
+        if not cap.isOpened():
+            raise RuntimeError('영상 입력을 열 수 없습니다')
+        ok, frame = cap.read()
+        if not ok or frame is None:
+            raise RuntimeError('프레임을 읽을 수 없습니다')
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if not cv2.imwrite(str(path), frame):
+            raise OSError('프레임 저장 실패')
+        return path, frame.shape
+    finally:
+        cap.release()
+
+
+def main():
+    parser = argparse.ArgumentParser(description='03차시 카메라·라이다 데이터 실습')
+    parser.add_argument('--out', default='outputs/ch03')
+    parser.add_argument('--camera', help='실제 카메라 번호(0) 또는 영상 파일 경로')
+    args = parser.parse_args()
+    out = Path(args.out)
+    scan = sample_scan()
+    print('전방 최소 유효 거리(m):', scan.nearest_front())
+    print('유효 라이다 점 수:', len(list(scan.points())))
+    print('라이다 CSV:', save_scan_csv(scan, out / 'scan.csv'))
+    if args.camera is None:
+        path, shape = create_demo_frame(out / 'demo_camera.png')
+    else:
+        path, shape = capture_one_frame(args.camera, out / 'camera_frame.png')
+    print('카메라 이미지:', path, '배열 형상:', shape)
+
+if __name__ == '__main__':
+    main()
+
+</code></pre>
+</section><section class="pagebreak" id="s11"><h2>11 | 오류 점검·테스트·안전</h2><p><strong>문제 1 — 카메라를 열 수 없음:</strong> 연결 상태, 카메라 번호, 사용 권한, 다른 프로그램의 점유, 영상 파일 경로를 순서대로 확인한다. 제조사 전용 카메라는 일반 USB 웹캠과 다른 방식일 수 있다. 카메라가 없어도 모의 실습으로 전환할 수 있다.</p>
+<p><strong>문제 2 — 라이다 전방 거리가 None:</strong> 전방 범위에 유효한 점이 없다는 뜻이다. '장애물 없음'과 구분한다. 센서 상태와 측정 범위, 데이터 형식을 확인해야 한다.</p>
+<p><strong>문제 3 — 좌표가 좌우 반전:</strong> 각도 단위(도/라디안), 양의 회전 방향, 센서 장착 방향을 확인한다. ROS LaserScan의 각도 단위와 예제의 단위가 다르다는 점을 주의한다.</p>
+<p><strong>문제 4 — CSV 행 수가 예상보다 적음:</strong> 무효 측정값이 필터링되었는지 확인한다. 필터링 전 19개, 후 17개라는 차이는 예제에 의도적으로 포함되었다.</p>
+<p><strong>문제 5 — 영상 크기와 파일 크기 혼동:</strong> 배열의 바이트 수와 압축 PNG의 디스크 크기는 같지 않다. 영상 배열의 <code>shape</code>와 <code>dtype</code>를 확인한다.</p>
+<p><strong>안전:</strong> 본 차시에서 로봇을 움직이지 않는다. 센서 테스트를 위해 실제 차량을 주행시켜야 한다면 별도 승인된 제어 절차, 저속 제한, 긴급 정지, 안전 구역, 보호자를 확보해야 한다. 센서 데이터 하나만으로 실제 주행 안전을 보증하지 않는다.</p>
+<p><strong>자동 테스트:</strong> <code>python -m unittest discover -s codes/ch03 -p 'test_*.py' -v</code>를 실행한다. 9개 테스트는 스캔 각도, 유효값 필터, 직교좌표, CSV 저장, 이미지 생성을 검증한다. 테스트 통과는 실제 카메라·라이다 장비 연결의 검증을 의미하지 않는다.</p>
+<h3>전체 자동 테스트 코드 — test_sensor_lab.py</h3>
+<pre><code class="language-python">import math
+import tempfile
+import unittest
+from pathlib import Path
+from sensor_lab import Scan, sample_scan, save_scan_csv, create_demo_frame
+
+class TestSensorLab(unittest.TestCase):
+    def test_angle_count(self):
+        self.assertEqual(len(sample_scan().ranges_m), 19)
+    def test_front_distance(self):
+        self.assertAlmostEqual(sample_scan().nearest_front(), 0.6)
+    def test_nonfinite_filtered(self):
+        self.assertEqual(len(list(sample_scan().points())), 17)
+    def test_empty_front(self):
+        self.assertIsNone(Scan(90, 10, (1.0, 2.0)).nearest_front(10))
+    def test_invalid_step(self):
+        with self.assertRaises(ValueError):
+            list(Scan(0, 0, (1.0,)).points())
+    def test_invalid_range(self):
+        self.assertEqual(list(Scan(0, 10, (0.01, 99, math.inf, math.nan)).points()), [])
+    def test_cartesian(self):
+        a, d, x, y = next(Scan(90, 1, (2.0,)).points())
+        self.assertAlmostEqual(x, 0, places=6)
+        self.assertAlmostEqual(y, 2, places=6)
+    def test_csv(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = save_scan_csv(sample_scan(), Path(d) / 'a.csv')
+            self.assertEqual(len(p.read_text().splitlines()), 18)
+    def test_image(self):
+        with tempfile.TemporaryDirectory() as d:
+            p, shape = create_demo_frame(Path(d) / 'a.png')
+            self.assertTrue(p.exists())
+            self.assertEqual(shape, (360, 640, 3))
+
+if __name__ == '__main__':
+    unittest.main()
+
+</code></pre>
+</section><section class="pagebreak" id="s12"><h2>12 | 종합 실습·평가·다음 차시 연결</h2><p><strong>필수 종합 실습 A (5분):</strong> <code>sensor_lab.py</code>를 실행하고 PNG·CSV가 생성되었는지 확인한다. 전방 최소거리 0.6m와 유효 점 17개를 기록한다. <code>nan</code>, <code>inf</code>가 제외되는 이유를 설명한다. 세 가지 결과가 모두 맞으면 기본 실습을 통과한다.</p>
+<p><strong>선택 심화 B (10~15분):</strong> 전방 각도 범위를 ±10°에서 ±30°로 변경하여 최솟값을 비교한다. 일부 측면 거리를 0.4m로 바꾸고 범위 선택에 따른 결과 차이를 확인한다. 무효값만 있는 스캔에서는 <code>None</code>이 반환되는지 확인한다.</p>
+<p><strong>선택 심화 C (15~20분):</strong> 실제 일반 USB 카메라를 연결해 <code>--camera 0</code>으로 프레임 한 장을 저장한다. 성공 여부와 카메라 장치 경로를 기록하되 개인 식별 정보가 포함된 실제 영상은 공개 자료에 첨부하지 않는다. 알티노 AI 전용 카메라의 접근 방법은 제조사 문서로 확인한 뒤 별도 실습을 추가한다.</p>
+<p><strong>평가 체크:</strong> (1) 카메라 프레임과 라이다 스캔의 차이를 설명했는가? (2) 영상 배열의 높이·너비·채널 순서를 정확히 설명했는가? (3) 유효값만 골라 CSV를 저장했는가? (4) 각도와 거리에서 x·y를 계산했는가? (5) 미측정 상태를 안전 상태로 오인하지 않았는가?</p>
+<p><strong>다음 차시 연결:</strong> 04차시 Python 기초에서는 변수·조건문·반복문·함수로 이번 예제의 입력, 필터, 출력 과정을 다시 설명한다. 05차시 NumPy에서는 영상·거리 배열의 연산을 확장한다. 06차시 OpenCV에서는 관심 영역, 도형, 윤곽선 등 실제 영상처리 기법을 다룬다.</p>
+<p><strong>공식 참고자료:</strong> OpenCV 영상 읽기/쓰기 안내 <code>https://opencv.org/reading-and-writing-videos-using-opencv/</code>; ROS 2 LaserScan 정의 <code>https://github.com/ros2/common_interfaces/blob/rolling/sensor_msgs/msg/LaserScan.msg</code>; Python 표준 라이브러리 <code>https://docs.python.org/3/library/math.html</code>. 제조사 홈페이지 <code>https://shop.saeon.co.kr/</code>는 제품 정보 확인용이며 이 차시의 특정 SDK API를 검증하는 근거가 아니다.</p>
+</section><footer>출처: OpenCV 공식 영상 입출력 문서 · ROS2 LaserScan 정의 · Python math 공식 문서. 코드와 데이터는 교육용으로 제작.</footer><section class="audit-note" id="audit-safety"><h2>적대적 검증 반영 — 라이다 전방 각도 순환</h2>
+<p>라이다가 0°~360° 각도를 사용하는 경우 <strong>350°와 -10°는 같은 방향</strong>이다. 기존 전방 검사인 <code>abs(angle) &lt;= 20</code>은 350°를 전방으로 보지 못했다. 수정 코드에서는 <code>((angle + 180) % 360 - 180)</code>을 사용하여 -180°~180° 범위로 정규화한 후 전방 영역을 판단한다.</p>
+<pre><code class="language-python"># (변경) 각도 순환 경계 350° → -10°
+front = [d for a, d, _, _ in self.points()
+         if abs((a + 180) % 360 - 180) &lt;= half_angle_deg]
+</code></pre>
+<p>시험 입력 <code>Scan(350, 5, (0.4, 0.2, 1.0))</code>은 전방 350°, 355°, 360° 측정으로 해석되어 최소 거리 <strong>0.2m</strong>를 반환해야 한다. 실제 센서의 0° 방향이 로봇 정면과 일치하는지는 제조사 좌표계 문서로 확인해야 한다.</p>
+</section>
+</main><nav aria-label="차시 이동" class="audit-chapter-nav"><a href="ch02.html">← 02차시</a><a href="../index.html">전체 목차</a><a href="ch04.html">04차시 →</a></nav></body></html>

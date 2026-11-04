@@ -1,0 +1,5 @@
+# PC/CPU 실습용. Python 3.10+ 권장; Jetson 환경은 NVIDIA 제공 호환 패키지 확인.
+numpy>=1.26,<3
+opencv-python-headless>=4.8,<5
+Pillow>=10,<13
+torch>=2.1,<3

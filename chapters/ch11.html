@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>11차시 신호등·화살표·주차 객체 인식</title><style>@page{size:A4;margin:17mm 16mm}*{box-sizing:border-box}body{font-family:"Noto Sans CJK KR","Noto Sans",sans-serif;max-width:980px;margin:auto;padding:30px;color:#182b3c;background:#fff;line-height:1.65;font-size:13px}h1{font-size:27px;color:#164c79}h2{font-size:19px;color:#175684;border-bottom:2px solid #cde4f5;padding-bottom:6px;margin-top:28px}nav{background:#eff6fc;border-radius:12px;padding:16px}nav ul{columns:2}a{color:#1263a0}pre{background:#f2f5f8;color:#162e42;border:1px solid #d6e1e9;border-radius:6px;padding:12px;white-space:pre-wrap;overflow-wrap:anywhere;font:10px/1.35 monospace}code{font-family:monospace}table{width:100%;border-collapse:collapse;font-size:11px}td,th{border:1px solid #b9cedf;padding:6px;text-align:left}th{background:#e8f3fb}img{max-width:100%;height:auto}section{break-inside:auto}h2,table tr{break-after:avoid}p{orphans:3;widows:3}footer{margin-top:24px;border-top:1px solid #aac;padding-top:12px}@media print{section:nth-of-type(13){break-before:page}body{padding:0;font-size:12px;max-width:none}nav{font-size:10px}nav ul{columns:2}pre{font-size:9px}h2{font-size:16px}a{color:#164c79;text-decoration:none}}</style><style>.audit-chapter-nav{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:2em auto;padding:14px;border-top:1px solid #ccd7e1;max-width:960px;font:500 14px/1.5 system-ui,sans-serif}.audit-chapter-nav a{color:#134e78;text-decoration:underline;padding:5px 8px}.audit-note,.verified-supplement{max-width:100%;margin-top:2em} .verified-supplement pre,.audit-note pre{white-space:pre-wrap;word-break:break-word} @media print {.audit-chapter-nav {display:none!important} .verified-supplement pre,.audit-note pre{white-space:pre-wrap;overflow-wrap:anywhere}}</style></head><body><header><h1>📘 11차시 — 신호등·화살표·주차 객체 인식</h1><p>피지컬 AI · 필수 실습 60분 · 선택 심화 별도</p><p><strong>검증 범위:</strong> 합성 영상/모의 판단만 검증, 실차 미검증</p></header><nav aria-label="차시 목차"><strong>목차</strong><ul><li><a href="#section-1">01. 운영 계획과 산출물</a></li><li><a href="#section-2">02. 문제 정의와 입력·출력 계약</a></li><li><a href="#section-3">03. 인식과 판단을 분리하는 이유</a></li><li><a href="#section-4">04. 신호등 색상과 채널 순서</a></li><li><a href="#section-5">05. 방향 화살표의 형태 정보</a></li><li><a href="#section-6">06. 주차 표지와 주차 가능 판단의 차이</a></li><li><a href="#section-7">07. 실습 준비 및 실행 환경</a></li><li><a href="#section-8">08. 전체 Python 실습 코드</a></li><li><a href="#section-9">09. 자동 테스트 전체 코드</a></li><li><a href="#section-10">10. 예상 실행 결과와 판독</a></li><li><a href="#section-11">11. 검출 성능 평가 설계</a></li><li><a href="#section-12">12. 위험 사례와 안전 게이트</a></li><li><a href="#section-13">13. 오류 점검 절차</a></li><li><a href="#section-14">14. 선택 심화: 데이터 변화 실험</a></li><li><a href="#section-15">15. 학습형 AI로의 확장 경계</a></li><li><a href="#section-16">16. 차시 평가 체크리스트</a></li><li><a href="#section-17">17. 공식 문서와 참고 출처</a></li><li><a href="#section-18">18. 실험 A: 안전 판단 우선순위의 충돌</a></li><li><a href="#section-19">19. 실험 B: 고정 ROI와 좌표 변환</a></li><li><a href="#section-20">20. 실험 C: 데이터 품질과 오류 분석</a></li><li><a href="#section-21">21. 실험 D: 평가 데이터셋 구성과 누수 방지</a></li><li><a href="#section-22">22. 실험 E: 실제 장비 통합 전 승인 기준</a></li><li><a href="#section-23">23. 핵심 정리와 다음 차시 연결</a></li></ul></nav><main><section id="section-1"><h2>01. 운영 계획과 산출물</h2><table>
+<thead>
+<tr>
+<th>시간</th>
+<th>필수 활동</th>
+<th>확인 항목</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0~10분</td>
+<td>신호등·화살표·주차 객체 구분</td>
+<td>클래스 정의</td>
+</tr>
+<tr>
+<td>10~20분</td>
+<td>합성 장면 생성 및 저장</td>
+<td>PNG 4개</td>
+</tr>
+<tr>
+<td>20~35분</td>
+<td>고정 관심영역 색상·방향 분석</td>
+<td>Observation 출력</td>
+</tr>
+<tr>
+<td>35~45분</td>
+<td>안전 판단 규칙 구현</td>
+<td>정지/계획 문자열</td>
+</tr>
+<tr>
+<td>45~55분</td>
+<td>자동 테스트와 실패 사례</td>
+<td>테스트 7종</td>
+</tr>
+<tr>
+<td>55~60분</td>
+<td>결과·제약·오류 점검</td>
+<td>실습 기록</td>
+</tr>
+</tbody>
+</table>
+<p><strong>선택 심화(필수 60분 이후)</strong>: 회전·노이즈·그림자·부분 가림 데이터를 생성하고 검출률 변화를 비교한다. 실차 모터에 연결하지 않는다.</p>
+</section><section id="section-2"><h2>02. 문제 정의와 입력·출력 계약</h2><p>신호등의 색상, 방향 화살표의 지시 방향, 주차 표지의 존재 여부는 서로 다른 의미를 갖는다. 신호등은 정지·진행 가능성의 신호이며 화살표는 방향 정보를 제공한다. 주차 표지는 공간의 의미를 나타낼 뿐, 주차 가능 여부를 단독으로 보장하지 않는다.</p>
+<p>입력은 BGR 360×640×3 <code>uint8</code> 영상 한 장과 모의 거리 측정값이다. 출력은 <code>Observation(signal, arrow, parking, confidence)</code>와 <strong>모의 계획 문자열</strong>이다. 모든 좌표는 합성 장면에 고정된다. 실제 도로에서 카메라 위치가 달라지면 같은 ROI를 사용할 수 없다.</p>
+<p><img alt="인식과 안전 게이트" src="../assets/svg/ch11_pipeline.svg"/></p>
+</section><section id="section-3"><h2>03. 인식과 판단을 분리하는 이유</h2><p>영상 인식은 <strong>관측(Observation)</strong> 을 생성한다. 판단 함수는 관측과 거리 정보를 함께 평가하여 모의 상태를 만든다. 두 단계를 분리하면 인식기가 바뀌어도 안전 규칙을 독립적으로 검증할 수 있다.</p>
+<p>인식 결과가 불확실할 때 추정으로 진행시키지 않는다. 신호등이 빨간색이거나 노란색이면 교육용 정책에서는 정지한다. 실제 교통법규·도로 상황의 모든 예외를 구현한 정책은 아니다. 거리 값이 결측·음수·비정상이면 센서 오류로 처리한다.</p>
+</section><section id="section-4"><h2>04. 신호등 색상과 채널 순서</h2><p>OpenCV는 기본적으로 BGR(파랑·초록·빨강 순서) 배열을 사용한다. <code>(0, 0, 255)</code>는 빨강이다. RGB로 잘못 해석하면 색상 판정이 뒤바뀐다. 빨강은 R이 크고 G보다 우세한지, 노랑은 R과 G가 동시에 큰지, 초록은 G가 우세한지 확인한다.</p>
+<table>
+<thead>
+<tr>
+<th>색상</th>
+<th>BGR 예시</th>
+<th>중심 위치</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>빨강</td>
+<td>(0,0,255)</td>
+<td>(100,75)</td>
+<td>정지 후보</td>
+</tr>
+<tr>
+<td>노랑</td>
+<td>(0,255,255)</td>
+<td>(100,125)</td>
+<td>정지 후보</td>
+</tr>
+<tr>
+<td>초록</td>
+<td>(0,255,0)</td>
+<td>(100,175)</td>
+<td>다른 조건도 확인</td>
+</tr>
+<tr>
+<td>꺼짐</td>
+<td>(75,75,75)</td>
+<td>나머지 램프</td>
+<td>비활성</td>
+</tr>
+</tbody>
+</table>
+<p>단일 픽셀 검사이므로 반사광, 압축, 노이즈, 위치 변화에 취약하다. 이는 고정 합성 장면에서만 통하는 기준선이다.</p>
+</section><section id="section-5"><h2>05. 방향 화살표의 형태 정보</h2><p>왼쪽·오른쪽 화살표는 같은 흰색이다. 따라서 색상만으로 방향을 분류할 수 없다. 합성 장면에서는 화살촉이 있는 상단 좌측/우측 픽셀을 조사한다. 방향을 잘못 읽으면 경로 계획이 반대로 바뀌므로 불확실한 방향은 <code>unknown</code>으로 두고 정지한다.</p>
+<table>
+<thead>
+<tr>
+<th>관측</th>
+<th>왼쪽 상단 화살촉</th>
+<th>오른쪽 상단 화살촉</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>좌회전</td>
+<td>흰색</td>
+<td>배경색</td>
+<td><code>left</code></td>
+</tr>
+<tr>
+<td>우회전</td>
+<td>배경색</td>
+<td>흰색</td>
+<td><code>right</code></td>
+</tr>
+<tr>
+<td>양쪽 흰색</td>
+<td>흰색</td>
+<td>흰색</td>
+<td><code>unknown</code></td>
+</tr>
+<tr>
+<td>양쪽 배경</td>
+<td>배경색</td>
+<td>배경색</td>
+<td><code>unknown</code></td>
+</tr>
+</tbody>
+</table>
+<p>실제 영상에서는 윤곽선·템플릿 매칭·학습형 분류기 등이 필요하다. 고정 좌표 분류는 일반적인 화살표 인식 모델이 아니다.</p>
+</section><section id="section-6"><h2>06. 주차 표지와 주차 가능 판단의 차이</h2><p>파란 사각형과 흰색 P를 합성 영상에 그린다. 실습은 파란색 영역의 존재만 판정하므로 P 글자를 OCR로 읽지 않는다. 파란 사각형이 다른 곳에 있어도 오검출될 수 있다. <code>parking=True</code>는 <strong>주차 표지 후보가 보임</strong>을 의미하며, 빈 주차 공간·장애물·법적 주차 가능 여부를 뜻하지 않는다.</p>
+<p>실제 주차 임무에는 빈 공간 탐색, 공간 크기 추정, 차량 위치 추정, 주행 경로 계획, 충돌 회피, 긴급 정지가 추가로 필요하다.</p>
+</section><section id="section-7"><h2>07. 실습 준비 및 실행 환경</h2><p>Python 3, NumPy, OpenCV를 사용한다. 외부 카메라, 네트워크, 제조사 SDK가 필요하지 않다.</p>
+<pre><code class="language-bash">python -m venv .venv
+source .venv/bin/activate
+python -m pip install numpy opencv-python
+python codes/ch11/traffic_scene_lab.py --out codes/ch11/outputs
+python -m unittest discover -s codes/ch11 -p 'test_*.py' -v
+</code></pre>
+<p>명령은 프로젝트 최상위 폴더에서 실행한다. 첫 명령은 격리된 파이썬 환경을 만들고, 둘째 명령은 활성화하며, 셋째 명령은 필요한 패키지를 설치한다. 마지막 두 명령은 합성 영상 생성과 자동 테스트를 수행한다. 헤드리스 환경에서는 <code>opencv-python-headless</code>로 대체할 수 있다.</p>
+</section><section id="section-8"><h2>08. 전체 Python 실습 코드</h2><p>아래 코드는 실습 파일의 <strong>전체 내용</strong>이다. <code>make_scene</code>은 합성 정답 장면을 만들고, <code>recognize</code>는 색·방향·주차 표지를 판정하며, <code>decide</code>는 위험 조건을 우선 처리한다. <code>main</code>은 결과 PNG를 저장한다.</p>
+<pre><code class="language-python">"""교육용 합성 교통 표지 인식: 실차 제어 API가 아닙니다."""
+from dataclasses import dataclass
+import cv2
+import numpy as np
+
+@dataclass(frozen=True)
+class Observation:
+    signal: str
+    arrow: str
+    parking: bool
+    confidence: float
+
+def make_scene(signal='red', arrow='left', parking=True):
+    """재현 가능한 합성 장면과 정답을 생성합니다."""
+    assert signal in ('red', 'yellow', 'green', 'off')
+    assert arrow in ('left', 'right', 'none')
+    img = np.full((360, 640, 3), (230, 230, 230), np.uint8)
+    cv2.rectangle(img, (45, 30), (155, 225), (35, 35, 35), -1)
+    positions = {'red': (100, 75), 'yellow': (100, 125), 'green': (100, 175)}
+    colors = {'red': (0, 0, 255), 'yellow': (0, 255, 255), 'green': (0, 255, 0)}
+    for key, pos in positions.items():
+        cv2.circle(img, pos, 23, colors[key] if signal == key else (75, 75, 75), -1)
+    cv2.rectangle(img, (240, 45), (400, 165), (40, 40, 40), -1)
+    if arrow != 'none':
+        if arrow == 'left':
+            pts = np.array([[265, 105], [310, 65], [310, 90], [375, 90], [375, 120], [310, 120], [310, 145]])
+        else:
+            pts = np.array([[375, 105], [330, 65], [330, 90], [265, 90], [265, 120], [330, 120], [330, 145]])
+        cv2.fillPoly(img, [pts], (255, 255, 255))
+    if parking:
+        cv2.rectangle(img, (460, 200), (600, 335), (255, 0, 0), -1)
+        cv2.putText(img, 'P', (490, 305), cv2.FONT_HERSHEY_SIMPLEX, 2.8, (255, 255, 255), 7)
+    return img
+
+def recognize(img):
+    """고정 ROI의 색상/형태 규칙. 학습형 객체 검출기가 아닙니다."""
+    if img is None or img.shape != (360, 640, 3):
+        return Observation('unknown', 'unknown', False, 0.0)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    signal_scores = {}
+    for name, (x, y) in {'red': (100, 75), 'yellow': (100, 125), 'green': (100, 175)}.items():
+        b, g, r = [int(v) for v in img[y, x]]
+        signal_scores[name] = (r &gt; 180 and r &gt; g * 1.5) if name == 'red' else ((r &gt; 180 and g &gt; 180 and b &lt; 100) if name == 'yellow' else (g &gt; 180 and g &gt; r * 1.5))
+    active = [name for name, yes in signal_scores.items() if yes]
+    signal = active[0] if len(active) == 1 else 'unknown'
+    # 화살표의 좌우 끝 영역 흰 픽셀 면적을 비교하여 방향 판정
+    mask = cv2.inRange(img[60:155, 255:390], (220, 220, 220), (255, 255, 255))
+    left = bool(mask[20, 45])  # 좌측 화살촉 위치 (원본 x=265, y=105)
+    right = bool(mask[20, 90])  # 우측 화살촉 위치 (원본 x=375, y=105)
+    arrow = 'left' if left and not right else 'right' if right and not left else 'unknown'
+    blue = img[210:330, 470:590]
+    parking = bool(np.count_nonzero((blue[:, :, 0] &gt; 180) &amp; (blue[:, :, 1] &lt; 100)) &gt; 500)
+    return Observation(signal, arrow, parking, 1.0 if signal != 'unknown' and arrow != 'unknown' else 0.0)
+
+def decide(obs, distance_m):
+    """실차 명령이 아닌 모의 상태 출력. 불확실하면 정지."""
+    if distance_m is None or not np.isfinite(distance_m) or distance_m &lt; 0.0:
+        return 'STOP_SENSOR_ERROR'
+    if distance_m &lt; 0.5:
+        return 'STOP_OBSTACLE'
+    if obs.signal in ('red', 'yellow', 'unknown') or obs.confidence &lt; 0.8:
+        return 'STOP_SIGNAL_UNCERTAIN'
+    if obs.arrow == 'unknown':
+        return 'STOP_ARROW_UNCERTAIN'
+    return 'PLAN_' + obs.arrow.upper() + ('_PARKING_VISIBLE' if obs.parking else '')
+
+def main():
+    import argparse
+    from pathlib import Path
+    p = argparse.ArgumentParser()
+    p.add_argument('--out', default='outputs')
+    args = p.parse_args()
+    out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
+    for s, a in [('red', 'left'), ('yellow', 'right'), ('green', 'left'), ('green', 'right')]:
+        frame = make_scene(s, a)
+        obs = recognize(frame)
+        cv2.imwrite(str(out / f'{s}_{a}.png'), frame)
+        print(s, a, obs, decide(obs, 1.2))
+if __name__ == '__main__':
+    main()
+</code></pre>
+<p><strong>코드 풀이:</strong> <code>@dataclass(frozen=True)</code>는 관측값을 묶고 변경을 막는다. <code>cv2.circle</code>과 <code>cv2.fillPoly</code>는 신호등과 화살표를 만든다. <code>np.count_nonzero</code>는 파란색 조건을 만족하는 픽셀 수를 센다. <code>np.isfinite</code>는 NaN·무한대를 검사한다. <code>decide</code>는 거리 오류와 장애물을 먼저 검사하고 신호·방향의 불확실성을 확인한 다음에만 모의 계획을 반환한다.</p>
+</section><section id="section-9"><h2>09. 자동 테스트 전체 코드</h2><p>다음은 재현 가능한 테스트 코드의 전체 내용이다. 각 테스트는 서로 다른 고장 유형을 확인한다.</p>
+<pre><code class="language-python">import unittest
+import numpy as np
+from traffic_scene_lab import make_scene, recognize, decide, Observation
+class TestTraffic(unittest.TestCase):
+    def test_signal(self):
+        for signal in ('red','yellow','green'):
+            self.assertEqual(recognize(make_scene(signal)).signal, signal)
+    def test_arrow(self):
+        for arrow in ('left','right'):
+            self.assertEqual(recognize(make_scene('green',arrow)).arrow, arrow)
+    def test_parking(self):
+        self.assertTrue(recognize(make_scene(parking=True)).parking)
+        self.assertFalse(recognize(make_scene(parking=False)).parking)
+    def test_fail_safe(self):
+        obs=recognize(make_scene('green','left'))
+        for d in (None, float('nan'), -1):
+            self.assertEqual(decide(obs,d),'STOP_SENSOR_ERROR')
+        self.assertEqual(decide(obs,.3),'STOP_OBSTACLE')
+    def test_red_yellow_stop(self):
+        for s in ('red','yellow'):
+            self.assertEqual(decide(recognize(make_scene(s)),2),'STOP_SIGNAL_UNCERTAIN')
+    def test_green_plan(self):
+        self.assertEqual(decide(recognize(make_scene('green','right')),2),'PLAN_RIGHT_PARKING_VISIBLE')
+    def test_bad_image(self):
+        self.assertEqual(recognize(np.zeros((10,10,3),dtype=np.uint8)).signal,'unknown')
+if __name__=='__main__': unittest.main()
+</code></pre>
+<p><strong>코드 풀이:</strong> <code>assertEqual</code>은 예상 상태와 실제 상태를 비교한다. <code>test_fail_safe</code>는 결측·NaN·음수 거리 및 근거리 장애물 정지를 확인한다. <code>test_bad_image</code>는 영상 크기가 다를 때 잘못된 성공 판정이 나오지 않는지 확인한다.</p>
+</section><section id="section-10"><h2>10. 예상 실행 결과와 판독</h2><table>
+<thead>
+<tr>
+<th>입력</th>
+<th>관측 신호</th>
+<th>관측 방향</th>
+<th>거리</th>
+<th>모의 결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>빨강/좌</td>
+<td>red</td>
+<td>left</td>
+<td>1.2m</td>
+<td>STOP_SIGNAL_UNCERTAIN</td>
+</tr>
+<tr>
+<td>노랑/우</td>
+<td>yellow</td>
+<td>right</td>
+<td>1.2m</td>
+<td>STOP_SIGNAL_UNCERTAIN</td>
+</tr>
+<tr>
+<td>초록/좌</td>
+<td>green</td>
+<td>left</td>
+<td>1.2m</td>
+<td>PLAN_LEFT_PARKING_VISIBLE</td>
+</tr>
+<tr>
+<td>초록/우</td>
+<td>green</td>
+<td>right</td>
+<td>1.2m</td>
+<td>PLAN_RIGHT_PARKING_VISIBLE</td>
+</tr>
+<tr>
+<td>초록/좌</td>
+<td>green</td>
+<td>left</td>
+<td>0.3m</td>
+<td>STOP_OBSTACLE</td>
+</tr>
+<tr>
+<td>초록/좌</td>
+<td>green</td>
+<td>left</td>
+<td>NaN</td>
+<td>STOP_SENSOR_ERROR</td>
+</tr>
+</tbody>
+</table>
+<p>모의 결과 <code>PLAN_*</code>은 모터 명령이 아니다. 신호등의 초록색도 교차로 안전을 보장하지 않는다. 이 예제에는 다른 차량·보행자·교차로 우선순위가 없다.</p>
+</section><section id="section-11"><h2>11. 검출 성능 평가 설계</h2><p>단일 합성 영상의 정답과 예측을 비교할 때는 클래스별 혼동행렬을 사용한다. 신호등 세 종류와 화살표 두 종류를 각각 독립적으로 평가해야 한다. 주차 표지 유무는 이진 분류로 평가한다.</p>
+<p>정밀도는 <code>TP/(TP+FP)</code>, 재현율은 <code>TP/(TP+FN)</code>이다. 분모가 0이면 0으로 임의 대체하지 말고 평가 불능으로 기록한다. 이 실습의 고정 위치·고정 색상 영상에서 높은 정확도가 나와도 실도로 일반화 성능은 알 수 없다.</p>
+<p>학습형 모델을 도입한다면 데이터 수집 → 라벨 검수 → 학습/검증/시험 분할 → 학습 → 시험 성능 → 실제 환경 안전 검증 순으로 진행한다. 같은 원본 영상에서 만든 변형 이미지를 학습과 시험에 동시에 넣으면 데이터 누수가 발생한다.</p>
+</section><section id="section-12"><h2>12. 위험 사례와 안전 게이트</h2><table>
+<thead>
+<tr>
+<th>실패 원인</th>
+<th>잘못된 결과</th>
+<th>안전 대응</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>신호등 가림</td>
+<td>빨강을 초록으로 오인</td>
+<td>미확실 상태 정지</td>
+</tr>
+<tr>
+<td>화살표 회전</td>
+<td>좌우 방향 오류</td>
+<td>방향 미확실 정지</td>
+</tr>
+<tr>
+<td>야간 조명</td>
+<td>색 임계값 실패</td>
+<td>영상 품질 검사</td>
+</tr>
+<tr>
+<td>주차 표지 오검출</td>
+<td>주차 공간 오판</td>
+<td>공간·장애물 별도 검증</td>
+</tr>
+<tr>
+<td>라이다 결측</td>
+<td>장애물 누락</td>
+<td>센서 오류 정지</td>
+</tr>
+<tr>
+<td>영상 지연</td>
+<td>오래된 신호 사용</td>
+<td>타임스탬프 유효성 검사</td>
+</tr>
+<tr>
+<td>프레임 누락</td>
+<td>상태 갱신 실패</td>
+<td>타임아웃 정지</td>
+</tr>
+</tbody>
+</table>
+<p>본 실습은 물리 구동을 포함하지 않는다. 실제 로봇 연결 시에는 제조사 공식 SDK 확인, 긴급 정지 스위치, 바퀴 공중 테스트, 저속 제한, 전원·통신 오류 처리, 보호자/감독자 입회 등의 별도 검증이 필요하다.</p>
+</section><section id="section-13"><h2>13. 오류 점검 절차</h2><p><strong>오류 1 — <code>ModuleNotFoundError: cv2</code>:</strong> 가상환경이 활성화되었는지 확인하고 <code>python -m pip show opencv-python</code>으로 설치 상태를 조회한다.</p>
+<p><strong>오류 2 — 이미지가 생성되지 않음:</strong> 출력 디렉터리 쓰기 권한과 실행 위치를 확인한다. <code>--out</code>으로 상대 경로를 지정할 수 있다.</p>
+<p><strong>오류 3 — 좌우 방향이 반대로 표시됨:</strong> OpenCV 좌표 원점은 왼쪽 위이며 x는 오른쪽으로 증가한다. 화살촉 샘플 픽셀의 원본 좌표와 ROI 내부 좌표를 구분한다.</p>
+<p><strong>오류 4 — 색상 검출 실패:</strong> BGR과 RGB 순서를 확인한다. 카메라에서 읽은 실제 영상은 조명과 자동 노출에 따라 색이 달라진다.</p>
+<p><strong>오류 5 — <code>unknown</code>이 반환됨:</strong> 입력 영상의 크기와 형식, 신호등 중심 좌표, 화살표 위치가 합성 장면 규격과 일치하는지 확인한다.</p>
+<p><strong>오류 6 — 테스트는 통과하지만 실제 카메라에서 실패:</strong> 테스트는 합성 장면에 한정된다. 데이터 분포가 달라지는 실제 영상에 대해 성능을 주장할 수 없다.</p>
+</section><section id="section-14"><h2>14. 선택 심화: 데이터 변화 실험</h2><p>필수 실습이 끝난 뒤, 아래 순서로 고정 좌표 기반 검출의 취약점을 분석한다.</p>
+<ol>
+<li>합성 이미지 전체를 10픽셀 이동시켜 신호등 인식률 변화를 기록한다.</li>
+<li>밝기를 0.5배로 낮추고 빨강·노랑·초록 오검출을 확인한다.</li>
+<li>화살표를 15도 회전시켜 방향 검출 실패를 관찰한다.</li>
+<li>파란색 차량을 주차 표지 ROI에 추가하여 주차 표지 오검출 여부를 확인한다.</li>
+<li><code>unknown</code> 반환 비율과 안전 정지 비율을 비교한다.</li>
+</ol>
+<p>실험표에는 변경 전/후 조건, 정답, 예측, 실패 이유, 개선 아이디어를 기록한다. 개선 전후를 같은 시험 집합으로 비교하되, 그 시험 집합에 맞춰 임계값을 반복 조정하는 데이터 누수를 피한다.</p>
+</section><section id="section-15"><h2>15. 학습형 AI로의 확장 경계</h2><p>09차시의 객체 검출은 박스를, 10차시의 인스턴스 분할은 픽셀 마스크를 반환한다. 11차시는 이 관측을 <strong>의미 있는 교통 상황</strong>으로 해석한다. 학습형 모델에서는 신호등·화살표·주차 표지 각각에 클래스와 위치를 부여하고, 필요한 경우 신호등의 램프 상태를 별도 분류한다.</p>
+<p>분류 정확도뿐 아니라 작은 객체, 역광, 야간, 눈·비, 가림, 표지 훼손, 다른 나라 표지 모양에 대한 시험이 필요하다. 실차 적용에는 영상 시간 동기화, 경로 계획, 안전 제어, 책임 있는 운용 기준을 별도로 설계해야 한다.</p>
+</section><section id="section-16"><h2>16. 차시 평가 체크리스트</h2><table>
+<thead>
+<tr>
+<th>확인 항목</th>
+<th>통과 기준</th>
+<th>결과 기록</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>환경 구성</td>
+<td>NumPy/OpenCV import 성공</td>
+<td>□</td>
+</tr>
+<tr>
+<td>장면 생성</td>
+<td>4개 PNG 저장</td>
+<td>□</td>
+</tr>
+<tr>
+<td>신호등</td>
+<td>빨강·노랑·초록 구분</td>
+<td>□</td>
+</tr>
+<tr>
+<td>화살표</td>
+<td>좌·우 구분</td>
+<td>□</td>
+</tr>
+<tr>
+<td>주차 표지</td>
+<td>존재/부재 구분</td>
+<td>□</td>
+</tr>
+<tr>
+<td>안전 정지</td>
+<td>장애물·결측·빨강·노랑 정지</td>
+<td>□</td>
+</tr>
+<tr>
+<td>자동 테스트</td>
+<td>7개 테스트 통과</td>
+<td>□</td>
+</tr>
+<tr>
+<td>제한 사항</td>
+<td>실차·학습형 모델 미검증 명시</td>
+<td>□</td>
+</tr>
+</tbody>
+</table>
+<p>오류가 발생하면 해당 조건의 입력 영상, 기대 결과, 실제 결과, 수정 전후 차이를 기록한다. 원인을 확인하기 전에는 임계값만 임의로 변경하지 않는다.</p>
+</section><section id="section-17"><h2>17. 공식 문서와 참고 출처</h2><ul>
+<li><a href="https://docs.python.org/3/library/dataclasses.html">Python 공식 문서 — dataclasses</a>: 관측 자료형.</li>
+<li><a href="https://docs.python.org/3/library/unittest.html">Python 공식 문서 — unittest</a>: 단위 테스트.</li>
+<li><a href="https://numpy.org/doc/stable/">NumPy 공식 문서</a>: 배열과 유한값 판정.</li>
+<li><a href="https://docs.opencv.org/4.x/">OpenCV 공식 문서</a>: 색상 공간, 그리기 함수, 배열 처리.</li>
+<li><a href="https://pytorch.org/tutorials/">PyTorch 공식 튜토리얼</a>: 향후 학습형 모델 확장.</li>
+</ul>
+<p>제조사 알티노 AI 전용 SDK는 이번 실행에서 실제 API와 하드웨어 연동을 검증하지 않았다. 따라서 본 코드에는 제조사 API 호출이 없다. 외부 자료의 버전·라이선스·하드웨어 적합성은 실물 적용 전에 별도 확인해야 한다.</p>
+</section><section id="section-18"><h2>18. 실험 A: 안전 판단 우선순위의 충돌</h2><p>여러 조건이 동시에 발생할 때 어떤 조건을 먼저 검사하는지가 중요하다. 예를 들어 신호등은 초록색이지만 거리가 0.3m라면 <code>STOP_OBSTACLE</code>이 우선한다. 반대로 거리는 충분해도 신호등이 빨강이면 <code>STOP_SIGNAL_UNCERTAIN</code>을 반환한다. 이 정책은 위험 조건을 먼저 확인하고 모의 계획은 마지막에 생성하는 <strong>우선순위 안전 게이트</strong>이다.</p>
+<table>
+<thead>
+<tr>
+<th>신호</th>
+<th style="text-align:right">거리</th>
+<th>화살표</th>
+<th>우선 판단</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>green</td>
+<td style="text-align:right">0.3m</td>
+<td>left</td>
+<td>STOP_OBSTACLE</td>
+<td>충돌 가능성</td>
+</tr>
+<tr>
+<td>red</td>
+<td style="text-align:right">1.2m</td>
+<td>left</td>
+<td>STOP_SIGNAL_UNCERTAIN</td>
+<td>정지 신호</td>
+</tr>
+<tr>
+<td>green</td>
+<td style="text-align:right">NaN</td>
+<td>right</td>
+<td>STOP_SENSOR_ERROR</td>
+<td>거리 정보 무효</td>
+</tr>
+<tr>
+<td>green</td>
+<td style="text-align:right">1.2m</td>
+<td>unknown</td>
+<td>STOP_SIGNAL_UNCERTAIN</td>
+<td>신뢰도 부족</td>
+</tr>
+<tr>
+<td>green</td>
+<td style="text-align:right">1.2m</td>
+<td>right</td>
+<td>PLAN_RIGHT_PARKING_VISIBLE</td>
+<td>모의 계획만 허용</td>
+</tr>
+</tbody>
+</table>
+<p>실제 로봇에서는 긴급 정지 회로, 하드웨어 워치독, 구동 전원 차단, 통신 타임아웃 등 소프트웨어 판단보다 강한 보호 계층이 필요하다. 특히 Python 프로세스가 멈춘 경우 <code>decide</code>가 호출되지 않을 수 있으므로, 함수 안의 정지 조건만으로 안전을 보장할 수 없다.</p>
+</section><section id="section-19"><h2>19. 실험 B: 고정 ROI와 좌표 변환</h2><p>영상 좌표계의 원점은 왼쪽 위이며 x축은 오른쪽, y축은 아래쪽으로 증가한다. 합성 영상에서 신호등의 중심은 (100,75), (100,125), (100,175)이다. 화살표의 ROI는 원본 x=255~389, y=60~154이며, ROI 안에서 x=45는 원본 x=300을 가리킨다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>원본 좌표</th>
+<th>ROI 내부 좌표</th>
+<th>주의</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>좌측 화살촉 샘플</td>
+<td>(300,80)</td>
+<td>(45,20)</td>
+<td>잘못된 ROI는 오검출</td>
+</tr>
+<tr>
+<td>우측 화살촉 샘플</td>
+<td>(345,80)</td>
+<td>(90,20)</td>
+<td>좌우 뒤집기 주의</td>
+</tr>
+<tr>
+<td>빨강 중심</td>
+<td>(100,75)</td>
+<td>해당 없음</td>
+<td>고정 카메라 가정</td>
+</tr>
+<tr>
+<td>주차 표지</td>
+<td>x=460~600</td>
+<td>해당 없음</td>
+<td>파란색 물체 혼동</td>
+</tr>
+</tbody>
+</table>
+<p>실제 영상에선 카메라 이동, 기울기, 렌즈 왜곡으로 위치가 변한다. 정적 좌표만 사용하는 본 실습은 영상 처리의 첫 번째 기준선이며, 실제 객체 위치 추정에는 검출 박스나 세그먼테이션 마스크가 필요하다.</p>
+</section><section id="section-20"><h2>20. 실험 C: 데이터 품질과 오류 분석</h2><p>동일한 장면이라도 노출, 화이트밸런스, 압축, 흔들림, 초점, 그림자에 따라 픽셀 값이 변한다. 단일 픽셀 판정은 잡음에 특히 취약하다. 색 영역 평균, 히스토그램, 형태학적 후처리, 시간적 누적 판단 등을 도입하면 안정성을 높일 수 있으나, 실제 시험 영상에서 검증해야 한다.</p>
+<table>
+<thead>
+<tr>
+<th>변화 조건</th>
+<th>예상 실패</th>
+<th>관찰할 지표</th>
+<th>개선 후보</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>밝기 50%</td>
+<td>활성 램프 미검출</td>
+<td>FN 증가</td>
+<td>적응형 색 기준</td>
+</tr>
+<tr>
+<td>수평 이동 10px</td>
+<td>화살표 unknown</td>
+<td>unknown 비율</td>
+<td>객체 검출 ROI</td>
+</tr>
+<tr>
+<td>가우시안 잡음</td>
+<td>단일 픽셀 오판</td>
+<td>오류 빈도</td>
+<td>패치 평균</td>
+</tr>
+<tr>
+<td>일부 가림</td>
+<td>방향 판정 불능</td>
+<td>재현율</td>
+<td>다중 특징</td>
+</tr>
+<tr>
+<td>파란색 차량</td>
+<td>주차 표지 오검출</td>
+<td>FP 증가</td>
+<td>글자/형태 검증</td>
+</tr>
+<tr>
+<td>영상 지연</td>
+<td>과거 상태 사용</td>
+<td>지연 시간</td>
+<td>타임스탬프</td>
+</tr>
+</tbody>
+</table>
+<p>오류 분석에서는 정답이 없는 데이터와 정답이 있는 데이터를 구분해야 한다. 정답이 없는 실제 영상에서 모델의 출력만 보고 정확하다고 주장하지 않는다.</p>
+</section><section id="section-21"><h2>21. 실험 D: 평가 데이터셋 구성과 누수 방지</h2><p>학습형 객체 인식으로 확장하려면 실제 데이터 수집 계획이 필요하다. 주간/야간, 비/맑음, 카메라 높이, 조도, 신호등 크기, 가림, 교차로 형태를 균형 있게 포함한다. 같은 주행 동영상에서 연속 추출한 프레임은 매우 유사하므로, 프레임 단위 무작위 분할만 하면 시험 성능이 과대평가될 수 있다.</p>
+<table>
+<thead>
+<tr>
+<th>분할</th>
+<th>목적</th>
+<th>주의</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>학습</td>
+<td>모델 파라미터 조정</td>
+<td>라벨 품질 관리</td>
+</tr>
+<tr>
+<td>검증</td>
+<td>하이퍼파라미터 선택</td>
+<td>시험 데이터 재사용 금지</td>
+</tr>
+<tr>
+<td>시험</td>
+<td>최종 일반화 평가</td>
+<td>별도 장소/주행 세션 권장</td>
+</tr>
+</tbody>
+</table>
+<p>신호등 색상 분류와 화살표 방향 분류를 분리하여 혼동행렬을 만든다. 클래스별 표본 수를 함께 보고하고, 안전에 중요한 빨강 신호의 미검출을 별도 지표로 관리한다. 시험 결과는 영상의 조건과 모델 버전을 함께 보관해야 재현할 수 있다.</p>
+</section><section id="section-22"><h2>22. 실험 E: 실제 장비 통합 전 승인 기준</h2><p>합성 장면 테스트 통과는 실제 알티노 AI 제어 승인과 다르다. 제조사 SDK 버전, 통신 포트, 모터 제어 단위, 조향 중립값, 비상 정지 방법, 센서 주기, 영상 포맷을 공식 자료와 실물에서 확인해야 한다. 해당 항목이 미확인인 상태에서는 모터 명령 함수를 만들거나 실행하지 않는다.</p>
+<table>
+<thead>
+<tr>
+<th>승인 게이트</th>
+<th>요구 증거</th>
+<th>이번 상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SDK 적합성</td>
+<td>공식 API 문서와 설치 확인</td>
+<td>미검증</td>
+</tr>
+<tr>
+<td>센서 인터페이스</td>
+<td>실제 프레임·거리 로그</td>
+<td>미검증</td>
+</tr>
+<tr>
+<td>모터 제어</td>
+<td>바퀴 공중 저속 시험</td>
+<td>미검증</td>
+</tr>
+<tr>
+<td>긴급 정지</td>
+<td>독립 정지 기능 시험</td>
+<td>미검증</td>
+</tr>
+<tr>
+<td>주행 안전</td>
+<td>폐쇄 시험장 위험 평가</td>
+<td>미검증</td>
+</tr>
+<tr>
+<td>합성 영상 규칙</td>
+<td>단위 테스트 통과</td>
+<td>검증</td>
+</tr>
+</tbody>
+</table>
+<p>승인되지 않은 항목은 체크리스트에 남겨 두며, 교육용 <code>PLAN_*</code> 문자열을 실제 PWM·속도 명령으로 변환하지 않는다.</p>
+</section><section id="section-23"><h2>23. 핵심 정리와 다음 차시 연결</h2><p>신호등·방향 화살표·주차 표지는 동일한 이미지 안에 존재해도 서로 다른 역할을 갖는다. 인식 결과와 행동 판단을 분리해야 잘못된 인식이 곧바로 모터 동작으로 이어지는 위험을 줄일 수 있다. 모의 프로그램에서 <code>PLAN_*</code>이 반환되어도 실제 주행 허가는 아니다.</p>
+<p>12차시에서는 차선 인식과 주행 미션을 다루되, 실제 장비가 검증되기 전에는 영상·모의 판단 범위로 제한한다. 앞 차시의 박스·마스크·클래스 판정은 주행 계획의 입력 중 일부일 뿐이다.</p>
+</section><section class="audit-note" id="audit-safety"><h2>적대적 검증 반영 — 신호·방향 상태 허용 목록</h2>
+<p>미등록 신호 문자열이 수신되어도 실제 녹색 신호인 것처럼 해석하면 안 된다. 이 시뮬레이터는 <code>obs.signal == 'green'</code>일 때만 다음 단계로 진행하고, 신뢰도 값이 <code>NaN</code>이면 정지한다. 화살표는 <code>left</code> 또는 <code>right</code>만 허용하며, <code>spin</code> 같은 미등록 값은 <code>STOP_ARROW_UNCERTAIN</code>으로 처리한다.</p>
+<pre><code class="language-python">if obs.signal != 'green' or not np.isfinite(obs.confidence) or obs.confidence &lt; 0.8:
+    return 'STOP_SIGNAL_UNCERTAIN'
+if obs.arrow not in ('left', 'right'):
+    return 'STOP_ARROW_UNCERTAIN'
+</code></pre>
+<p><code>Observation('blue','left',False,1.0)</code>은 이제 <code>STOP_SIGNAL_UNCERTAIN</code>을 반환한다. 이 예제에서 신뢰도는 보정된 학습형 AI 확률이 아닌 <strong>정해진 규칙의 내부 상태값</strong>이다. 실제 도로에서는 단순 색 인식 결과만으로 교차로 진입을 허용할 수 없다.</p>
+</section>
+</main><footer><a href="ch10.html">← 10차시</a> · <span>12차시: 제작 예정</span> · <a href="../index.html">전체 목차</a></footer><nav aria-label="차시 이동" class="audit-chapter-nav"><a href="ch10.html">← 10차시</a><a href="../index.html">전체 목차</a><a href="ch12.html">12차시 →</a></nav></body></html>

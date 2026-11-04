@@ -1,0 +1,145 @@
+{
+  "name": "자율주행 자동차 로봇을 활용한 피지컬 AI",
+  "source": "과정 안내서(1).pdf (교육 시간표 1~2쪽)",
+  "version": "2026-11-04-adversarial-audit-v1",
+  "audited_at": "2026-11-04 22:24 KST",
+  "expected_chapters": 12,
+  "content_status": "12/12 MD+HTML files present, pages>=10, tests pass, navigation+assets available",
+  "hardware_status": "UNVERIFIED",
+  "complete_with_unverified_items": true,
+  "audit_report": "reports/ADVERSARIAL_AUDIT.md",
+  "chapters": {
+    "ch01": {
+      "name": "로봇 구조·환경",
+      "status": "CONTENT_AND_SOFTWARE_AUDIT_PASS_HARDWARE_UNVERIFIED",
+      "markdown": "chapters/ch01.md",
+      "html": "chapters/ch01.html",
+      "markdown_a4_pages": 10,
+      "html_a4_pages": 11,
+      "unittest_passed": 4,
+      "hardware_verified": false,
+      "learned_ai_scope": "not_applicable"
+    },
+    "ch02": {
+      "name": "조향·후륜모터",
+      "status": "CONTENT_AND_SOFTWARE_AUDIT_PASS_HARDWARE_UNVERIFIED",
+      "markdown": "chapters/ch02.md",
+      "html": "chapters/ch02.html",
+      "markdown_a4_pages": 11,
+      "html_a4_pages": 10,
+      "unittest_passed": 13,
+      "hardware_verified": false,
+      "learned_ai_scope": "not_applicable"
+    },
+    "ch03": {
+      "name": "카메라·라이다",
+      "status": "CONTENT_AND_SOFTWARE_AUDIT_PASS_HARDWARE_UNVERIFIED",
+      "markdown": "chapters/ch03.md",
+      "html": "chapters/ch03.html",
+      "markdown_a4_pages": 10,
+      "html_a4_pages": 16,
+      "unittest_passed": 12,
+      "hardware_verified": false,
+      "learned_ai_scope": "not_applicable"
+    },
+    "ch04": {
+      "name": "Python 기초",
+      "status": "CONTENT_AND_SOFTWARE_AUDIT_PASS_HARDWARE_UNVERIFIED",
+      "markdown": "chapters/ch04.md",
+      "html": "chapters/ch04.html",
+      "markdown_a4_pages": 10,
+      "html_a4_pages": 16,
+      "unittest_passed": 19,
+      "hardware_verified": false,
+      "learned_ai_scope": "not_applicable"
+    },
+    "ch05": {
+      "name": "NumPy",
+      "status": "CONTENT_AND_SOFTWARE_AUDIT_PASS_HARDWARE_UNVERIFIED",
+      "markdown": "chapters/ch05.md",
+      "html": "chapters/ch05.html",
+      "markdown_a4_pages": 10,
+      "html_a4_pages": 11,
+      "unittest_passed": 17,
+      "hardware_verified": false,
+      "learned_ai_scope": "not_applicable"
+    },
+    "ch06": {
+      "name": "OpenCV",
+      "status": "CONTENT_AND_SOFTWARE_AUDIT_PASS_HARDWARE_UNVERIFIED",
+      "markdown": "chapters/ch06.md",
+      "html": "chapters/ch06.html",
+      "markdown_a4_pages": 10,
+      "html_a4_pages": 17,
+      "unittest_passed": 15,
+      "hardware_verified": false,
+      "learned_ai_scope": "not_applicable"
+    },
+    "ch07": {
+      "name": "선형회귀·신경망",
+      "status": "CONTENT_AND_SOFTWARE_AUDIT_PASS_HARDWARE_UNVERIFIED",
+      "markdown": "chapters/ch07.md",
+      "html": "chapters/ch07.html",
+      "markdown_a4_pages": 11,
+      "html_a4_pages": 12,
+      "unittest_passed": 8,
+      "hardware_verified": false,
+      "learned_ai_scope": "not_applicable"
+    },
+    "ch08": {
+      "name": "이미지 분류",
+      "status": "CONTENT_AND_SOFTWARE_AUDIT_PASS_HARDWARE_UNVERIFIED",
+      "markdown": "chapters/ch08.md",
+      "html": "chapters/ch08.html",
+      "markdown_a4_pages": 10,
+      "html_a4_pages": 10,
+      "unittest_passed": 11,
+      "hardware_verified": false,
+      "learned_ai_scope": "not_applicable"
+    },
+    "ch09": {
+      "name": "객체 인식",
+      "status": "CONTENT_AND_SOFTWARE_AUDIT_PASS_HARDWARE_UNVERIFIED",
+      "markdown": "chapters/ch09.md",
+      "html": "chapters/ch09.html",
+      "markdown_a4_pages": 12,
+      "html_a4_pages": 17,
+      "unittest_passed": 18,
+      "hardware_verified": false,
+      "learned_ai_scope": "synthetic_hybrid_optional"
+    },
+    "ch10": {
+      "name": "인스턴스 분할",
+      "status": "CONTENT_AND_SOFTWARE_AUDIT_PASS_HARDWARE_UNVERIFIED",
+      "markdown": "chapters/ch10.md",
+      "html": "chapters/ch10.html",
+      "markdown_a4_pages": 12,
+      "html_a4_pages": 14,
+      "unittest_passed": 22,
+      "hardware_verified": false,
+      "learned_ai_scope": "synthetic_hybrid_optional"
+    },
+    "ch11": {
+      "name": "신호등·화살표·주차 객체 인식",
+      "status": "CONTENT_AND_SOFTWARE_AUDIT_PASS_HARDWARE_UNVERIFIED",
+      "markdown": "chapters/ch11.md",
+      "html": "chapters/ch11.html",
+      "markdown_a4_pages": 11,
+      "html_a4_pages": 11,
+      "unittest_passed": 10,
+      "hardware_verified": false,
+      "learned_ai_scope": "not_applicable"
+    },
+    "ch12": {
+      "name": "차선 인식·미션",
+      "status": "CONTENT_AND_SOFTWARE_AUDIT_PASS_HARDWARE_UNVERIFIED",
+      "markdown": "chapters/ch12.md",
+      "html": "chapters/ch12.html",
+      "markdown_a4_pages": 12,
+      "html_a4_pages": 12,
+      "unittest_passed": 15,
+      "hardware_verified": false,
+      "learned_ai_scope": "not_applicable"
+    }
+  }
+}

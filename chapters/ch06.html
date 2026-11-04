@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+
+<html lang="ko" xml:lang="" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8"/>
+<meta content="pandoc" name="generator"/>
+<meta content="width=device-width, initial-scale=1.0, user-scalable=yes" name="viewport"/>
+<title>ch06</title>
+<style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+<link href="../assets/css/ch06.css" rel="stylesheet"/><meta content="width=device-width, initial-scale=1" name="viewport"/><style>.audit-chapter-nav{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:2em auto;padding:14px;border-top:1px solid #ccd7e1;max-width:960px;font:500 14px/1.5 system-ui,sans-serif}.audit-chapter-nav a{color:#134e78;text-decoration:underline;padding:5px 8px}.audit-note,.verified-supplement{max-width:100%;margin-top:2em} .verified-supplement pre,.audit-note pre{white-space:pre-wrap;word-break:break-word} @media print {.audit-chapter-nav {display:none!important} .verified-supplement pre,.audit-note pre{white-space:pre-wrap;overflow-wrap:anywhere}}</style></head>
+<body><nav aria-label="차시 이동" class="nav"><a href="ch05.html">← 05차시</a><a href="../index.html">전체 목차</a><span>07차시 준비 중 →</span></nav>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#차시-opencv-영상처리-관심-영역도형문자윤곽선" id="toc-차시-opencv-영상처리-관심-영역도형문자윤곽선">📘 06차시 — OpenCV
+영상처리: 관심 영역·도형·문자·윤곽선</a>
+<ul>
+<li><a href="#개요와-60분-실습-운영" id="toc-개요와-60분-실습-운영">01.
+개요와 60분 실습 운영</a></li>
+<li><a href="#전체-시스템에서-영상처리의-위치" id="toc-전체-시스템에서-영상처리의-위치">02. 전체 시스템에서 영상처리의
+위치</a></li>
+<li><a href="#개발환경과-재현-가능한-실행" id="toc-개발환경과-재현-가능한-실행">03. 개발환경과 재현 가능한
+실행</a></li>
+<li><a href="#영상-배열좌표색-채널" id="toc-영상-배열좌표색-채널">04.
+영상 배열·좌표·색 채널</a></li>
+<li><a href="#합성-장면-생성과-도형-그리기" id="toc-합성-장면-생성과-도형-그리기">05. 합성 장면 생성과 도형
+그리기</a></li>
+<li><a href="#roi-관심-영역-설정과-배열-슬라이싱" id="toc-roi-관심-영역-설정과-배열-슬라이싱">06. ROI: 관심 영역 설정과
+배열 슬라이싱</a></li>
+<li><a href="#bgr에서-hsv로-색-공간-변환" id="toc-bgr에서-hsv로-색-공간-변환">07. BGR에서 HSV로 색 공간
+변환</a></li>
+<li><a href="#이진-마스크와-픽셀-단위-판단" id="toc-이진-마스크와-픽셀-단위-판단">08. 이진 마스크와 픽셀 단위
+판단</a></li>
+<li><a href="#윤곽선-검출과-잡음-필터링" id="toc-윤곽선-검출과-잡음-필터링">09. 윤곽선 검출과 잡음
+필터링</a></li>
+<li><a href="#경계-상자와-문자-표시" id="toc-경계-상자와-문자-표시">10.
+경계 상자와 문자 표시</a></li>
+<li><a href="#종합-실습-실행-결과예외자동-테스트" id="toc-종합-실습-실행-결과예외자동-테스트">11. 종합 실습: 실행
+결과·예외·자동 테스트</a></li>
+<li><a href="#평가선택-심화다음-차시-연결" id="toc-평가선택-심화다음-차시-연결">12. 평가·선택 심화·다음 차시
+연결</a></li>
+<li><a href="#전체-실행-코드-opencv_vision_lab.py" id="toc-전체-실행-코드-opencv_vision_lab.py">13. 전체 실행 코드 —
+<code>opencv_vision_lab.py</code></a></li>
+<li><a href="#전체-자동-테스트-코드-test_opencv_vision_lab.py" id="toc-전체-자동-테스트-코드-test_opencv_vision_lab.py">14. 전체 자동
+테스트 코드 — <code>test_opencv_vision_lab.py</code></a></li>
+<li><a href="#기술-근거와-검증-경계" id="toc-기술-근거와-검증-경계">15.
+기술 근거와 검증 경계</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="차시-opencv-영상처리-관심-영역도형문자윤곽선">📘 06차시 — OpenCV
+영상처리: 관심 영역·도형·문자·윤곽선</h1>
+<blockquote>
+<p>자율주행 자동차 로봇을 활용한 피지컬 AI · 1일차 16:00–17:00 · 필수
+60분 / 선택 심화 별도</p>
+<p><strong>검증 범위:</strong> 합성 영상 기반 Python 코드 실행 확인.
+알티노 AI 제조사 SDK 및 실제 카메라·로봇 연동은 미검증.</p>
+</blockquote>
+<section class="page-section" id="개요와-60분-실습-운영">
+<h2>01. 개요와 60분 실습 운영</h2>
+<p>OpenCV(오픈씨브이, 공개 컴퓨터 비전 라이브러리)는 영상 데이터를
+배열로 읽고 변환하며 물체의 색과 윤곽을 분석하는 도구다. 자율주행에서
+카메라 영상은 직접 조향 명령이 아니라 <strong>센서 관측값</strong>이다.
+영상 획득, 전처리, 특징 추출, 판단, 제어의 단계를 혼동하지 않는다. 이번
+차시의 범위는 관심 영역(ROI), 사각형·문자 표시, 색 마스크, 윤곽선
+검출이다. 학습 목표가 아닌 실제 수행 항목으로 각 단계의 입력·출력을
+확인한다.</p>
+<table>
+<thead>
+<tr class="header">
+<th>시간</th>
+<th>수행</th>
+<th>필수 산출물</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0~10분</td>
+<td>영상의 배열·좌표·색 순서 확인</td>
+<td>영상 크기 설명</td>
+</tr>
+<tr class="even">
+<td>10~20분</td>
+<td>합성 장면 생성 및 ROI 자르기</td>
+<td><code>scene.png</code>, <code>roi.png</code></td>
+</tr>
+<tr class="odd">
+<td>20~35분</td>
+<td>HSV 색 분리·이진 마스크</td>
+<td><code>yellow_mask.png</code></td>
+</tr>
+<tr class="even">
+<td>35~50분</td>
+<td>윤곽선·경계 상자·문자 표시</td>
+<td><code>contours.png</code></td>
+</tr>
+<tr class="odd">
+<td>50~60분</td>
+<td>테스트·결과 해석·오류 확인</td>
+<td>테스트 통과 기록</td>
+</tr>
+</tbody>
+</table>
+<p><strong>필수 실습</strong>은 제공된 합성 장면으로 완료한다.
+<strong>선택 심화</strong>는 실제 촬영 영상의 조도 변화와 오검출
+분석이다. 로봇을 움직이는 제어 명령은 포함하지 않는다. 이는 실제 차량
+주행의 안전성 검증과 영상처리 알고리즘 검증을 분리하기 위함이다.</p>
+</section>
+<section class="page-section" id="전체-시스템에서-영상처리의-위치">
+<h2>02. 전체 시스템에서 영상처리의 위치</h2>
+<p>로봇의 카메라는 연속적인 프레임을 제공하지만, 영상처리 결과만으로
+주행 안전을 보장하지 않는다. 전방 장애물 감지는 라이다 등 다른 센서와
+교차 검증해야 한다. 이번 장에서는 카메라 입력을 합성 영상으로 대체해
+알고리즘을 재현한다. 실제 장비의 카메라 인터페이스는 제조사 SDK가 확인될
+때만 연결한다.</p>
+<figure>
+<img alt="영상처리 단계 구조도" src="../assets/svg/ch06_pipeline.svg"/>
+<figcaption aria-hidden="true">영상처리 단계 구조도</figcaption>
+</figure>
+<p><code>frame</code>은 BGR 영상 배열, <code>roi</code>는 하단 관심
+영역, <code>mask</code>는 이진 색 마스크, <code>contours</code>는 윤곽선
+좌표 목록, <code>overlay</code>는 결과를 그린 영상이다. 이 이름은 실습
+코드의 실제 변수명과 동일하다. 데이터 흐름이 한 방향이므로 앞 단계의
+오류가 뒤 단계로 전파된다. 예를 들어 ROI가 잘못되면 마스크가 정상이어도
+원하는 물체가 누락된다.</p>
+<table>
+<thead>
+<tr class="header">
+<th>단계</th>
+<th>입력</th>
+<th>출력</th>
+<th>대표 오류</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>합성 영상 생성</td>
+<td>크기</td>
+<td>BGR 배열</td>
+<td>잘못된 크기</td>
+</tr>
+<tr class="even">
+<td>ROI</td>
+<td>원본 배열, 좌표</td>
+<td>잘린 배열</td>
+<td>범위 초과</td>
+</tr>
+<tr class="odd">
+<td>HSV 변환</td>
+<td>BGR 배열</td>
+<td>HSV 배열</td>
+<td>색 공간 혼동</td>
+</tr>
+<tr class="even">
+<td>마스크</td>
+<td>HSV, 임계값</td>
+<td>0/255 배열</td>
+<td>조명 변화</td>
+</tr>
+<tr class="odd">
+<td>윤곽선</td>
+<td>이진 마스크</td>
+<td>점 좌표</td>
+<td>작은 잡음</td>
+</tr>
+<tr class="even">
+<td>시각화</td>
+<td>윤곽선·원본</td>
+<td>표시 영상</td>
+<td>좌표계 혼동</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="page-section" id="개발환경과-재현-가능한-실행">
+<h2>03. 개발환경과 재현 가능한 실행</h2>
+<p>Python(파이썬, 프로그래밍 언어) 가상환경을 만들고 OpenCV와 NumPy를
+설치한다. 이미 제공된 컴퓨터에 라이브러리가 설치되어 있으면 버전을 먼저
+확인한다. 로봇 전용 프로그램을 변경하지 않고 별도 가상환경에서 실행하는
+것이 안전하다.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a aria-hidden="true" href="#cb1-1" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv .venv                 <span class="co"># 독립 실행 환경 생성</span></span>
+<span id="cb1-2"><a aria-hidden="true" href="#cb1-2" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate           <span class="co"># 현재 셸에서 가상환경 활성화</span></span>
+<span id="cb1-3"><a aria-hidden="true" href="#cb1-3" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install numpy opencv-python  <span class="co"># 영상처리 패키지 설치</span></span>
+<span id="cb1-4"><a aria-hidden="true" href="#cb1-4" tabindex="-1"></a><span class="ex">python</span> <span class="at">-c</span> <span class="st">"import cv2,numpy; print(cv2.__version__, numpy.__version__)"</span>  <span class="co"># 버전 확인</span></span>
+<span id="cb1-5"><a aria-hidden="true" href="#cb1-5" tabindex="-1"></a><span class="ex">python</span> codes/ch06/opencv_vision_lab.py <span class="at">--out</span> outputs/ch06  <span class="co"># 결과 PNG 생성</span></span>
+<span id="cb1-6"><a aria-hidden="true" href="#cb1-6" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> unittest discover <span class="at">-s</span> codes/ch06 <span class="at">-p</span> <span class="st">'test_*.py'</span>  <span class="co"># 자동 테스트</span></span></code></pre></div>
+<p>원격 터미널이나 디스플레이가 없는 컴퓨터에서는
+<code>cv2.imshow()</code>가 실패할 수 있다. 이번 예제는
+<code>cv2.imwrite()</code>로 파일을 저장하므로 GUI(그래픽 사용자
+인터페이스)가 필요하지 않다. 저장 경로는 명령의 <code>--out</code>
+인자로 바꿀 수 있다. 입력 장치가 없는 환경에서도 전체 과정을 재현할 수
+있다는 점이 기본 실습의 장점이다.</p>
+<p><strong>확인:</strong> PNG 파일 4개가 생성되고 테스트가 통과해야
+한다. 설치가 실패하면 인터넷 접근·가상환경 활성화·Python 버전을 먼저
+확인한다.</p>
+</section>
+<section class="page-section" id="영상-배열좌표색-채널">
+<h2>04. 영상 배열·좌표·색 채널</h2>
+<p>디지털 컬러 영상은 보통 <code>(높이, 너비, 채널)</code> 구조의 3차원
+배열이다. <code>frame.shape</code>가 <code>(360, 640, 3)</code>이면 세로
+360픽셀, 가로 640픽셀, 색 채널 3개를 뜻한다. NumPy 인덱스의 첫 축은 세로
+y, 둘째 축은 가로 x이다. 따라서 <code>frame[y, x]</code> 순서로
+접근한다. 좌표를 <code>(x, y)</code>로 받는 OpenCV의 도형 함수와 순서가
+다르므로 구분한다.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a aria-hidden="true" href="#cb2-1" tabindex="-1"></a>frame <span class="op">=</span> make_scene()          <span class="co"># BGR 형식의 360×640 컬러 영상</span></span>
+<span id="cb2-2"><a aria-hidden="true" href="#cb2-2" tabindex="-1"></a>height, width <span class="op">=</span> frame.shape[:<span class="dv">2</span>]</span>
+<span id="cb2-3"><a aria-hidden="true" href="#cb2-3" tabindex="-1"></a>pixel <span class="op">=</span> frame[<span class="dv">0</span>, <span class="dv">0</span>]           <span class="co"># 배열 인덱스는 [y, x]</span></span>
+<span id="cb2-4"><a aria-hidden="true" href="#cb2-4" tabindex="-1"></a><span class="bu">print</span>(frame.shape, pixel)</span></code></pre></div>
+<p><strong>예상 결과:</strong> <code>(360, 640, 3)</code>과 배경색을
+나타내는 3원소 배열이 출력된다. OpenCV 기본 컬러 순서는
+BGR(파랑·초록·빨강)이며 RGB(빨강·초록·파랑)와 다르다. 빨간색을
+<code>(0, 0, 255)</code>로 지정하는 이유는 마지막 채널이 빨강이기
+때문이다. Matplotlib 같은 도구에서 출력할 때는 필요하면 BGR→RGB 변환을
+수행한다.</p>
+<p>영상은 <code>uint8</code> 배열이며 한 채널의 표현 범위는 0~255다.
+다른 자료형을 사용하면 일부 함수의 기대 입력과 달라 오류가 생길 수 있다.
+본 예제에서는 처음부터 자료형을 고정한다.</p>
+</section>
+<section class="page-section" id="합성-장면-생성과-도형-그리기">
+<h2>05. 합성 장면 생성과 도형 그리기</h2>
+<p>실습용 영상에는 어두운 배경, 회색 도로, 노란 경계선 두 개, 빨간
+사각형 하나를 넣는다. 노란색은 이후 색 분리와 윤곽선 검출의 대상이고
+빨간 사각형은 색 선택의 비교 대상이다. 실제 도로 영상은 조명·그림자·반사
+때문에 색이 일정하지 않지만 합성 장면은 입력이 고정되어 반복 실험에
+적합하다.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a aria-hidden="true" href="#cb3-1" tabindex="-1"></a>image <span class="op">=</span> np.full((<span class="dv">360</span>, <span class="dv">640</span>, <span class="dv">3</span>), (<span class="dv">40</span>, <span class="dv">40</span>, <span class="dv">40</span>), dtype<span class="op">=</span>np.uint8)</span>
+<span id="cb3-2"><a aria-hidden="true" href="#cb3-2" tabindex="-1"></a>cv2.rectangle(image, (<span class="dv">0</span>, <span class="dv">180</span>), (<span class="dv">639</span>, <span class="dv">359</span>), (<span class="dv">65</span>, <span class="dv">65</span>, <span class="dv">65</span>), <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb3-3"><a aria-hidden="true" href="#cb3-3" tabindex="-1"></a>cv2.line(image, (<span class="dv">213</span>, <span class="dv">359</span>), (<span class="dv">280</span>, <span class="dv">180</span>), (<span class="dv">0</span>, <span class="dv">220</span>, <span class="dv">220</span>), <span class="dv">8</span>)</span>
+<span id="cb3-4"><a aria-hidden="true" href="#cb3-4" tabindex="-1"></a>cv2.line(image, (<span class="dv">426</span>, <span class="dv">359</span>), (<span class="dv">360</span>, <span class="dv">180</span>), (<span class="dv">0</span>, <span class="dv">220</span>, <span class="dv">220</span>), <span class="dv">8</span>)</span>
+<span id="cb3-5"><a aria-hidden="true" href="#cb3-5" tabindex="-1"></a>cv2.rectangle(image, (<span class="dv">285</span>, <span class="dv">210</span>), (<span class="dv">355</span>, <span class="dv">275</span>), (<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">255</span>), <span class="op">-</span><span class="dv">1</span>)</span></code></pre></div>
+<p><code>cv2.rectangle()</code>의 마지막 인자 <code>-1</code>은 내부를
+채운다. <code>cv2.line()</code>의 마지막 인자 <code>8</code>은 선
+두께다. <code>(x, y)</code> 좌표는 왼쪽 위가 원점이고 오른쪽으로 x,
+아래쪽으로 y가 증가한다. 화면의 y축이 수학 좌표계와 반대라는 점을
+유의한다.</p>
+<figure>
+<img alt="합성 장면" src="../assets/data/ch06/scene.png"/>
+<figcaption aria-hidden="true">합성 장면</figcaption>
+</figure>
+<p><strong>확인:</strong> 좌우의 노란 선과 중앙의 빨간 사각형이 보여야
+한다. 결과가 다른 경우 BGR 채널 순서와 좌표를 확인한다.</p>
+</section>
+<section class="page-section" id="roi-관심-영역-설정과-배열-슬라이싱">
+<h2>06. ROI: 관심 영역 설정과 배열 슬라이싱</h2>
+<p>ROI(알오아이, 관심 영역)는 영상에서 분석할 부분을 제한하는 방법이다.
+도로 경계선이 주로 영상 하단에 나타난다는 가정 아래 아래쪽 180픽셀을
+선택한다. 이는 계산량을 줄이지만 위쪽에 나타난 대상은 검출하지 못할 수
+있다. 따라서 관심 영역의 범위는 목적에 맞게 정해야 한다.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a aria-hidden="true" href="#cb4-1" tabindex="-1"></a>roi <span class="op">=</span> extract_roi(frame, x<span class="op">=</span><span class="dv">0</span>, y<span class="op">=</span><span class="dv">180</span>, width<span class="op">=</span><span class="dv">640</span>, height<span class="op">=</span><span class="dv">180</span>)</span>
+<span id="cb4-2"><a aria-hidden="true" href="#cb4-2" tabindex="-1"></a><span class="bu">print</span>(roi.shape)              <span class="co"># (180, 640, 3)</span></span></code></pre></div>
+<p>실제 함수 내부의
+<code>image[y:y + height, x:x + width].copy()</code>는 세로 구간을 먼저,
+가로 구간을 나중에 선택한다. <code>.copy()</code>를 호출하면 원본과
+메모리를 분리해 ROI에 그린 결과가 원본을 바꾸지 않는다.
+<code>x + width</code>가 영상 너비를 초과하면 예외를 발생시키므로 잘못된
+인덱스가 조용히 잘리는 문제를 예방한다.</p>
+<figure>
+<img alt="하단 관심 영역" src="../assets/data/ch06/roi.png"/>
+<figcaption aria-hidden="true">하단 관심 영역</figcaption>
+</figure>
+<p><strong>실습 변형:</strong> <code>y=220</code>,
+<code>height=140</code>으로 바꾸고 노란 선의 검출 길이가 줄어드는지
+관찰한다. 같은 화면이라도 ROI가 달라지면 뒤 단계의 윤곽선 크기가
+달라진다. 이것이 영상처리에서 전처리 설정을 기록해야 하는 이유다.</p>
+</section>
+<section class="page-section" id="bgr에서-hsv로-색-공간-변환">
+<h2>07. BGR에서 HSV로 색 공간 변환</h2>
+<p>HSV(에이치에스브이, 색상·채도·명도)는 색상(H), 채도(S), 밝기(V)를
+분리해 표현한다. OpenCV의 8비트 HSV에서 H는 일반적으로 0~179, S와 V는
+0~255 범위를 사용한다. 빨강·노랑·초록을 RGB 수치로 직접 구분하는 것보다
+색상 성분을 따로 조절하기 편하다. 다만 그림자와 노출 변화가 심하면 HSV도
+완벽한 해결책은 아니다.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a aria-hidden="true" href="#cb5-1" tabindex="-1"></a>hsv <span class="op">=</span> cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)</span>
+<span id="cb5-2"><a aria-hidden="true" href="#cb5-2" tabindex="-1"></a>lower <span class="op">=</span> np.array([<span class="dv">18</span>, <span class="dv">80</span>, <span class="dv">80</span>], dtype<span class="op">=</span>np.uint8)</span>
+<span id="cb5-3"><a aria-hidden="true" href="#cb5-3" tabindex="-1"></a>upper <span class="op">=</span> np.array([<span class="dv">38</span>, <span class="dv">255</span>, <span class="dv">255</span>], dtype<span class="op">=</span>np.uint8)</span>
+<span id="cb5-4"><a aria-hidden="true" href="#cb5-4" tabindex="-1"></a>mask <span class="op">=</span> cv2.inRange(hsv, lower, upper)</span></code></pre></div>
+<p>노란색을 대상으로 H를 18~38로 설정했다. 이 범위는 <strong>교육용 합성
+영상에 맞춘 예시</strong>이지 모든 카메라·조명에서 통용되는 표준값이
+아니다. 채도·밝기의 하한을 80으로 설정하면 매우 어두운 픽셀을 배제할 수
+있지만 어두운 실제 노란 선도 놓칠 수 있다. 현장에서는 여러 프레임을
+수집하여 오검출과 미검출을 함께 평가한다.</p>
+<p><strong>확인:</strong> 빨간 사각형은 노란색 마스크에 포함되지 않아야
+한다. 실제 이미지에서 결과가 좋지 않으면 먼저 색 순서가 BGR인지
+확인한다.</p>
+</section>
+<section class="page-section" id="이진-마스크와-픽셀-단위-판단">
+<h2>08. 이진 마스크와 픽셀 단위 판단</h2>
+<p><code>cv2.inRange()</code>는 조건을 만족하는 픽셀에 255, 그렇지 않은
+픽셀에 0을 지정한다. 결과 <code>mask</code>는 2차원 <code>uint8</code>
+배열이다. 흰색 영역이 검출 대상이며 검은색 영역은 배경이다. 따라서
+<code>np.count_nonzero(mask)</code>는 검출된 픽셀 수를 세는 데 사용할 수
+있다. 이 수치만으로 대상의 위치나 종류를 알 수는 없다.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a aria-hidden="true" href="#cb6-1" tabindex="-1"></a>mask <span class="op">=</span> color_mask_bgr(roi)</span>
+<span id="cb6-2"><a aria-hidden="true" href="#cb6-2" tabindex="-1"></a><span class="bu">print</span>(mask.shape, mask.dtype)</span>
+<span id="cb6-3"><a aria-hidden="true" href="#cb6-3" tabindex="-1"></a><span class="bu">print</span>(np.unique(mask))</span></code></pre></div>
+<p><strong>예상 결과:</strong> <code>(180, 640)</code>,
+<code>uint8</code>, <code>[0, 255]</code>가 출력된다.
+<code>mask.shape</code>에 색 채널이 없는 이유는 픽셀별 통과 여부만 담기
+때문이다. 영상 크기가 바뀌면 픽셀 수 비교도 달라지므로 단순 픽셀 수 대신
+영상 면적 대비 비율을 계산하는 방법도 있다.</p>
+<figure>
+<img alt="노란색 이진 마스크" src="../assets/data/ch06/yellow_mask.png"/>
+<figcaption aria-hidden="true">노란색 이진 마스크</figcaption>
+</figure>
+<p><strong>실습 변형:</strong> H 범위를
+<code>[25, 80, 80]</code>~<code>[30, 255, 255]</code>로 좁혀 본다. 노란
+선의 일부가 사라지면 임계값이 너무 엄격하다는 뜻이다. 반대로 범위를
+지나치게 넓히면 도로 배경이 검출될 수 있다.</p>
+</section>
+<section class="page-section" id="윤곽선-검출과-잡음-필터링">
+<h2>09. 윤곽선 검출과 잡음 필터링</h2>
+<p>윤곽선은 이진 마스크에서 연결된 영역의 경계를 점들의 집합으로
+표현한다. <code>cv2.findContours()</code>는 외곽선을 추출할 때 사용한다.
+<code>cv2.RETR_EXTERNAL</code>은 가장 바깥 윤곽선만 가져오며
+<code>cv2.CHAIN_APPROX_SIMPLE</code>은 불필요한 중간 점을 줄인다. 원본
+마스크를 직접 그리는 것이 아니라 반환된 윤곽선 목록을 별도로
+활용한다.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a aria-hidden="true" href="#cb7-1" tabindex="-1"></a>found, _ <span class="op">=</span> cv2.findContours(mask, cv2.RETR_EXTERNAL,</span>
+<span id="cb7-2"><a aria-hidden="true" href="#cb7-2" tabindex="-1"></a>                            cv2.CHAIN_APPROX_SIMPLE)</span>
+<span id="cb7-3"><a aria-hidden="true" href="#cb7-3" tabindex="-1"></a>contours <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> found <span class="cf">if</span> cv2.contourArea(c) <span class="op">&gt;=</span> <span class="dv">80</span>]</span>
+<span id="cb7-4"><a aria-hidden="true" href="#cb7-4" tabindex="-1"></a>contours.sort(key<span class="op">=</span>cv2.contourArea, reverse<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
+<p><code>cv2.contourArea()</code>는 윤곽선이 둘러싼 면적을 계산한다.
+작은 잡음을 제거하려고 면적 80픽셀² 이상만 유지한다. 이 값도 해상도와
+대상 크기에 따라 달라지는 예시값이다. 길고 얇은 선은 면적이 작게 나올 수
+있어 작은 면적 필터가 항상 적절하지는 않다.</p>
+<p>이번 합성 영상에서는 노란 선 두 개가 각각 분리되어 윤곽선 2개가
+검출된다. 이 결과는 차선이 두 개라는 의미가 아니라 <strong>노란 연결
+영역이 두 개</strong>라는 의미다. 실제 차선 검출은 기하학적 일관성,
+원근, 시간적 안정성 등을 추가로 확인해야 한다.</p>
+</section>
+<section class="page-section" id="경계-상자와-문자-표시">
+<h2>10. 경계 상자와 문자 표시</h2>
+<p>검출 결과를 사람이 확인하려면 윤곽선만 표시하는 것보다 경계 상자와
+번호를 함께 그리는 것이 유용하다. <code>cv2.boundingRect()</code>는
+윤곽선을 둘러싼 축 정렬 사각형의 <code>(x, y, w, h)</code>를 돌려준다.
+이 좌표는 ROI 내부 좌표이므로 원본 전체 영상에 그릴 때는 ROI의 시작
+좌표를 더해야 한다.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a aria-hidden="true" href="#cb8-1" tabindex="-1"></a>output <span class="op">=</span> roi.copy()</span>
+<span id="cb8-2"><a aria-hidden="true" href="#cb8-2" tabindex="-1"></a><span class="cf">for</span> index, contour <span class="kw">in</span> <span class="bu">enumerate</span>(contours, start<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb8-3"><a aria-hidden="true" href="#cb8-3" tabindex="-1"></a>    x, y, w, h <span class="op">=</span> cv2.boundingRect(contour)</span>
+<span id="cb8-4"><a aria-hidden="true" href="#cb8-4" tabindex="-1"></a>    cv2.rectangle(output, (x, y), (x <span class="op">+</span> w, y <span class="op">+</span> h), (<span class="dv">255</span>, <span class="dv">255</span>, <span class="dv">255</span>), <span class="dv">2</span>)</span>
+<span id="cb8-5"><a aria-hidden="true" href="#cb8-5" tabindex="-1"></a>    cv2.putText(output, <span class="ss">f'ROI </span><span class="sc">{</span>index<span class="sc">}</span><span class="ss">'</span>, (x, <span class="bu">max</span>(<span class="dv">18</span>, y <span class="op">-</span> <span class="dv">6</span>)),</span>
+<span id="cb8-6"><a aria-hidden="true" href="#cb8-6" tabindex="-1"></a>                cv2.FONT_HERSHEY_SIMPLEX, <span class="fl">0.5</span>, (<span class="dv">255</span>, <span class="dv">255</span>, <span class="dv">255</span>), <span class="dv">1</span>)</span></code></pre></div>
+<p>OpenCV의 기본 <code>putText()</code> 글꼴은 한글을 안정적으로
+렌더링하지 못하므로 예제는 <code>ROI 1</code>처럼 영문·숫자를 사용한다.
+한글 안내는 교재 본문이나 별도 렌더러로 표시한다.
+<code>max(18, y - 6)</code>은 문자가 영상 위쪽으로 잘리는 것을
+완화한다.</p>
+<figure>
+<img alt="윤곽선과 경계 상자" src="../assets/data/ch06/contours.png"/>
+<figcaption aria-hidden="true">윤곽선과 경계 상자</figcaption>
+</figure>
+<p><strong>확인:</strong> 두 개의 노란 선에 흰 경계 상자와
+<code>ROI</code> 번호가 표시된다. 상자가 빨간 사각형을 둘러싸면 색 범위
+설정을 다시 점검한다.</p>
+</section>
+<section class="page-section" id="종합-실습-실행-결과예외자동-테스트">
+<h2>11. 종합 실습: 실행 결과·예외·자동 테스트</h2>
+<p>제공된 전체 프로그램은 <code>make_scene()</code> →
+<code>extract_roi()</code> → <code>color_mask_bgr()</code> →
+<code>contours_from_mask()</code> → <code>annotate()</code> →
+<code>run()</code> 순서로 동작한다. 실제 함수명을 그림·본문·코드에서
+동일하게 사용했다. 함수별 입력·출력을 분리하면 단계별 단위 테스트를 만들
+수 있다. 다음은 실행 확인용 명령이다.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a aria-hidden="true" href="#cb9-1" tabindex="-1"></a><span class="ex">python</span> codes/ch06/opencv_vision_lab.py <span class="at">--out</span> outputs/ch06</span>
+<span id="cb9-2"><a aria-hidden="true" href="#cb9-2" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> unittest discover <span class="at">-s</span> codes/ch06 <span class="at">-p</span> <span class="st">'test_*.py'</span> <span class="at">-v</span></span></code></pre></div>
+<p><strong>기준 출력:</strong>
+<code>frame=(360, 640, 3), roi=(180, 640, 3), contours=2</code>와 PNG
+파일 4개의 이름이 출력된다. 테스트는 영상 크기·자료형·잘못된 크기·ROI
+범위·복사 여부·마스크 자료형·이진값·노란 픽셀·윤곽선·출력 파일 등을
+검사한다. 테스트가 통과해도 실제 카메라 입력이나 로봇 제어까지 검증한
+것은 아니다.</p>
+<p><strong>오류 점검:</strong> <code>ModuleNotFoundError</code>는 설치
+환경을 확인한다. 이미지가 저장되지 않으면 출력 폴더 권한과 경로를
+확인한다. 윤곽선이 0개면 ROI, HSV 범위, 마스크를 순서대로 확인한다. 상자
+좌표가 어긋나면 ROI 좌표와 원본 좌표를 혼동했는지 확인한다.</p>
+<p><strong>안전:</strong> 영상에서 물체를 찾았다는 사실을 곧바로 주행
+명령으로 변환하지 않는다. 실제 주행 실습은 별도의 안전 승인과 센서
+검증을 요구한다.</p>
+</section>
+<section class="page-section" id="평가선택-심화다음-차시-연결">
+<h2>12. 평가·선택 심화·다음 차시 연결</h2>
+<p><strong>필수 확인 과제:</strong> (1) 영상 배열의 세 축을 설명한다.
+(2) BGR의 빨강 값이 <code>(0,0,255)</code>인 이유를 설명한다. (3) ROI가
+원본을 복사하는 이유를 설명한다. (4) 마스크의 0과 255를 해석한다. (5)
+윤곽선 개수와 실제 차선 개수가 같다고 단정할 수 없는 이유를 설명한다.
+(6) 테스트 15개가 모두 통과하는지 확인한다.</p>
+<p><strong>선택 심화 A — 임계값 민감도:</strong> H의 상·하한을 각각 5씩
+바꾸고 마스크의 흰색 픽셀 수와 윤곽선 개수를 비교한다. 기준 영상과 바뀐
+결과를 나란히 저장한다. <strong>선택 심화 B — 실제 이미지:</strong>
+라이선스가 허용된 도로 사진을 준비하여 같은 처리를 적용한다. 실제
+이미지에서는 ROI 위치·조명·차선 색상·원근이 달라지므로 기본값을 그대로
+신뢰하지 않는다. <strong>선택 심화 C — 잡음:</strong> 작은 노란 점을
+추가한 뒤 <code>min_area</code>를 조절하고 잡음이 제거되는지
+관찰한다.</p>
+<p><strong>다음 차시 연결:</strong> 07차시에서는 영상처리와 구분되는
+딥러닝 학습 개념을 다룬다. 이번 차시의 색 임계값과 윤곽선 검출은 사람이
+직접 규칙을 설정하는 방식이다. 딥러닝에서는 데이터를 통해 모델
+파라미터를 학습한다. 두 접근은 서로 배타적이지 않으며 실제 시스템에서는
+함께 사용될 수 있다.</p>
+<p><strong>공식 참고:</strong> OpenCV-Python 튜토리얼(색 공간
+변환·윤곽선·도형 그리기), NumPy 배열 인덱싱, Python 가상환경 문서를
+우선한다. 출처 링크와 검증 한계는 마지막 절에 명시한다.</p>
+</section>
+<section class="page-section" id="전체-실행-코드-opencv_vision_lab.py">
+<h2>13. 전체 실행 코드 — <code>opencv_vision_lab.py</code></h2>
+<p>아래 코드는 합성 장면 생성부터 이미지 저장까지 독립적으로 실행된다.
+입력 파일이나 로봇 장비가 없어도 동작한다. <code>--out</code> 옵션으로
+결과 저장 위치를 선택한다.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a aria-hidden="true" href="#cb10-1" tabindex="-1"></a><span class="co">"""06차시: 합성 영상 기반 OpenCV 영상처리 실습. 카메라·로봇 API 사용 없음."""</span></span>
+<span id="cb10-2"><a aria-hidden="true" href="#cb10-2" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb10-3"><a aria-hidden="true" href="#cb10-3" tabindex="-1"></a><span class="im">import</span> argparse</span>
+<span id="cb10-4"><a aria-hidden="true" href="#cb10-4" tabindex="-1"></a><span class="im">import</span> cv2</span>
+<span id="cb10-5"><a aria-hidden="true" href="#cb10-5" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-6"><a aria-hidden="true" href="#cb10-6" tabindex="-1"></a></span>
+<span id="cb10-7"><a aria-hidden="true" href="#cb10-7" tabindex="-1"></a></span>
+<span id="cb10-8"><a aria-hidden="true" href="#cb10-8" tabindex="-1"></a><span class="kw">def</span> make_scene(width<span class="op">=</span><span class="dv">640</span>, height<span class="op">=</span><span class="dv">360</span>):</span>
+<span id="cb10-9"><a aria-hidden="true" href="#cb10-9" tabindex="-1"></a>    <span class="co">"""BGR 영상에 관심 영역, 노란 도형, 빨간 표지판을 생성한다."""</span></span>
+<span id="cb10-10"><a aria-hidden="true" href="#cb10-10" tabindex="-1"></a>    <span class="cf">if</span> width <span class="op">&lt;</span> <span class="dv">100</span> <span class="kw">or</span> height <span class="op">&lt;</span> <span class="dv">100</span>:</span>
+<span id="cb10-11"><a aria-hidden="true" href="#cb10-11" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'영상 크기는 가로·세로 각각 100 이상이어야 합니다.'</span>)</span>
+<span id="cb10-12"><a aria-hidden="true" href="#cb10-12" tabindex="-1"></a>    image <span class="op">=</span> np.full((height, width, <span class="dv">3</span>), (<span class="dv">40</span>, <span class="dv">40</span>, <span class="dv">40</span>), dtype<span class="op">=</span>np.uint8)</span>
+<span id="cb10-13"><a aria-hidden="true" href="#cb10-13" tabindex="-1"></a>    cv2.rectangle(image, (<span class="dv">0</span>, height <span class="op">//</span> <span class="dv">2</span>), (width <span class="op">-</span> <span class="dv">1</span>, height <span class="op">-</span> <span class="dv">1</span>), (<span class="dv">65</span>, <span class="dv">65</span>, <span class="dv">65</span>), <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb10-14"><a aria-hidden="true" href="#cb10-14" tabindex="-1"></a>    cv2.line(image, (width <span class="op">//</span> <span class="dv">3</span>, height <span class="op">-</span> <span class="dv">1</span>), (width <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">40</span>, height <span class="op">//</span> <span class="dv">2</span>), (<span class="dv">0</span>, <span class="dv">220</span>, <span class="dv">220</span>), <span class="dv">8</span>)</span>
+<span id="cb10-15"><a aria-hidden="true" href="#cb10-15" tabindex="-1"></a>    cv2.line(image, (width <span class="op">*</span> <span class="dv">2</span> <span class="op">//</span> <span class="dv">3</span>, height <span class="op">-</span> <span class="dv">1</span>), (width <span class="op">//</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">40</span>, height <span class="op">//</span> <span class="dv">2</span>), (<span class="dv">0</span>, <span class="dv">220</span>, <span class="dv">220</span>), <span class="dv">8</span>)</span>
+<span id="cb10-16"><a aria-hidden="true" href="#cb10-16" tabindex="-1"></a>    cv2.rectangle(image, (width <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">35</span>, height <span class="op">//</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">30</span>), (width <span class="op">//</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">35</span>, height <span class="op">//</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">95</span>), (<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">255</span>), <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb10-17"><a aria-hidden="true" href="#cb10-17" tabindex="-1"></a>    <span class="cf">return</span> image</span>
+<span id="cb10-18"><a aria-hidden="true" href="#cb10-18" tabindex="-1"></a></span>
+<span id="cb10-19"><a aria-hidden="true" href="#cb10-19" tabindex="-1"></a></span>
+<span id="cb10-20"><a aria-hidden="true" href="#cb10-20" tabindex="-1"></a><span class="kw">def</span> extract_roi(image, x, y, width, height):</span>
+<span id="cb10-21"><a aria-hidden="true" href="#cb10-21" tabindex="-1"></a>    <span class="co">"""배열의 [y:y+h, x:x+w] 영역을 복사한다. 영상 경계를 검사한다."""</span></span>
+<span id="cb10-22"><a aria-hidden="true" href="#cb10-22" tabindex="-1"></a>    <span class="cf">if</span> image <span class="kw">is</span> <span class="va">None</span> <span class="kw">or</span> image.ndim <span class="kw">not</span> <span class="kw">in</span> (<span class="dv">2</span>, <span class="dv">3</span>):</span>
+<span id="cb10-23"><a aria-hidden="true" href="#cb10-23" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'2차원 또는 3차원 영상 배열이 필요합니다.'</span>)</span>
+<span id="cb10-24"><a aria-hidden="true" href="#cb10-24" tabindex="-1"></a>    ih, iw <span class="op">=</span> image.shape[:<span class="dv">2</span>]</span>
+<span id="cb10-25"><a aria-hidden="true" href="#cb10-25" tabindex="-1"></a>    <span class="cf">if</span> x <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">or</span> y <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">or</span> width <span class="op">&lt;=</span> <span class="dv">0</span> <span class="kw">or</span> height <span class="op">&lt;=</span> <span class="dv">0</span> <span class="kw">or</span> x <span class="op">+</span> width <span class="op">&gt;</span> iw <span class="kw">or</span> y <span class="op">+</span> height <span class="op">&gt;</span> ih:</span>
+<span id="cb10-26"><a aria-hidden="true" href="#cb10-26" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'관심 영역이 영상 범위를 벗어났습니다.'</span>)</span>
+<span id="cb10-27"><a aria-hidden="true" href="#cb10-27" tabindex="-1"></a>    <span class="cf">return</span> image[y:y <span class="op">+</span> height, x:x <span class="op">+</span> width].copy()</span>
+<span id="cb10-28"><a aria-hidden="true" href="#cb10-28" tabindex="-1"></a></span>
+<span id="cb10-29"><a aria-hidden="true" href="#cb10-29" tabindex="-1"></a></span>
+<span id="cb10-30"><a aria-hidden="true" href="#cb10-30" tabindex="-1"></a><span class="kw">def</span> color_mask_bgr(image):</span>
+<span id="cb10-31"><a aria-hidden="true" href="#cb10-31" tabindex="-1"></a>    <span class="co">"""BGR을 HSV로 변환하고 노란색 영역을 이진 마스크로 분리한다."""</span></span>
+<span id="cb10-32"><a aria-hidden="true" href="#cb10-32" tabindex="-1"></a>    <span class="cf">if</span> image <span class="kw">is</span> <span class="va">None</span> <span class="kw">or</span> image.ndim <span class="op">!=</span> <span class="dv">3</span> <span class="kw">or</span> image.shape[<span class="dv">2</span>] <span class="op">!=</span> <span class="dv">3</span>:</span>
+<span id="cb10-33"><a aria-hidden="true" href="#cb10-33" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'3채널 BGR 영상이 필요합니다.'</span>)</span>
+<span id="cb10-34"><a aria-hidden="true" href="#cb10-34" tabindex="-1"></a>    hsv <span class="op">=</span> cv2.cvtColor(image, cv2.COLOR_BGR2HSV)</span>
+<span id="cb10-35"><a aria-hidden="true" href="#cb10-35" tabindex="-1"></a>    lower <span class="op">=</span> np.array([<span class="dv">18</span>, <span class="dv">80</span>, <span class="dv">80</span>], dtype<span class="op">=</span>np.uint8)</span>
+<span id="cb10-36"><a aria-hidden="true" href="#cb10-36" tabindex="-1"></a>    upper <span class="op">=</span> np.array([<span class="dv">38</span>, <span class="dv">255</span>, <span class="dv">255</span>], dtype<span class="op">=</span>np.uint8)</span>
+<span id="cb10-37"><a aria-hidden="true" href="#cb10-37" tabindex="-1"></a>    <span class="cf">return</span> cv2.inRange(hsv, lower, upper)</span>
+<span id="cb10-38"><a aria-hidden="true" href="#cb10-38" tabindex="-1"></a></span>
+<span id="cb10-39"><a aria-hidden="true" href="#cb10-39" tabindex="-1"></a></span>
+<span id="cb10-40"><a aria-hidden="true" href="#cb10-40" tabindex="-1"></a><span class="kw">def</span> contours_from_mask(mask, min_area<span class="op">=</span><span class="fl">80.0</span>):</span>
+<span id="cb10-41"><a aria-hidden="true" href="#cb10-41" tabindex="-1"></a>    <span class="co">"""외곽 윤곽선을 찾고 면적이 작은 잡음을 제외한다."""</span></span>
+<span id="cb10-42"><a aria-hidden="true" href="#cb10-42" tabindex="-1"></a>    <span class="cf">if</span> mask <span class="kw">is</span> <span class="va">None</span> <span class="kw">or</span> mask.ndim <span class="op">!=</span> <span class="dv">2</span> <span class="kw">or</span> mask.dtype <span class="op">!=</span> np.uint8:</span>
+<span id="cb10-43"><a aria-hidden="true" href="#cb10-43" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'uint8 단일 채널 마스크가 필요합니다.'</span>)</span>
+<span id="cb10-44"><a aria-hidden="true" href="#cb10-44" tabindex="-1"></a>    <span class="cf">if</span> min_area <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb10-45"><a aria-hidden="true" href="#cb10-45" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'최소 면적은 0 이상이어야 합니다.'</span>)</span>
+<span id="cb10-46"><a aria-hidden="true" href="#cb10-46" tabindex="-1"></a>    found, _ <span class="op">=</span> cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)</span>
+<span id="cb10-47"><a aria-hidden="true" href="#cb10-47" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sorted</span>((c <span class="cf">for</span> c <span class="kw">in</span> found <span class="cf">if</span> cv2.contourArea(c) <span class="op">&gt;=</span> min_area),</span>
+<span id="cb10-48"><a aria-hidden="true" href="#cb10-48" tabindex="-1"></a>                  key<span class="op">=</span>cv2.contourArea, reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-49"><a aria-hidden="true" href="#cb10-49" tabindex="-1"></a></span>
+<span id="cb10-50"><a aria-hidden="true" href="#cb10-50" tabindex="-1"></a></span>
+<span id="cb10-51"><a aria-hidden="true" href="#cb10-51" tabindex="-1"></a><span class="kw">def</span> annotate(image, contours):</span>
+<span id="cb10-52"><a aria-hidden="true" href="#cb10-52" tabindex="-1"></a>    <span class="co">"""윤곽선, 경계 사각형, 영어 안내 문자를 원본의 복사본에 표시한다."""</span></span>
+<span id="cb10-53"><a aria-hidden="true" href="#cb10-53" tabindex="-1"></a>    output <span class="op">=</span> image.copy()</span>
+<span id="cb10-54"><a aria-hidden="true" href="#cb10-54" tabindex="-1"></a>    cv2.drawContours(output, contours, <span class="op">-</span><span class="dv">1</span>, (<span class="dv">255</span>, <span class="dv">255</span>, <span class="dv">0</span>), <span class="dv">2</span>)</span>
+<span id="cb10-55"><a aria-hidden="true" href="#cb10-55" tabindex="-1"></a>    <span class="cf">for</span> index, contour <span class="kw">in</span> <span class="bu">enumerate</span>(contours, start<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb10-56"><a aria-hidden="true" href="#cb10-56" tabindex="-1"></a>        x, y, w, h <span class="op">=</span> cv2.boundingRect(contour)</span>
+<span id="cb10-57"><a aria-hidden="true" href="#cb10-57" tabindex="-1"></a>        cv2.rectangle(output, (x, y), (x <span class="op">+</span> w, y <span class="op">+</span> h), (<span class="dv">255</span>, <span class="dv">255</span>, <span class="dv">255</span>), <span class="dv">2</span>)</span>
+<span id="cb10-58"><a aria-hidden="true" href="#cb10-58" tabindex="-1"></a>        cv2.putText(output, <span class="ss">f'ROI </span><span class="sc">{</span>index<span class="sc">}</span><span class="ss">'</span>, (x, <span class="bu">max</span>(<span class="dv">18</span>, y <span class="op">-</span> <span class="dv">6</span>)),</span>
+<span id="cb10-59"><a aria-hidden="true" href="#cb10-59" tabindex="-1"></a>                    cv2.FONT_HERSHEY_SIMPLEX, <span class="fl">0.5</span>, (<span class="dv">255</span>, <span class="dv">255</span>, <span class="dv">255</span>), <span class="dv">1</span>, cv2.LINE_AA)</span>
+<span id="cb10-60"><a aria-hidden="true" href="#cb10-60" tabindex="-1"></a>    <span class="cf">return</span> output</span>
+<span id="cb10-61"><a aria-hidden="true" href="#cb10-61" tabindex="-1"></a></span>
+<span id="cb10-62"><a aria-hidden="true" href="#cb10-62" tabindex="-1"></a></span>
+<span id="cb10-63"><a aria-hidden="true" href="#cb10-63" tabindex="-1"></a><span class="kw">def</span> run(out_dir):</span>
+<span id="cb10-64"><a aria-hidden="true" href="#cb10-64" tabindex="-1"></a>    <span class="co">"""GUI 없이 결과 PNG를 저장하므로 서버·원격 터미널에서도 실행 가능하다."""</span></span>
+<span id="cb10-65"><a aria-hidden="true" href="#cb10-65" tabindex="-1"></a>    target <span class="op">=</span> Path(out_dir)</span>
+<span id="cb10-66"><a aria-hidden="true" href="#cb10-66" tabindex="-1"></a>    target.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-67"><a aria-hidden="true" href="#cb10-67" tabindex="-1"></a>    frame <span class="op">=</span> make_scene()</span>
+<span id="cb10-68"><a aria-hidden="true" href="#cb10-68" tabindex="-1"></a>    roi <span class="op">=</span> extract_roi(frame, <span class="dv">0</span>, <span class="dv">180</span>, <span class="dv">640</span>, <span class="dv">180</span>)</span>
+<span id="cb10-69"><a aria-hidden="true" href="#cb10-69" tabindex="-1"></a>    mask <span class="op">=</span> color_mask_bgr(roi)</span>
+<span id="cb10-70"><a aria-hidden="true" href="#cb10-70" tabindex="-1"></a>    contours <span class="op">=</span> contours_from_mask(mask)</span>
+<span id="cb10-71"><a aria-hidden="true" href="#cb10-71" tabindex="-1"></a>    overlay <span class="op">=</span> annotate(roi, contours)</span>
+<span id="cb10-72"><a aria-hidden="true" href="#cb10-72" tabindex="-1"></a>    outputs <span class="op">=</span> {<span class="st">'scene.png'</span>: frame, <span class="st">'roi.png'</span>: roi,</span>
+<span id="cb10-73"><a aria-hidden="true" href="#cb10-73" tabindex="-1"></a>               <span class="st">'yellow_mask.png'</span>: mask, <span class="st">'contours.png'</span>: overlay}</span>
+<span id="cb10-74"><a aria-hidden="true" href="#cb10-74" tabindex="-1"></a>    <span class="cf">for</span> name, image <span class="kw">in</span> outputs.items():</span>
+<span id="cb10-75"><a aria-hidden="true" href="#cb10-75" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> cv2.imwrite(<span class="bu">str</span>(target <span class="op">/</span> name), image):</span>
+<span id="cb10-76"><a aria-hidden="true" href="#cb10-76" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">OSError</span>(<span class="ss">f'이미지 저장 실패: </span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb10-77"><a aria-hidden="true" href="#cb10-77" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'frame=</span><span class="sc">{</span>frame<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">, roi=</span><span class="sc">{</span>roi<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">, contours=</span><span class="sc">{</span><span class="bu">len</span>(contours)<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb10-78"><a aria-hidden="true" href="#cb10-78" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'saved='</span> <span class="op">+</span> <span class="st">', '</span>.join(outputs))</span>
+<span id="cb10-79"><a aria-hidden="true" href="#cb10-79" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">len</span>(contours)</span>
+<span id="cb10-80"><a aria-hidden="true" href="#cb10-80" tabindex="-1"></a></span>
+<span id="cb10-81"><a aria-hidden="true" href="#cb10-81" tabindex="-1"></a></span>
+<span id="cb10-82"><a aria-hidden="true" href="#cb10-82" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">'__main__'</span>:</span>
+<span id="cb10-83"><a aria-hidden="true" href="#cb10-83" tabindex="-1"></a>    parser <span class="op">=</span> argparse.ArgumentParser(description<span class="op">=</span><span class="st">'06차시 OpenCV 영상처리 실습'</span>)</span>
+<span id="cb10-84"><a aria-hidden="true" href="#cb10-84" tabindex="-1"></a>    parser.add_argument(<span class="st">'--out'</span>, default<span class="op">=</span><span class="st">'outputs'</span>, <span class="bu">help</span><span class="op">=</span><span class="st">'결과 이미지 저장 폴더'</span>)</span>
+<span id="cb10-85"><a aria-hidden="true" href="#cb10-85" tabindex="-1"></a>    args <span class="op">=</span> parser.parse_args()</span>
+<span id="cb10-86"><a aria-hidden="true" href="#cb10-86" tabindex="-1"></a>    run(args.out)</span></code></pre></div>
+</section>
+<section class="page-section" id="전체-자동-테스트-코드-test_opencv_vision_lab.py">
+<h2>14. 전체 자동 테스트 코드 —
+<code>test_opencv_vision_lab.py</code></h2>
+<p>이 테스트는 합성 영상의 불변 조건과 오류 처리를 확인한다. 테스트가
+통과한 범위는 코드 내부 동작이며 실물 센서나 실제 주행을 보증하지
+않는다.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a aria-hidden="true" href="#cb11-1" tabindex="-1"></a><span class="co">"""외부 장비 없이 실행되는 06차시 회귀 테스트."""</span></span>
+<span id="cb11-2"><a aria-hidden="true" href="#cb11-2" tabindex="-1"></a><span class="im">import</span> tempfile</span>
+<span id="cb11-3"><a aria-hidden="true" href="#cb11-3" tabindex="-1"></a><span class="im">import</span> unittest</span>
+<span id="cb11-4"><a aria-hidden="true" href="#cb11-4" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb11-5"><a aria-hidden="true" href="#cb11-5" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb11-6"><a aria-hidden="true" href="#cb11-6" tabindex="-1"></a><span class="im">from</span> opencv_vision_lab <span class="im">import</span> (make_scene, extract_roi, color_mask_bgr,</span>
+<span id="cb11-7"><a aria-hidden="true" href="#cb11-7" tabindex="-1"></a>                               contours_from_mask, annotate, run)</span>
+<span id="cb11-8"><a aria-hidden="true" href="#cb11-8" tabindex="-1"></a></span>
+<span id="cb11-9"><a aria-hidden="true" href="#cb11-9" tabindex="-1"></a><span class="kw">class</span> VisionTests(unittest.TestCase):</span>
+<span id="cb11-10"><a aria-hidden="true" href="#cb11-10" tabindex="-1"></a>    <span class="kw">def</span> setUp(<span class="va">self</span>):</span>
+<span id="cb11-11"><a aria-hidden="true" href="#cb11-11" tabindex="-1"></a>        <span class="va">self</span>.frame <span class="op">=</span> make_scene()</span>
+<span id="cb11-12"><a aria-hidden="true" href="#cb11-12" tabindex="-1"></a></span>
+<span id="cb11-13"><a aria-hidden="true" href="#cb11-13" tabindex="-1"></a>    <span class="kw">def</span> test_shape(<span class="va">self</span>): <span class="va">self</span>.assertEqual(<span class="va">self</span>.frame.shape, (<span class="dv">360</span>, <span class="dv">640</span>, <span class="dv">3</span>))</span>
+<span id="cb11-14"><a aria-hidden="true" href="#cb11-14" tabindex="-1"></a>    <span class="kw">def</span> test_dtype(<span class="va">self</span>): <span class="va">self</span>.assertEqual(<span class="va">self</span>.frame.dtype, np.uint8)</span>
+<span id="cb11-15"><a aria-hidden="true" href="#cb11-15" tabindex="-1"></a>    <span class="kw">def</span> test_invalid_scene(<span class="va">self</span>):</span>
+<span id="cb11-16"><a aria-hidden="true" href="#cb11-16" tabindex="-1"></a>        <span class="cf">with</span> <span class="va">self</span>.assertRaises(<span class="pp">ValueError</span>): make_scene(<span class="dv">10</span>, <span class="dv">10</span>)</span>
+<span id="cb11-17"><a aria-hidden="true" href="#cb11-17" tabindex="-1"></a>    <span class="kw">def</span> test_roi_shape(<span class="va">self</span>): <span class="va">self</span>.assertEqual(extract_roi(<span class="va">self</span>.frame, <span class="dv">0</span>, <span class="dv">180</span>, <span class="dv">640</span>, <span class="dv">180</span>).shape, (<span class="dv">180</span>, <span class="dv">640</span>, <span class="dv">3</span>))</span>
+<span id="cb11-18"><a aria-hidden="true" href="#cb11-18" tabindex="-1"></a>    <span class="kw">def</span> test_roi_copy(<span class="va">self</span>):</span>
+<span id="cb11-19"><a aria-hidden="true" href="#cb11-19" tabindex="-1"></a>        roi <span class="op">=</span> extract_roi(<span class="va">self</span>.frame, <span class="dv">0</span>, <span class="dv">180</span>, <span class="dv">100</span>, <span class="dv">100</span>)</span>
+<span id="cb11-20"><a aria-hidden="true" href="#cb11-20" tabindex="-1"></a>        roi[:] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb11-21"><a aria-hidden="true" href="#cb11-21" tabindex="-1"></a>        <span class="va">self</span>.assertFalse(np.<span class="bu">all</span>(<span class="va">self</span>.frame[<span class="dv">180</span>:<span class="dv">280</span>, :<span class="dv">100</span>] <span class="op">==</span> <span class="dv">0</span>))</span>
+<span id="cb11-22"><a aria-hidden="true" href="#cb11-22" tabindex="-1"></a>    <span class="kw">def</span> test_roi_bounds(<span class="va">self</span>):</span>
+<span id="cb11-23"><a aria-hidden="true" href="#cb11-23" tabindex="-1"></a>        <span class="cf">with</span> <span class="va">self</span>.assertRaises(<span class="pp">ValueError</span>): extract_roi(<span class="va">self</span>.frame, <span class="dv">620</span>, <span class="dv">200</span>, <span class="dv">30</span>, <span class="dv">30</span>)</span>
+<span id="cb11-24"><a aria-hidden="true" href="#cb11-24" tabindex="-1"></a>    <span class="kw">def</span> test_roi_negative(<span class="va">self</span>):</span>
+<span id="cb11-25"><a aria-hidden="true" href="#cb11-25" tabindex="-1"></a>        <span class="cf">with</span> <span class="va">self</span>.assertRaises(<span class="pp">ValueError</span>): extract_roi(<span class="va">self</span>.frame, <span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">30</span>, <span class="dv">30</span>)</span>
+<span id="cb11-26"><a aria-hidden="true" href="#cb11-26" tabindex="-1"></a>    <span class="kw">def</span> test_mask_dtype(<span class="va">self</span>): <span class="va">self</span>.assertEqual(color_mask_bgr(<span class="va">self</span>.frame).dtype, np.uint8)</span>
+<span id="cb11-27"><a aria-hidden="true" href="#cb11-27" tabindex="-1"></a>    <span class="kw">def</span> test_mask_binary(<span class="va">self</span>): <span class="va">self</span>.assertTrue(<span class="bu">set</span>(np.unique(color_mask_bgr(<span class="va">self</span>.frame))).issubset({<span class="dv">0</span>, <span class="dv">255</span>}))</span>
+<span id="cb11-28"><a aria-hidden="true" href="#cb11-28" tabindex="-1"></a>    <span class="kw">def</span> test_mask_has_yellow(<span class="va">self</span>): <span class="va">self</span>.assertGreater(np.count_nonzero(color_mask_bgr(<span class="va">self</span>.frame)), <span class="dv">100</span>)</span>
+<span id="cb11-29"><a aria-hidden="true" href="#cb11-29" tabindex="-1"></a>    <span class="kw">def</span> test_invalid_mask(<span class="va">self</span>):</span>
+<span id="cb11-30"><a aria-hidden="true" href="#cb11-30" tabindex="-1"></a>        <span class="cf">with</span> <span class="va">self</span>.assertRaises(<span class="pp">ValueError</span>): contours_from_mask(<span class="va">self</span>.frame)</span>
+<span id="cb11-31"><a aria-hidden="true" href="#cb11-31" tabindex="-1"></a>    <span class="kw">def</span> test_negative_area(<span class="va">self</span>):</span>
+<span id="cb11-32"><a aria-hidden="true" href="#cb11-32" tabindex="-1"></a>        <span class="cf">with</span> <span class="va">self</span>.assertRaises(<span class="pp">ValueError</span>): contours_from_mask(color_mask_bgr(<span class="va">self</span>.frame), <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb11-33"><a aria-hidden="true" href="#cb11-33" tabindex="-1"></a>    <span class="kw">def</span> test_contour_detect(<span class="va">self</span>): <span class="va">self</span>.assertGreaterEqual(<span class="bu">len</span>(contours_from_mask(color_mask_bgr(<span class="va">self</span>.frame))), <span class="dv">2</span>)</span>
+<span id="cb11-34"><a aria-hidden="true" href="#cb11-34" tabindex="-1"></a>    <span class="kw">def</span> test_annotate_shape(<span class="va">self</span>): <span class="va">self</span>.assertEqual(annotate(<span class="va">self</span>.frame, []).shape, <span class="va">self</span>.frame.shape)</span>
+<span id="cb11-35"><a aria-hidden="true" href="#cb11-35" tabindex="-1"></a>    <span class="kw">def</span> test_save(<span class="va">self</span>):</span>
+<span id="cb11-36"><a aria-hidden="true" href="#cb11-36" tabindex="-1"></a>        <span class="cf">with</span> tempfile.TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb11-37"><a aria-hidden="true" href="#cb11-37" tabindex="-1"></a>            <span class="va">self</span>.assertGreaterEqual(run(d), <span class="dv">2</span>)</span>
+<span id="cb11-38"><a aria-hidden="true" href="#cb11-38" tabindex="-1"></a>            <span class="va">self</span>.assertEqual(<span class="bu">len</span>(<span class="bu">list</span>(Path(d).glob(<span class="st">'*.png'</span>))), <span class="dv">4</span>)</span>
+<span id="cb11-39"><a aria-hidden="true" href="#cb11-39" tabindex="-1"></a></span>
+<span id="cb11-40"><a aria-hidden="true" href="#cb11-40" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">'__main__'</span>: unittest.main()</span></code></pre></div>
+</section>
+<section class="page-section" id="기술-근거와-검증-경계">
+<h2>15. 기술 근거와 검증 경계</h2>
+<ul>
+<li>OpenCV 공식 문서 — 색 공간 변환:
+https://docs.opencv.org/4.x/df/d9d/tutorial_py_colorspaces.html</li>
+<li>OpenCV 공식 문서 — 윤곽선:
+https://docs.opencv.org/4.x/d4/d73/tutorial_py_contours_begin.html</li>
+<li>OpenCV 공식 문서 — 도형 그리기:
+https://docs.opencv.org/4.x/dc/da5/tutorial_py_drawing_functions.html</li>
+<li>NumPy 공식 문서 — 배열 인덱싱:
+https://numpy.org/doc/stable/user/basics.indexing.html</li>
+<li>Python 공식 문서 — 가상환경:
+https://docs.python.org/3/library/venv.html</li>
+</ul>
+<p><strong>검증 경계:</strong> 합성 영상 기반 알고리즘과 단위 테스트는
+실제 실행했다. OpenCV 문서 URL은 공식 자료의 참조 주소이며, 이번
+실행에서 각 페이지의 최신 내용을 실시간 대조하지는 않았다. 제조사
+SDK·실물 카메라·라이다·차량 제어는 미검증이다. 합성 영상의 차선 모양은
+실제 도로 차선 인식의 성능 지표가 아니다.</p>
+<p><strong>재현 환경:</strong> Python 3, OpenCV 4.13.0, NumPy 2.3.5에서
+실행했다. 다른 환경에서는 설치 가능한 패키지 버전과 결과를 별도
+확인한다.</p>
+</section>
+<nav aria-label="차시 이동" class="audit-chapter-nav"><a href="ch05.html">← 05차시</a><a href="../index.html">전체 목차</a><a href="ch07.html">07차시 →</a></nav></body>
+</html>

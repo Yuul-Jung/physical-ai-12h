@@ -1,0 +1,35 @@
+{
+  "held_out_pixel_accuracy": 1.0,
+  "instances": [
+    {
+      "class_index": 1,
+      "box": [
+        5,
+        24,
+        18,
+        37
+      ],
+      "area": 113
+    },
+    {
+      "class_index": 2,
+      "box": [
+        25,
+        17,
+        38,
+        30
+      ],
+      "area": 113
+    },
+    {
+      "class_index": 3,
+      "box": [
+        45,
+        21,
+        58,
+        34
+      ],
+      "area": 113
+    }
+  ]
+}

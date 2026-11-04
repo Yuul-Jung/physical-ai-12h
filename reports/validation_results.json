@@ -1,0 +1,135 @@
+{
+  "version": "2026-11-04-adversarial-audit-v1",
+  "chapter_pages": [
+    {
+      "chapter": 1,
+      "md_a4_pages": 10,
+      "html_a4_pages": 11
+    },
+    {
+      "chapter": 2,
+      "md_a4_pages": 11,
+      "html_a4_pages": 10
+    },
+    {
+      "chapter": 3,
+      "md_a4_pages": 10,
+      "html_a4_pages": 16
+    },
+    {
+      "chapter": 4,
+      "md_a4_pages": 10,
+      "html_a4_pages": 16
+    },
+    {
+      "chapter": 5,
+      "md_a4_pages": 10,
+      "html_a4_pages": 11
+    },
+    {
+      "chapter": 6,
+      "md_a4_pages": 10,
+      "html_a4_pages": 17
+    },
+    {
+      "chapter": 7,
+      "md_a4_pages": 11,
+      "html_a4_pages": 12
+    },
+    {
+      "chapter": 8,
+      "md_a4_pages": 10,
+      "html_a4_pages": 10
+    },
+    {
+      "chapter": 9,
+      "md_a4_pages": 12,
+      "html_a4_pages": 17
+    },
+    {
+      "chapter": 10,
+      "md_a4_pages": 12,
+      "html_a4_pages": 14
+    },
+    {
+      "chapter": 11,
+      "md_a4_pages": 11,
+      "html_a4_pages": 11
+    },
+    {
+      "chapter": 12,
+      "md_a4_pages": 12,
+      "html_a4_pages": 12
+    }
+  ],
+  "total_markdown_pages": 129,
+  "total_html_pages": 157,
+  "tests": [
+    {
+      "chapter": 1,
+      "count": 4,
+      "result": "PASS"
+    },
+    {
+      "chapter": 2,
+      "count": 13,
+      "result": "PASS"
+    },
+    {
+      "chapter": 3,
+      "count": 12,
+      "result": "PASS"
+    },
+    {
+      "chapter": 4,
+      "count": 19,
+      "result": "PASS"
+    },
+    {
+      "chapter": 5,
+      "count": 17,
+      "result": "PASS"
+    },
+    {
+      "chapter": 6,
+      "count": 15,
+      "result": "PASS"
+    },
+    {
+      "chapter": 7,
+      "count": 8,
+      "result": "PASS"
+    },
+    {
+      "chapter": 8,
+      "count": 11,
+      "result": "PASS"
+    },
+    {
+      "chapter": 9,
+      "count": 18,
+      "result": "PASS"
+    },
+    {
+      "chapter": 10,
+      "count": 22,
+      "result": "PASS"
+    },
+    {
+      "chapter": 11,
+      "count": 10,
+      "result": "PASS"
+    },
+    {
+      "chapter": 12,
+      "count": 15,
+      "result": "PASS"
+    }
+  ],
+  "total_passed": 164,
+  "asset_files_verified": 24,
+  "security_pattern_flags": [],
+  "issues_remaining": [],
+  "hardware_unverified": true,
+  "page_count_method": "WeasyPrint A4, CSS specified in reports/ADVERSARIAL_AUDIT.md"
+}

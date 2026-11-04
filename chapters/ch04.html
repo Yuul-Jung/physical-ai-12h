@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>04차시 Python 기초 | 피지컬 AI</title><style>@page{size:A4;margin:17mm 16mm 18mm 16mm;@bottom-center{content:counter(page);font-size:9pt;color:#61758b}}*{box-sizing:border-box}body{font-family:"Noto Sans CJK KR","Noto Sans",sans-serif;color:#23354a;line-height:1.63;font-size:10pt;max-width:1000px;margin:auto;padding:32px;background:white}h1{font-size:23pt;color:#143e69;border-bottom:4px solid #3777af;padding-bottom:12px}h2{font-size:16pt;color:#14517c;border-bottom:1px solid #b7cddd;padding-bottom:6px;margin-top:24px}h2.section-title{break-before:page;page-break-before:always}p,li{orphans:3;widows:3}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f0f4f8;border:1px solid #d7e1eb;border-left:4px solid #5b85ae;border-radius:6px;padding:10px;font-size:8pt;line-height:1.4}code{font-family:"DejaVu Sans Mono",monospace;font-size:.88em}p code,li code{background:#eaf0f5;padding:1px 3px}blockquote{border-left:4px solid #77a8cb;padding:4px 16px;background:#f2f7fa}svg{width:100%;height:auto}figcaption{font-size:9pt;color:#53657a}a{color:#135b91}nav{padding:8px;background:#edf4fa;border-radius:6px}nav a{margin-right:16px}strong{color:#174c70}@media print{body{padding:0;max-width:none}nav{display:none}a{text-decoration:none;color:inherit}pre{break-inside:auto}h2{break-after:avoid}}</style><style>.audit-chapter-nav{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:2em auto;padding:14px;border-top:1px solid #ccd7e1;max-width:960px;font:500 14px/1.5 system-ui,sans-serif}.audit-chapter-nav a{color:#134e78;text-decoration:underline;padding:5px 8px}.audit-note,.verified-supplement{max-width:100%;margin-top:2em} .verified-supplement pre,.audit-note pre{white-space:pre-wrap;word-break:break-word} @media print {.audit-chapter-nav {display:none!important} .verified-supplement pre,.audit-note pre{white-space:pre-wrap;overflow-wrap:anywhere}}</style></head><body><nav aria-label="차시 이동"><a href="ch03.html">← 03차시</a><a href="../index.html">전체 목차</a><span>05차시 → 제작 예정</span></nav><main><h1>📘 04차시 | Python 기초: 변수·조건문·반복문·함수·라이브러리</h1>
+<blockquote>
+<p>자율주행 자동차 로봇을 활용한 피지컬 AI · 1일차 4교시 · 필수 60분
+검증 구분: 표준 Python 모의 제어 코드 실행 검증 / 알티노 AI 실물 제어 미검증</p>
+</blockquote>
+<p><strong>목차</strong></p>
+<ul>
+<li><a href="#section-01">01 | 차시 개요와 시간 운영</a></li>
+<li><a href="#section-02">02 | 센서에서 판단까지 데이터 흐름</a></li>
+<li><a href="#section-03">03 | 변수와 기본 자료형</a></li>
+<li><a href="#section-04">04 | 연산자와 수치 범위 제한</a></li>
+<li><a href="#section-05">05 | 조건문으로 위험 상황 판단</a></li>
+<li><a href="#section-06">06 | 반복문으로 여러 측정값 처리</a></li>
+<li><a href="#section-07">07 | 함수로 판단 규칙 분리</a></li>
+<li><a href="#section-08">08 | 리스트·딕셔너리와 데이터 구조</a></li>
+<li><a href="#section-09">09 | 모듈·라이브러리·가상환경</a></li>
+<li><a href="#section-10">10 | 전체 실습 코드와 실행 결과</a></li>
+<li><a href="#section-11">11 | 오류 점검과 자동 테스트</a></li>
+<li><a href="#section-12">12 | 종합 실습·평가·다음 차시</a></li>
+</ul>
+<p><strong>전체 데이터 흐름</strong></p>
+<figure><svg aria-label="거리 입력에서 입력 검증, 판단 함수, 모의 명령, 화면 출력까지의 처리 흐름" role="img" viewbox="0 0 900 115" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arr" markerheight="8" markerwidth="8" orient="auto" refx="7" refy="3"><path d="M0 0 L7 3 L0 6" fill="none" stroke="#365c87" stroke-width="1.4"></path></marker></defs><g fill="#eaf2fb" stroke="#365c87" stroke-width="2"><rect height="56" rx="10" width="152" x="8" y="28"></rect><rect height="56" rx="10" width="152" x="196" y="28"></rect><rect height="56" rx="10" width="152" x="384" y="28"></rect><rect height="56" rx="10" width="152" x="572" y="28"></rect><rect height="56" rx="10" width="132" x="760" y="28"></rect></g><g fill="#203752" font-family="sans-serif" font-size="16" text-anchor="middle"><text x="84" y="62">front_m 거리</text><text x="272" y="62">유효성 검사</text><text x="460" y="62">decide()</text><text x="648" y="62">Command</text><text x="826" y="62">화면 출력</text></g><g marker-end="url(#arr)" stroke="#365c87" stroke-width="2"><path d="M160 56 H192"></path><path d="M348 56 H380"></path><path d="M536 56 H568"></path><path d="M724 56 H756"></path></g></svg><figcaption>그림 1. 모의 센서 입력에서 판단 결과까지. 실제 모터 출력 없음.</figcaption></figure>
+<p>&lt;!-- PAGE BREAK --&gt;</p>
+<p>&lt;a id="section-01"&gt;&lt;/a&gt;</p>
+<h2 class="section-title" id="section-01">01 | 차시 개요와 시간 운영</h2>
+<p>이번 차시는 3차시에서 다룬 센서 값을 받아 <strong>판단 규칙을 코드로 표현하는 방법</strong>을 익힌다. 로봇을 움직이는 실제 제어 신호를 보내지 않고, 조향각과 속도를 숫자로 계산해 출력한다. 이 분리가 중요한 이유는 잘못된 조건문이 실제 모터를 갑자기 움직이게 하지 않도록 하기 위해서다.</p>
+<p><strong>필수 60분:</strong> 0~10분 변수·자료형, 10~20분 조건문, 20~30분 반복문, 30~40분 함수, 40~55분 종합 예제, 55~60분 확인. <strong>선택 심화:</strong> 입력 유효성 검사와 테스트 케이스 추가.</p>
+<p><strong>성공 기준:</strong> 센서 거리 네 개를 순서대로 처리하고, 위험 거리 또는 측정 오류에는 정지 명령을 만든다. 함수의 반환값을 표준 출력으로 확인한다.</p>
+<p><strong>기술 구분:</strong> Python은 언어이며, 로봇 전용 통신 규약은 아니다. 본 실습의 <code>Command</code>는 교육용 데이터 구조일 뿐 알티노 AI의 제조사 명령 형식이 아니다.</p>
+<p>&lt;!-- PAGE BREAK --&gt;</p>
+<p>&lt;a id="section-02"&gt;&lt;/a&gt;</p>
+<h2 class="section-title" id="section-02">02 | 센서에서 판단까지 데이터 흐름</h2>
+<p>센서가 제공하는 데이터는 원시 측정값이다. Python 프로그램은 측정값을 변수에 저장하고, 유효성 검사 후 규칙에 따라 출력 명령을 계산한다. 예를 들어 전방 거리가 0.3m일 때 정지 명령을 만드는 것은 <em>제어 정책</em>이며, 센서 자체의 기능이 아니다.</p>
+<p><strong>입력 → 처리 → 출력:</strong> <code>front_m</code>(전방 거리, 미터) → 거리값 유효성 검사 → 장애물 판단 → <code>Command</code>(조향각·속도·이유). 센서 값이 없거나 유효하지 않다면 정지하는 보수적 정책을 적용한다.</p>
+<p><strong>안전 경계:</strong> 계산한 명령은 화면에만 출력한다. 실제 모터를 연결하려면 제조사 통신 API, 긴급 정지, 속도 상한, 주행 구역, 전원 상태 검증이 추가로 필요하다. 이 차시는 그 연결을 구현하지 않는다.</p>
+<p><strong>생각해 보기:</strong> '거리 0.5m'는 센서가 측정한 물리량이고 '속도 0%'는 소프트웨어가 결정한 제어 명령이다. 둘을 혼동하면 오류 분석이 어려워진다.</p>
+<p>&lt;!-- PAGE BREAK --&gt;</p>
+<p>&lt;a id="section-03"&gt;&lt;/a&gt;</p>
+<h2 class="section-title" id="section-03">03 | 변수와 기본 자료형</h2>
+<p>변수는 값을 보관하는 이름이다. <code>front_m = 1.8</code>은 전방 거리 1.8m를 <code>front_m</code>에 연결한다. Python은 실행 중 값에 따라 자료형을 판단한다. 정수 <code>int</code>, 실수 <code>float</code>, 문자열 <code>str</code>, 논리값 <code>bool</code>, 값 없음 <code>None</code>을 구별한다.</p>
+<pre><code class="language-python">front_m = 1.8          # float: 거리 [m]
+speed_pct = 35         # int: 속도 비율 [%]
+direction = "left"    # str: 목표 방향
+valid = front_m &gt;= 0   # bool: 측정값 유효 여부
+missing = None         # 측정값 부재
+print(type(front_m).__name__, valid, missing)
+</code></pre>
+<p><strong>예상 출력:</strong> <code>float True None</code>. <code>None</code>은 숫자 0과 다르다. 0m는 측정값이고 <code>None</code>은 측정이 이루어지지 않았다는 뜻이다.</p>
+<p><strong>실습:</strong> <code>front_m</code>을 <code>0.2</code>, <code>2.0</code>, <code>None</code>으로 바꾸고 비교 연산을 실행한다. <code>None &gt;= 0</code>은 <code>TypeError</code>가 발생하므로 숫자 비교 전에 <code>None</code> 검사가 필요하다.</p>
+<p><strong>주의:</strong> 센서 거리의 단위를 미터로 통일한다. <code>50</code>을 센티미터로 받아놓고 미터 임계값 <code>0.5</code>와 직접 비교하면 잘못된 결과가 나온다.</p>
+<p>&lt;!-- PAGE BREAK --&gt;</p>
+<p>&lt;a id="section-04"&gt;&lt;/a&gt;</p>
+<h2 class="section-title" id="section-04">04 | 연산자와 수치 범위 제한</h2>
+<p>산술 연산자 <code>+ - * /</code>, 비교 연산자 <code>&lt; &lt;= &gt; &gt;= == !=</code>, 논리 연산자 <code>and or not</code>를 구분한다. 비교식의 결과는 <code>True</code> 또는 <code>False</code>이며, 조건문에 그대로 사용할 수 있다. <code>=</code>는 대입이고 <code>==</code>는 같은 값인지 비교하는 연산이다.</p>
+<pre><code class="language-python">front_m = 0.8
+near = front_m &lt; 1.0
+critical = front_m &lt; 0.5
+print(near, critical)
+requested_speed = 70
+safe_speed = min(max(requested_speed, 0), 35)
+print(safe_speed)
+</code></pre>
+<p><strong>예상 출력:</strong> 첫 줄 <code>True False</code>, 둘째 줄 <code>35</code>. <code>max</code>는 하한을, <code>min</code>은 상한을 적용한다. 하지만 <code>NaN</code>(숫자가 아닌 값)이나 무한대 등은 별도로 검사해야 한다.</p>
+<p><strong>실습:</strong> 요청 속도를 <code>-20</code>, <code>20</code>, <code>90</code>으로 바꾸어 결과를 기록한다. 출력은 각각 0, 20, 35이다. 이 값은 실제 구동 속도가 아니라 교육용 비율이다.</p>
+<p><strong>검토 질문:</strong> <code>0.5</code>가 경계값일 때 <code>&lt; 0.5</code>와 <code>&lt;= 0.5</code>는 어떻게 다른가? 이 교재에서는 정확히 0.5m일 때 주행 허용 쪽에 속한다. 실제 장비에는 여유거리와 제동거리를 추가 고려해야 한다.</p>
+<p>&lt;!-- PAGE BREAK --&gt;</p>
+<p>&lt;a id="section-05"&gt;&lt;/a&gt;</p>
+<h2 class="section-title" id="section-05">05 | 조건문으로 위험 상황 판단</h2>
+<p>조건문은 상황에 따라 다른 경로를 실행한다. <code>if</code>는 첫 조건을 검사하고, <code>elif</code>는 앞 조건이 거짓일 때 검사하며, <code>else</code>는 나머지 경우에 실행된다. Python에서는 들여쓰기 자체가 문법이므로 동일 블록의 문장을 같은 깊이로 배치한다.</p>
+<pre><code class="language-python">front_m = 0.8
+if front_m &lt; 0.5:
+    speed_pct = 0
+elif front_m &lt; 1.0:
+    speed_pct = 20
+else:
+    speed_pct = 35
+print(speed_pct)
+</code></pre>
+<p><strong>예상 출력:</strong> <code>20</code>. 먼저 긴급 정지 조건을 확인하므로 0.3m는 속도 0%, 0.8m는 20%, 1.8m는 35%가 된다.</p>
+<p><strong>예외 상황:</strong> 센서 입력이 <code>None</code>이면 이 코드는 실패한다. 조건문 앞에서 입력 유효성을 먼저 확인하거나, 예제의 <code>decide()</code>처럼 실패 시 정지 명령을 반환해야 한다.</p>
+<p><strong>실습:</strong> 조건 순서를 바꾸어 <code>front_m &lt; 1.0</code>을 먼저 검사하면 0.3m에서 왜 잘못된 결과가 나오는지 확인한다. 조건 순서는 제어 정책의 일부다.</p>
+<p>&lt;!-- PAGE BREAK --&gt;</p>
+<p>&lt;a id="section-06"&gt;&lt;/a&gt;</p>
+<h2 class="section-title" id="section-06">06 | 반복문으로 여러 측정값 처리</h2>
+<p>실제 로봇은 센서 데이터를 한 번만 읽지 않는다. 반복문을 이용하면 연속된 입력을 처리할 수 있다. <code>for</code>는 준비된 데이터 집합을 순회하며, <code>enumerate</code>는 항목과 순번을 함께 제공한다. <code>while</code>은 조건이 참인 동안 반복하지만 종료 조건이 없다면 무한 반복이 된다.</p>
+<pre><code class="language-python">distances = [1.8, 0.8, 0.3, None]
+for index, front_m in enumerate(distances, start=1):
+    if front_m is None:
+        print(index, "측정 실패")
+    else:
+        print(index, f"{front_m:.1f}m")
+</code></pre>
+<p><strong>예상 출력:</strong> <code>1 1.8m</code>, <code>2 0.8m</code>, <code>3 0.3m</code>, <code>4 측정 실패</code>. <code>is None</code>은 값이 없음을 확인할 때 사용한다.</p>
+<p><strong>실습:</strong> 리스트에 <code>0.5</code>와 <code>1.0</code>을 추가하고 출력 순서를 확인한다. 반복문 내부에서 리스트를 임의 변경하지 않는다.</p>
+<p><strong>안전:</strong> 실물 로봇에 <code>while True</code>를 적용한다면 반드시 주기 제한, 종료 조건, 통신 끊김 시 정지, 예외 처리, 하드웨어 긴급 정지가 필요하다. 본 실습은 유한한 리스트만 순회한다.</p>
+<p>&lt;!-- PAGE BREAK --&gt;</p>
+<p>&lt;a id="section-07"&gt;&lt;/a&gt;</p>
+<h2 class="section-title" id="section-07">07 | 함수로 판단 규칙 분리</h2>
+<p>함수는 입력을 받아 결과를 반환하는 재사용 가능한 코드 단위다. <code>def</code>로 정의하고, <code>return</code>으로 결과를 돌려준다. 함수가 화면 출력까지 모두 수행하면 재사용과 자동 테스트가 어려워지므로, 판단 함수는 값을 반환하고 화면 출력은 별도 함수가 담당하도록 나눈다.</p>
+<pre><code class="language-python">def choose_speed(front_m):
+    if front_m is None or front_m &lt; 0:
+        return 0
+    if front_m &lt; 0.5:
+        return 0
+    if front_m &lt; 1.0:
+        return 20
+    return 35
+
+print(choose_speed(1.8))
+print(choose_speed(0.3))
+</code></pre>
+<p><strong>예상 출력:</strong> <code>35</code>, <code>0</code>. <code>return</code>을 실행하면 함수는 즉시 종료된다. 함수 내부 변수는 바깥에서 직접 사용할 수 없으며, 필요한 값은 인자와 반환값으로 전달한다.</p>
+<p><strong>실습:</strong> 임계값을 함수 인자로 분리하는 <code>choose_speed(front_m, stop_limit=0.5)</code>를 만들어 본다. 기본 인자는 호출 시 생략할 수 있지만, 안전 임계값은 임의 변경하지 않도록 관리해야 한다.</p>
+<p><strong>연결:</strong> 다음 차시의 NumPy에서는 여러 거리 데이터를 배열로 묶어 처리하지만, 입력 검증과 판단 함수 분리 원칙은 동일하다.</p>
+<p>&lt;!-- PAGE BREAK --&gt;</p>
+<p>&lt;a id="section-08"&gt;&lt;/a&gt;</p>
+<h2 class="section-title" id="section-08">08 | 리스트·딕셔너리와 데이터 구조</h2>
+<p>리스트 <code>list</code>는 순서가 있는 여러 값을 보관한다. 딕셔너리 <code>dict</code>는 이름을 키로 하여 값을 찾는다. 센서 데이터는 리스트로, 설정값은 딕셔너리로 표현할 수 있다. 키를 잘못 쓰면 <code>KeyError</code>가 발생할 수 있으므로 <code>get</code> 또는 명시적 검증을 사용한다.</p>
+<pre><code class="language-python">distances = [1.8, 0.8, 0.3]
+settings = {"stop_m": 0.5, "slow_m": 1.0}
+print(len(distances), min(distances))
+print(settings["stop_m"])
+</code></pre>
+<p><strong>예상 출력:</strong> <code>3 0.3</code>, <code>0.5</code>. <code>min</code>은 리스트의 최소값을 반환하지만 빈 리스트에 적용하면 오류가 난다. 또한 <code>None</code>이 섞인 리스트는 숫자만 추출한 후 최소값을 계산해야 한다.</p>
+<p><strong>실습:</strong> 거리 리스트에 <code>None</code>을 추가하고 다음 표현을 실행한다.</p>
+<pre><code class="language-python">valid = [d for d in distances if d is not None and d &gt;= 0]
+print(min(valid) if valid else "유효 측정값 없음")
+</code></pre>
+<p><strong>핵심:</strong> 빈 입력을 정상적인 0m 측정으로 바꾸면 안 된다. '측정 실패'와 '장애물이 매우 가까움'은 모두 정지할 수 있지만, 기록되는 원인은 다르다.</p>
+<p>&lt;!-- PAGE BREAK --&gt;</p>
+<p>&lt;a id="section-09"&gt;&lt;/a&gt;</p>
+<h2 class="section-title" id="section-09">09 | 모듈·라이브러리·가상환경</h2>
+<p>Python 모듈은 관련 함수와 클래스를 모아 둔 <code>.py</code> 파일이다. <code>import math</code>로 표준 라이브러리 모듈을 가져올 수 있다. <code>math.isfinite()</code>는 무한대와 NaN을 걸러낸다. 표준 라이브러리는 Python 설치에 포함되므로 이번 필수 예제는 별도 패키지 설치가 필요하지 않다.</p>
+<pre><code class="language-python">import math
+print(math.isfinite(0.8))
+print(math.isfinite(float("nan")))
+</code></pre>
+<p><strong>예상 출력:</strong> <code>True</code>, <code>False</code>.</p>
+<p><strong>Ubuntu 실습:</strong> <code>python3 --version</code>은 Python 버전을 표시한다. <code>python3 -m venv .venv</code>는 현재 폴더에 격리된 실행 환경을 생성한다. <code>source .venv/bin/activate</code>는 해당 환경을 활성화한다. <code>python -m unittest discover -s codes/ch04 -v</code>는 제공된 자동 테스트를 실행한다.</p>
+<p><strong>주의:</strong> Ubuntu에 <code>python3-venv</code> 패키지가 설치되어 있지 않다면 가상환경 생성이 실패할 수 있다. 설치 권한과 네트워크 정책을 확인한 뒤 운영체제 패키지 관리자로 설치한다.</p>
+<p><strong>출처:</strong> Python 공식 튜토리얼과 가상환경 문서에서 모듈 및 환경 분리 방법을 확인할 수 있다.</p>
+<p>&lt;!-- PAGE BREAK --&gt;</p>
+<p>&lt;a id="section-10"&gt;&lt;/a&gt;</p>
+<h2 class="section-title" id="section-10">10 | 전체 실습 코드와 실행 결과</h2>
+<p>제공된 <code>robot_python_lab.py</code>는 <code>Command</code> 데이터 클래스, <code>clamp()</code>, <code>decide()</code>, <code>run_scenario()</code>, <code>main()</code>으로 구성된다. 코드는 하드웨어에 연결되지 않으며 화면 출력만 수행한다. <code>decide()</code>는 거리 입력이 없거나 유한한 수가 아니면 정지하고, 목표 방향이 사전에 정의된 값이 아니어도 정지한다.</p>
+<p><strong>실행:</strong> <code>python codes/ch04/robot_python_lab.py</code></p>
+<p><strong>예상 출력:</strong></p>
+<pre><code class="language-text">1: 조향=-15도 속도=35% / 모의 명령
+2: 조향=-15도 속도=20% / 모의 명령
+3: 조향=0도 속도=0% / 전방 장애물: 정지
+4: 조향=0도 속도=0% / 거리 측정 오류: 정지
+</code></pre>
+<p><strong>코드 풀이:</strong> <code>@dataclass(frozen=True)</code>는 결과 명령을 한 묶음으로 표현하고 필드 재대입을 막는다. <code>direction_to_angle</code> 딕셔너리는 방향 문자열을 조향각에 대응시킨다. <code>run_scenario</code>의 리스트 컴프리헨션은 각 입력마다 <code>decide</code>를 호출해 결과 리스트를 만든다. <code>if __name__ == '__main__'</code>은 파일을 직접 실행했을 때만 <code>main()</code>을 호출한다.</p>
+<p><strong>핵심 코드 전체:</strong></p>
+<pre><code class="language-python">"""04차시: 로봇 명령을 생성하는 Python 기초. 실제 모터를 구동하지 않는다."""
+from dataclasses import dataclass
+from math import isfinite
+
+@dataclass(frozen=True)
+class Command:
+    steering_deg: float
+    speed_pct: float
+    reason: str
+
+def clamp(value: float, low: float, high: float) -&gt; float:
+    """안전한 출력 범위로 제한한다."""
+    if not isfinite(value):
+        raise ValueError('값은 유한한 수여야 합니다')
+    if low &gt; high:
+        raise ValueError('범위의 최소값이 최대값보다 큽니다')
+    return min(max(value, low), high)
+
+def decide(front_m: float | None, target_direction: str) -&gt; Command:
+    """거리와 목표 방향으로 모의 주행 명령을 만든다."""
+    if front_m is None or not isfinite(front_m) or front_m &lt; 0:
+        return Command(0.0, 0.0, '거리 측정 오류: 정지')
+    if front_m &lt; 0.5:
+        return Command(0.0, 0.0, '전방 장애물: 정지')
+    direction_to_angle = {'left': -15.0, 'straight': 0.0, 'right': 15.0}
+    if target_direction not in direction_to_angle:
+        return Command(0.0, 0.0, '알 수 없는 방향: 정지')
+    speed = 20.0 if front_m &lt; 1.0 else 35.0
+    return Command(direction_to_angle[target_direction], speed, '모의 명령')
+
+def run_scenario(measurements: list[float | None], direction: str) -&gt; list[Command]:
+    """반복문으로 센서 샘플을 순서대로 처리한다."""
+    return [decide(distance, direction) for distance in measurements]
+
+def main() -&gt; None:
+    distances = [1.8, 0.8, 0.3, None]
+    for index, command in enumerate(run_scenario(distances, 'left'), start=1):
+        print(f'{index}: 조향={command.steering_deg:.0f}도 속도={command.speed_pct:.0f}% / {command.reason}')
+
+if __name__ == '__main__':
+    main()
+</code></pre>
+<p>&lt;!-- PAGE BREAK --&gt;</p>
+<p>&lt;a id="section-11"&gt;&lt;/a&gt;</p>
+<h2 class="section-title" id="section-11">11 | 오류 점검과 자동 테스트</h2>
+<p>자동 테스트는 같은 입력에 대해 항상 같은 출력이 나오는지 확인한다. <code>unittest</code>는 Python 표준 라이브러리이므로 별도 설치가 필요하지 않다. 테스트는 실제 로봇이 안전하다는 증명이 아니라, 모의 판단 함수가 정해진 규칙을 지키는지 확인하는 절차다.</p>
+<p><strong>검증 사례:</strong> (1) 속도 상한 초과 제한 (2) 하한 미만 제한 (3) 잘못된 범위 (4) NaN 거부 (5) 근접 장애물 정지 (6) 측정값 없음 정지 (7) 음수 거리 정지 (8) 미등록 방향 정지 (9) 좌회전 각도 (10) 우회전 각도 (11) 감속 구간 (12) 반복 처리 개수.</p>
+<p><strong>실행:</strong> <code>python -m unittest discover -s codes/ch04 -v</code> → 12개 테스트의 <code>OK</code>가 기대된다.</p>
+<p><strong>오류별 점검:</strong> <code>ModuleNotFoundError</code>는 작업 폴더와 모듈 경로를 확인한다. <code>IndentationError</code>는 들여쓰기를 확인한다. <code>TypeError</code>는 <code>None</code>과 숫자를 비교했는지 점검한다. <code>ValueError</code>는 입력 범위 및 문자열 숫자 변환을 확인한다.</p>
+<p><strong>실습:</strong> <code>decide(0.5, 'straight')</code>와 <code>decide(1.0, 'straight')</code>의 결과를 예상하고 실제로 확인한다. 두 경계값에서 각각 감속(20%)과 정상(35%)으로 판정한다.</p>
+<p><strong>자동 테스트 전체:</strong></p>
+<pre><code class="language-python">import unittest
+from robot_python_lab import clamp, decide, run_scenario
+
+class RobotPythonTests(unittest.TestCase):
+    def test_clamp(self): self.assertEqual(clamp(50, 0, 30), 30)
+    def test_clamp_low(self): self.assertEqual(clamp(-5, 0, 30), 0)
+    def test_clamp_bad_range(self):
+        with self.assertRaises(ValueError): clamp(1, 5, 0)
+    def test_clamp_nan(self):
+        with self.assertRaises(ValueError): clamp(float('nan'), 0, 1)
+    def test_stop_near(self): self.assertEqual(decide(0.2, 'left').speed_pct, 0)
+    def test_stop_none(self): self.assertEqual(decide(None, 'left').speed_pct, 0)
+    def test_stop_negative(self): self.assertEqual(decide(-1, 'left').speed_pct, 0)
+    def test_stop_bad_direction(self): self.assertEqual(decide(2, 'up').speed_pct, 0)
+    def test_left(self): self.assertEqual(decide(2, 'left').steering_deg, -15)
+    def test_right(self): self.assertEqual(decide(2, 'right').steering_deg, 15)
+    def test_slow(self): self.assertEqual(decide(.8, 'straight').speed_pct, 20)
+    def test_loop(self): self.assertEqual(len(run_scenario([1,2,None], 'left')), 3)
+
+if __name__ == '__main__': unittest.main()
+</code></pre>
+<p>&lt;!-- PAGE BREAK --&gt;</p>
+<p>&lt;a id="section-12"&gt;&lt;/a&gt;</p>
+<h2 class="section-title" id="section-12">12 | 종합 실습·평가·다음 차시</h2>
+<p><strong>종합 실습:</strong> 거리 샘플 <code>[1.8, 0.8, 0.3, None]</code>과 목표 방향 <code>left</code>를 입력해 네 개의 <code>Command</code>를 만든다. 각 결과에서 조향각, 속도, 이유를 출력하고, 위험한 경우 속도가 0인지 검사한다. 제공된 코드를 먼저 실행한 뒤 거리 샘플을 바꾸어 재실행한다.</p>
+<p><strong>평가 체크:</strong> 변수와 자료형 구별(20점), 조건문 경계 처리(20점), 반복문 활용(20점), 함수의 인자·반환값(20점), 측정 오류 시 정지 및 결과 해석(20점). 필수 실습의 목표는 총점 80점 이상이다. 점수는 교육용 평가 기준이며 실제 로봇의 안전 인증을 의미하지 않는다.</p>
+<p><strong>선택 심화 A:</strong> 입력이 <code>float('inf')</code> 또는 <code>float('nan')</code>일 때도 정지하는지 검사한다. <strong>선택 심화 B:</strong> 방향별 조향각을 딕셔너리로 조정하고 테스트를 추가한다. <strong>선택 심화 C:</strong> 3차시의 라이다 모의 데이터에서 전방 최소거리만 추출하여 <code>decide()</code>에 연결한다.</p>
+<p><strong>다음 차시 연결:</strong> 05차시에서는 같은 거리 리스트를 NumPy 배열로 바꾸어 비교·필터링·집계한다. 06차시에서는 OpenCV의 영상 데이터와 연결한다. 07~10차시에서 AI 모델의 추론 결과가 들어오더라도 입력 검증·정지 우선 정책은 유지한다.</p>
+<p><strong>공식 참고:</strong> Python 튜토리얼 https://docs.python.org/3/tutorial/ ; 표준 라이브러리 https://docs.python.org/3/library/ ; unittest https://docs.python.org/3/library/unittest.html ; venv https://docs.python.org/3/library/venv.html . 링크는 교육용 참고자료이며 알티노 AI 제조사 SDK 검증을 대신하지 않는다.</p>
+<section class="verified-supplement" id="ch04-supplement">
+<h2>13. 선택 심화 — 센서 문자열 입력 오류와 방어적 프로그래밍</h2>
+<p>기존 필수 실습에서 <code>decide()</code>는 거리값이 정상이면 모의 조향·속도 명령을 만들고, <code>None</code>·음수·무한대 같은 입력은 정지로 바꾸었다. 실제 프로그램의 외부 데이터에는 숫자만 입력된다는 보장이 없다. 파일이나 통신 장치에서 수신한 값은 <code>"0.8"</code>과 같은 문자열일 수도 있고, <code>"nan"</code>, <code>"bad"</code>, 빈 문자열, 누락값일 수도 있다. <strong>문자열 입력 → 수치 변환 → 유효성 검사 → 안전 판단 → 로그 기록</strong>을 개별 함수로 분리해야 오류 발생 위치를 추적할 수 있다.</p>
+<table>
+<thead>
+<tr>
+<th>입력</th>
+<th>파싱 결과</th>
+<th>모의 제어</th>
+<th>판단 이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"1.8"</code></td>
+<td>1.8m</td>
+<td>속도 35%</td>
+<td>정상</td>
+</tr>
+<tr>
+<td><code>"0.8"</code></td>
+<td>0.8m</td>
+<td>속도 20%</td>
+<td>감속</td>
+</tr>
+<tr>
+<td><code>"bad"</code></td>
+<td>없음</td>
+<td>속도 0%</td>
+<td>형식 오류 정지</td>
+</tr>
+<tr>
+<td><code>"-1"</code></td>
+<td>없음</td>
+<td>속도 0%</td>
+<td>물리적으로 불가능한 거리</td>
+</tr>
+<tr>
+<td><code>"nan"</code></td>
+<td>없음</td>
+<td>속도 0%</td>
+<td>유효하지 않은 수치</td>
+</tr>
+<tr>
+<td><code>"0.3"</code></td>
+<td>0.3m</td>
+<td>속도 0%</td>
+<td>가까운 장애물</td>
+</tr>
+</tbody>
+</table>
+<p><code>float()</code> 변환은 문자열이 숫자가 아니면 <code>ValueError</code>를 발생시킨다. 반대로 <code>float("nan")</code>과 <code>float("inf")</code>는 예외 없이 변환되므로 반드시 <code>math.isfinite()</code>로 구분한다. 입력 오류를 숫자 0으로 변경하면 <strong>실제 장애물 거리 0m와 센서 장애를 구별할 수 없으므로</strong> 이번 예제는 <code>None</code>으로 표현한다. 정지 원인까지 기록하는 이유는 고장 분석과 재현 가능한 교육 평가를 지원하기 위해서다.</p>
+<h3>13-1. 예외 처리 코드의 핵심</h3>
+<pre><code class="language-python">from math import isfinite
+
+def parse_distance(raw):
+    try:
+        number = float(raw)
+    except (ValueError, TypeError):
+        return None
+    return number if isfinite(number) and number &gt;= 0 else None
+</code></pre>
+<p>문자열이 숫자로 변환되더라도 음수, 무한대, <code>NaN</code>(낫 어 넘버, 유효하지 않은 수치)은 반려한다. 반환 결과인 <code>None</code>은 기존 04차시 <code>decide()</code>에서 모의 안전 정지로 연결된다. 실제 장비의 긴급 정지 기능을 대신하지 않으며, 이 실습의 속도 백분율은 실물 모터 명령이 아니다.</p>
+<h2>14. 선택 심화 — 입력·판단·CSV 로그까지 전체 프로그램</h2>
+<p>실습 파일: <code>codes/ch04/robust_scenario.py</code>. 기존 <code>robot_python_lab.py</code>의 <code>decide()</code>를 가져와 재사용한다. 실습 후에는 <code>codes/ch04/output/decisions.csv</code>가 생성되며 표 계산 프로그램으로 열어 입력, 거리 해석, 판단 결과를 행 단위로 검사할 수 있다. 신호 수신 및 장비 명령 전송 기능은 포함하지 않는다.</p>
+<p><strong>전체 코드(실제로 자동 테스트를 수행한 파일과 동일):</strong></p>
+<pre><code class="language-python">"""04차시 선택 실습: 안전한 거리 데이터 입력, 판정, CSV 기록(모의 명령)."""
+from pathlib import Path
+from csv import DictWriter
+from math import isfinite
+from robot_python_lab import decide
+
+
+def parse_distance(raw):
+    """센서 문자열을 미터 값으로 변환; 비정상 값은 None으로 정규화한다."""
+    try:
+        number = float(raw)
+    except (ValueError, TypeError):
+        return None
+    return number if isfinite(number) and number &gt;= 0 else None
+
+
+def make_log(rows, direction='straight'):
+    """센서 입력→예외 처리→명령 생성→감사 가능한 기록을 만든다."""
+    output = []
+    for index, value in enumerate(rows, 1):
+        distance = parse_distance(value)
+        cmd = decide(distance, direction)
+        output.append({'sequence': index, 'raw': str(value),
+                       'distance_m': '' if distance is None else distance,
+                       'steering_deg': cmd.steering_deg,
+                       'speed_pct': cmd.speed_pct,
+                       'reason': cmd.reason})
+    return output
+
+
+def save_csv(output, path):
+    """외부 장비에 명령을 보내지 않고 로컬 CSV 파일만 저장한다."""
+    dest = Path(path)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with dest.open('w', encoding='utf-8-sig', newline='') as f:
+        writer = DictWriter(f, fieldnames=['sequence', 'raw', 'distance_m',
+                                         'steering_deg', 'speed_pct', 'reason'])
+        writer.writeheader()
+        writer.writerows(output)
+    return dest
+
+
+if __name__ == '__main__':
+    readings = ['1.8', '0.8', 'bad', '-1', 'nan', '0.3', '2.0']
+    log = make_log(readings, 'left')
+    for row in log:
+        print(f"{row['sequence']}: {row['raw']:&gt;5} → 속도 {row['speed_pct']:.0f}% / {row['reason']}")
+    print('CSV 저장:', save_csv(log, Path(__file__).parent / 'output' / 'decisions.csv'))
+</code></pre>
+<p><strong>실행 절차 (프로젝트 최상위 폴더):</strong></p>
+<pre><code class="language-bash">python codes/ch04/robust_scenario.py
+python -m unittest discover -s codes/ch04 -p 'test_*.py' -v
+</code></pre>
+<p>예상 결과는 7개 입력에 대해 정상 3건, 감속 1건, 정지 3건을 포함한다. <code>bad</code>, <code>-1</code>, <code>nan</code>이 각각 별도의 행으로 남는지 확인한다. 출력 CSV에서 <code>distance_m</code>이 빈 칸인 경우는 센서값 파싱 실패를 나타내며 속도 <code>0.0</code>으로 기록되어야 한다.</p>
+<h2>15. 종합 검증 — 경계값, 자료형, 반복문, 함수 연결</h2>
+<p>다음 표를 참고하여 입력·예상 출력·실제 출력을 스스로 확인한다. 숫자 자체가 아니라 <strong>어떤 안전 조건을 먼저 검사할지</strong>가 핵심이다.</p>
+<table>
+<thead>
+<tr>
+<th>시험 번호</th>
+<th>입력 거리</th>
+<th>목표 방향</th>
+<th style="text-align:right">예상 속도</th>
+<th>확인 항목</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T01</td>
+<td><code>0.49</code></td>
+<td>left</td>
+<td style="text-align:right">0%</td>
+<td>정지 임계값 바로 아래</td>
+</tr>
+<tr>
+<td>T02</td>
+<td><code>0.50</code></td>
+<td>left</td>
+<td style="text-align:right">20%</td>
+<td>경계값 이상에서 감속</td>
+</tr>
+<tr>
+<td>T03</td>
+<td><code>1.00</code></td>
+<td>right</td>
+<td style="text-align:right">35%</td>
+<td>정상 구간 진입</td>
+</tr>
+<tr>
+<td>T04</td>
+<td><code>None</code></td>
+<td>straight</td>
+<td style="text-align:right">0%</td>
+<td>값 누락</td>
+</tr>
+<tr>
+<td>T05</td>
+<td><code>nan</code></td>
+<td>left</td>
+<td style="text-align:right">0%</td>
+<td>비정상 부동소수점</td>
+</tr>
+<tr>
+<td>T06</td>
+<td><code>1.80</code></td>
+<td>up</td>
+<td style="text-align:right">0%</td>
+<td>정의되지 않은 방향</td>
+</tr>
+<tr>
+<td>T07</td>
+<td><code>-0.01</code></td>
+<td>straight</td>
+<td style="text-align:right">0%</td>
+<td>음수 거리</td>
+</tr>
+</tbody>
+</table>
+<p>점검 질문: <code>isfinite()</code>는 어떤 실패를 방지하는가? <code>enumerate()</code>로 만드는 순번이 있는 로그는 왜 유용한가? <code>DictWriter()</code>와 일반 <code>print()</code>의 차이는 무엇인가? <code>parse_distance()</code>를 수정하지 않고 <code>decide()</code>의 임계값을 바꿀 수 있는 이유는 무엇인가? 테스트 통과만으로 실차 주행 안전을 입증할 수 없는 이유는 무엇인가?</p>
+<p><strong>05차시 연결:</strong> 현재 자료는 문자열 리스트와 CSV 행으로 다룬다. 다음 차시에서는 동일한 거리값들을 NumPy(넘파이, 배열 계산 라이브러리)의 <code>ndarray</code>로 관리하고, 벡터화된 유효성 마스크와 전방 거리 통계를 계산한다. 필수 60분 실습을 먼저 완료한 뒤 본 선택 실습을 별도로 수행한다.</p>
+</section>
+</main><nav aria-label="차시 이동" class="audit-chapter-nav"><a href="ch03.html">← 03차시</a><a href="../index.html">전체 목차</a><a href="ch05.html">05차시 →</a></nav></body></html>

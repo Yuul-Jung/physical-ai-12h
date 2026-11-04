@@ -1,0 +1,20 @@
+{
+  "train_count": 128,
+  "test_count": 32,
+  "linear": {
+    "mse": 0.000535,
+    "mae": 0.01876
+  },
+  "mlp": {
+    "mse": 0.000538,
+    "mae": 0.01893
+  },
+  "linear_first_last_loss": [
+    1.082279,
+    0.000569
+  ],
+  "mlp_first_last_loss": [
+    0.102411,
+    0.000572
+  ]
+}

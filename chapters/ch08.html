@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+
+<html lang="ko" xml:lang="" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8"/>
+<meta content="pandoc" name="generator"/>
+<meta content="width=device-width, initial-scale=1.0, user-scalable=yes" name="viewport"/>
+<title>ch08</title>
+<style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+<style>
+@page{size:A4;margin:16mm 16mm 18mm}body{font-family:"Noto Sans CJK KR","Noto Sans",sans-serif;color:#172235;line-height:1.6;max-width:980px;margin:auto;padding:28px;background:#fff}h1{color:#143d70;border-bottom:4px solid #2b6cb0;padding-bottom:12px}h2{color:#14558d;border-left:5px solid #3b82f6;padding:6px 12px;background:#eef5ff;break-after:avoid;margin-top:34px}h3{break-after:avoid}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f6fa;padding:12px;border:1px solid #d5deea;font-size:9pt;line-height:1.35}code{font-family:"DejaVu Sans Mono",monospace}table{border-collapse:collapse;width:100%;font-size:9.5pt}td,th{border:1px solid #c8d5e3;padding:6px;vertical-align:top}th{background:#eaf2fc}img{max-width:100%}a{color:#155e9c}blockquote{border-left:4px solid #93c5fd;background:#f0f7ff;padding:12px;margin:15px 0}nav{background:#edf4fb;padding:10px 15px;border-radius:8px}nav a{margin-right:20px}@media print{body{padding:0;max-width:none;font-size:10pt}h2{margin-top:22px}pre{font-size:7.3pt;line-height:1.3}nav{display:none}a{color:#172235;text-decoration:none}table,figure{break-inside:avoid}}
+</style><style>.audit-chapter-nav{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:2em auto;padding:14px;border-top:1px solid #ccd7e1;max-width:960px;font:500 14px/1.5 system-ui,sans-serif}.audit-chapter-nav a{color:#134e78;text-decoration:underline;padding:5px 8px}.audit-note,.verified-supplement{max-width:100%;margin-top:2em} .verified-supplement pre,.audit-note pre{white-space:pre-wrap;word-break:break-word} @media print {.audit-chapter-nav {display:none!important} .verified-supplement pre,.audit-note pre{white-space:pre-wrap;overflow-wrap:anywhere}}</style></head>
+<body><nav aria-label="차시 이동"><a href="ch07.html">← 07차시</a><a href="../index.html">전체 목차</a><a href="ch09.html">09차시 → (예정)</a></nav>
+<h1 id="blue_book-08차시--이미지-분류와-cnn-모델-학습">📘 08차시 —
+이미지 분류와 CNN 모델 학습</h1>
+<blockquote>
+<p>자율주행 자동차 로봇을 활용한 피지컬 AI · 2일차 10:00–11:00 · 필수
+실습 60분 / 선택 심화 별도</p>
+<p><strong>검증 범위:</strong> 합성 도형 기반 PyTorch CPU 학습·자동
+테스트. 실제 알티노 AI 카메라·Jetson·로봇 구동은 미검증.</p>
+</blockquote>
+<h2 id="01-차시-개요-및-60분-운영">01. 차시 개요 및 60분 운영</h2>
+<p>이번 차시는 07차시에서 배운 학습 루프를 <strong>이미지
+입력</strong>으로 확장한다. 도형을 그린 RGB 이미지로 원·사각형·삼각형을
+구분하는 작은 CNN(Convolutional Neural Network, 합성곱 신경망)을 만든다.
+도로 영상의 신호등·표지판을 곧바로 인식하는 것이 아니라 <strong>이미지
+분류의 기본 개념을 재현</strong>하는 실습이다.</p>
+<table>
+<thead>
+<tr class="header">
+<th>구간</th>
+<th>필수 작업</th>
+<th>확인 결과</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0~10분</td>
+<td>이미지 분류·정답·데이터 누수 이해</td>
+<td>입력/라벨 표</td>
+</tr>
+<tr class="even">
+<td>10~20분</td>
+<td>합성 이미지 생성·훈련/평가 분리</td>
+<td>클래스별 표본 수</td>
+</tr>
+<tr class="odd">
+<td>20~40분</td>
+<td>CNN 학습·손실 관찰</td>
+<td>epoch 로그</td>
+</tr>
+<tr class="even">
+<td>40~50분</td>
+<td>예측·정확도·혼동행렬</td>
+<td>metrics.json</td>
+</tr>
+<tr class="odd">
+<td>50~60분</td>
+<td>자동 테스트·오류 점검</td>
+<td>11개 테스트</td>
+</tr>
+</tbody>
+</table>
+<p><strong>선택 심화:</strong> 이미지 회전·밝기 변화·클래스 불균형
+실험은 필수 60분 이후에 수행한다. 실제 알티노 AI의 카메라, Jetson GPU,
+제조사 API는 이 실습에서 사용하지 않는다.</p>
+<h2 id="02-자율주행-시스템에서-이미지-분류의-위치">02. 자율주행
+시스템에서 이미지 분류의 위치</h2>
+<p>카메라가 생성하는 영상은 보통 높이×너비×채널의 배열이다. 전처리
+단계에서 모델이 기대하는 입력 크기와 색 순서를 맞춘다. 분류기는
+<strong>이미지 전체가 어떤 클래스에 속하는지</strong> 점수를 출력한다.
+하나의 영상에 여러 객체가 있는 경우 위치를 찾는 객체 검출과는
+다르다.</p>
+<p><img alt="08차시 이미지 분류 처리 구조" src="../assets/svg/ch08_pipeline.svg"/></p>
+<table>
+<thead>
+<tr class="header">
+<th>단계</th>
+<th>입력</th>
+<th>출력</th>
+<th>주의점</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>카메라/이미지</td>
+<td>RGB 픽셀</td>
+<td>이미지 배열</td>
+<td>BGR/RGB 혼동 방지</td>
+</tr>
+<tr class="even">
+<td>정규화</td>
+<td>0~255</td>
+<td>0.0~1.0</td>
+<td>훈련/추론 동일 적용</td>
+</tr>
+<tr class="odd">
+<td>CNN</td>
+<td>3×32×32</td>
+<td>클래스 점수 3개</td>
+<td>점수는 확률이 아님</td>
+</tr>
+<tr class="even">
+<td>Softmax</td>
+<td>클래스 점수</td>
+<td>합계 1인 값</td>
+<td>높은 확률도 정답 보장 아님</td>
+</tr>
+<tr class="odd">
+<td>검증</td>
+<td>예측·정답</td>
+<td>정확도·혼동행렬</td>
+<td>실제 환경 성능과 구별</td>
+</tr>
+</tbody>
+</table>
+<p><strong>제어 분리:</strong> 모델의 예측값을 직접 모터 명령으로 보내지
+않는다. 실제 로봇에서는 별도의 안전 감시와 상태 판단 계층이
+필요하다.</p>
+<h2 id="03-분류검출분할의-차이">03. 분류·검출·분할의 차이</h2>
+<p>이미지 분류는 <strong>무엇이 있는가</strong>, 객체 검출은
+<strong>무엇이 어디에 있는가</strong>, 인스턴스 분할은 <strong>객체별
+픽셀은 어디인가</strong>를 묻는다. 본 차시의 32×32 이미지에는 의도적으로
+하나의 도형만 배치한다. 이 가정이 깨지면 분류 결과를 물체의 위치 정보로
+해석할 수 없다.</p>
+<table>
+<thead>
+<tr class="header">
+<th>구분</th>
+<th>대표 출력</th>
+<th>활용 예시</th>
+<th>후속 차시</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>분류</td>
+<td><code>triangle</code></td>
+<td>잘라낸 표지판 종류 분류</td>
+<td>08</td>
+</tr>
+<tr class="even">
+<td>검출</td>
+<td>라벨+경계 상자</td>
+<td>영상 속 표지판 위치</td>
+<td>09</td>
+</tr>
+<tr class="odd">
+<td>인스턴스 분할</td>
+<td>라벨+개별 마스크</td>
+<td>겹친 객체별 영역</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<p>실제 교통신호등의 색상과 모양은 조명, 반사, 날씨, 카메라 노출에
+영향을 받는다. 합성 도형 실습 결과를 실차 신호등 인식 정확도로 표시하지
+않는다.</p>
+<h2 id="04-데이터셋과-라벨의-의미">04. 데이터셋과 라벨의 의미</h2>
+<p>지도학습에는 입력 이미지 <code>x</code>와 정답 라벨 <code>y</code>가
+한 쌍으로 필요하다. 이번 실습은 <code>circle → 0</code>,
+<code>square → 1</code>, <code>triangle → 2</code>를 사용한다. 클래스
+인덱스는 물리적 의미가 아니라 코드가 정한 정수 표기다.</p>
+<p><strong>합성 데이터 생성 규칙:</strong> 32×32 RGB 이미지, 어두운
+배경, 밝은 도형, ±3픽셀 위치 변화, 7~10픽셀 반경·반폭, 색상 밝기 변화.
+각 클래스당 40개로 전체 120개를 생성한다. 원본 도형의 위치·크기 변화가
+훈련에 반영되지만 실제 도로 사진의 다양성을 대표하지는 않는다.</p>
+<table>
+<thead>
+<tr class="header">
+<th>클래스</th>
+<th style="text-align: right;">정답</th>
+<th>생성 함수</th>
+<th>주의 사항</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>원</td>
+<td style="text-align: right;">0</td>
+<td><code>draw.ellipse()</code></td>
+<td>픽셀화로 경계가 매끄럽지 않음</td>
+</tr>
+<tr class="even">
+<td>사각형</td>
+<td style="text-align: right;">1</td>
+<td><code>draw.rectangle()</code></td>
+<td>직사각형이 아니라 정사각형에 가까운 표본</td>
+</tr>
+<tr class="odd">
+<td>삼각형</td>
+<td style="text-align: right;">2</td>
+<td><code>draw.polygon()</code></td>
+<td>꼭짓점이 위를 향하도록 고정</td>
+</tr>
+</tbody>
+</table>
+<p><strong>데이터 누수:</strong> 동일한 원본을 복제·증강하여 훈련/평가
+양쪽에 넣으면 평가가 부풀려질 수 있다. 실제 이미지 데이터에서는 원본
+이미지 또는 촬영 장면·주행 구간 단위로 분리해야 한다.</p>
+<h2 id="05-이미지-배열과-텐서-차원">05. 이미지 배열과 텐서 차원</h2>
+<p>PIL 이미지의 배열은 <code>(H,W,C)</code> 순서이지만 PyTorch의
+<code>Conv2d</code>는 <code>(N,C,H,W)</code> 순서다. <code>N</code>은
+배치 크기, <code>C</code>는 색 채널, <code>H</code>와 <code>W</code>는
+높이와 너비다.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a aria-hidden="true" href="#cb1-1" tabindex="-1"></a>arr <span class="op">=</span> np.asarray(im, dtype<span class="op">=</span>np.float32) <span class="op">/</span> <span class="fl">255.0</span></span>
+<span id="cb1-2"><a aria-hidden="true" href="#cb1-2" tabindex="-1"></a>chw <span class="op">=</span> np.transpose(arr, (<span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">1</span>))  <span class="co"># HWC → CHW</span></span></code></pre></div>
+<p>이 예제에서 한 장의 배열은 <code>(3,32,32)</code>, 120장을 쌓으면
+<code>(120,3,32,32)</code>가 된다. <code>float32</code>를 쓰면 모델
+가중치와 입력 자료형을 맞추기 쉽다. 픽셀 0은 검정, 1에 가까운 값은 높은
+밝기다. 단, 정규화는 실제 영상의 색 보정이나 조도 변화 문제를 모두
+해결하지 못한다.</p>
+<p><strong>실습 확인:</strong> <code>dataset(40)</code> 호출 후
+<code>x.shape</code>, <code>x.min()</code>, <code>x.max()</code>,
+<code>y.unique(return_counts=True)</code>를 출력한다. 채널 순서가 틀리면
+합성곱 층에서 채널 수 불일치 오류가 발생한다.</p>
+<h2 id="06-cnn-구조와-계산-흐름">06. CNN 구조와 계산 흐름</h2>
+<p>이번 모델의 흐름은
+<code>Conv2d(3→8) → ReLU → MaxPool2d(2) → Conv2d(8→16) → ReLU → AdaptiveAvgPool2d(4×4) → Flatten → Linear(256→3)</code>이다.</p>
+<table>
+<thead>
+<tr class="header">
+<th>층</th>
+<th>출력 형상(배치 제외)</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>입력</td>
+<td>3×32×32</td>
+<td>RGB 원본</td>
+</tr>
+<tr class="even">
+<td>Conv 3→8</td>
+<td>8×32×32</td>
+<td>8개 특징맵</td>
+</tr>
+<tr class="odd">
+<td>MaxPool</td>
+<td>8×16×16</td>
+<td>공간 해상도 축소</td>
+</tr>
+<tr class="even">
+<td>Conv 8→16</td>
+<td>16×16×16</td>
+<td>특징 결합</td>
+</tr>
+<tr class="odd">
+<td>AdaptiveAvgPool</td>
+<td>16×4×4</td>
+<td>고정 크기로 요약</td>
+</tr>
+<tr class="even">
+<td>Flatten</td>
+<td>256</td>
+<td>1차원 특징 벡터</td>
+</tr>
+<tr class="odd">
+<td>Linear</td>
+<td>3</td>
+<td>세 클래스 점수</td>
+</tr>
+</tbody>
+</table>
+<p><strong>합성곱의 의미:</strong> 작은 커널이 주변 픽셀과 가중치
+곱셈·합산을 반복해 경계와 모양 관련 특징을 만든다. <code>ReLU</code>는
+음수 출력을 0으로 바꾸어 비선형성을 추가한다. 풀링은 특징맵을 줄여
+계산량을 낮추지만 세밀한 위치 정보도 줄인다. 모델의 크기가 작다고 해서
+실제 도로 영상에서도 안정적이라는 의미는 아니다.</p>
+<h2 id="07-손실-함수와-학습-루프">07. 손실 함수와 학습 루프</h2>
+<p>모델은 세 개의 실수 점수(logits)를 출력한다.
+<code>CrossEntropyLoss</code>는 이 점수와 정수 라벨을 입력받아 정답
+클래스에 높은 점수를 주도록 학습한다. 따라서 학습 전에 logits에
+Softmax를 별도로 적용하지 않는다.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a aria-hidden="true" href="#cb2-1" tabindex="-1"></a>optimizer.zero_grad()             <span class="co"># 이전 미분값 초기화</span></span>
+<span id="cb2-2"><a aria-hidden="true" href="#cb2-2" tabindex="-1"></a>loss <span class="op">=</span> loss_fn(model(x[tr]), y[tr])</span>
+<span id="cb2-3"><a aria-hidden="true" href="#cb2-3" tabindex="-1"></a>loss.backward()                   <span class="co"># 역전파로 기울기 계산</span></span>
+<span id="cb2-4"><a aria-hidden="true" href="#cb2-4" tabindex="-1"></a>optimizer.step()                  <span class="co"># 가중치 갱신</span></span></code></pre></div>
+<p>손실이 감소해도 반드시 평가 정확도가 증가하는 것은 아니다. 모델이
+훈련 데이터의 특정 배경이나 위치를 암기할 수 있기 때문이다. 학습률
+<code>0.006</code>, 학습 횟수 <code>50 epoch</code>는 작은 합성 데이터의
+교육용 설정이다. 다른 CPU·PyTorch 버전에서는 수치가 달라질 수 있다.</p>
+<p><strong>확인 질문:</strong> <code>optimizer.zero_grad()</code>를
+생략하면 어떤 문제가 생기는가? 기본적으로 이전 단계의 기울기가
+누적되므로 의도하지 않은 갱신이 발생할 수 있다.</p>
+<h2 id="08-훈련-데이터와-평가-데이터-분리">08. 훈련 데이터와 평가 데이터
+분리</h2>
+<p><code>split_indices()</code>는 클래스별로 표본을 섞고 80%를 훈련에,
+20%를 평가에 배정한다. 전체 120개 기준 훈련 96개, 평가 24개이며 각
+클래스 평가 표본은 8개다.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a aria-hidden="true" href="#cb3-1" tabindex="-1"></a>tr, te <span class="op">=</span> split_indices(y)</span>
+<span id="cb3-2"><a aria-hidden="true" href="#cb3-2" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">set</span>(tr).isdisjoint(te)</span>
+<span id="cb3-3"><a aria-hidden="true" href="#cb3-3" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(tr), <span class="bu">len</span>(te))  <span class="co"># 96 24</span></span></code></pre></div>
+<p><strong>왜 클래스별 분리인가?</strong> 우연히 한 클래스가 평가에 거의
+들어가지 않는 문제를 줄이기 위해서다. 여기서는 도형 생성 시드가 표본별로
+다르다. 실제 데이터에서는 시드가 다르다는 사실만으로 장면 독립성이
+보장되지는 않는다. 같은 촬영 구간의 연속 프레임은 비슷하므로 촬영 구간
+단위 분리가 필요하다.</p>
+<p><strong>검증 범위:</strong> 평가셋은 학습 가중치 갱신에 사용하지
+않는다. 다만 반복적으로 평가 결과를 보며 모델 구조를 조정하면 평가셋에
+간접 과적합할 수 있으므로 최종 별도 테스트셋이 바람직하다.</p>
+<h2 id="09-실습-1--파일-생성-및-실행-환경">09. 실습 1 — 파일 생성 및
+실행 환경</h2>
+<p><strong>준비물:</strong> Python 3, NumPy, Pillow, PyTorch. 이 차시는
+웹캠·라이다·로봇 본체 없이 실행할 수 있다. 기존 07차시 가상환경이 있다면
+재사용한다.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a aria-hidden="true" href="#cb4-1" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> venv .venv                 <span class="co"># 독립 가상환경 생성</span></span>
+<span id="cb4-2"><a aria-hidden="true" href="#cb4-2" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate          <span class="co"># Ubuntu 가상환경 활성화</span></span>
+<span id="cb4-3"><a aria-hidden="true" href="#cb4-3" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install numpy pillow torch  <span class="co"># 필수 패키지 설치</span></span>
+<span id="cb4-4"><a aria-hidden="true" href="#cb4-4" tabindex="-1"></a><span class="ex">python</span> codes/ch08/image_classifier_lab.py <span class="at">--out</span> outputs/ch08</span></code></pre></div>
+<p><code>pip</code> 설치 시 PyTorch는 CPU 또는 GPU 배포 환경에 따라 공식
+설치 명령이 다르다. Jetson의 패키지 설치는 일반 PC의 pip 명령을 무조건
+적용하지 말고 NVIDIA 공식 호환 정보를 확인해야 한다. 파일이 없다면 제공
+패키지의 <code>codes/ch08/image_classifier_lab.py</code>를 먼저
+배치한다.</p>
+<p><strong>실행 확인:</strong> <code>epoch 01 loss=...</code>부터
+<code>epoch 50 loss=...</code>까지 표시되고
+<code>outputs/ch08/metrics.json</code>, <code>tinycnn_weights.pt</code>,
+<code>sample_circle.png</code>가 생성되어야 한다.</p>
+<h2 id="10-실습-2--합성-이미지-생성과-라벨-확인">10. 실습 2 — 합성
+이미지 생성과 라벨 확인</h2>
+<p><code>make_image(label, seed)</code>는 같은 <code>label</code>과
+<code>seed</code>에 대해 동일한 도형 이미지를 생성한다. 실제 데이터셋
+다운로드가 필요 없으므로 네트워크 없이 재현할 수 있다.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a aria-hidden="true" href="#cb5-1" tabindex="-1"></a><span class="im">from</span> image_classifier_lab <span class="im">import</span> make_image, dataset</span>
+<span id="cb5-2"><a aria-hidden="true" href="#cb5-2" tabindex="-1"></a>im <span class="op">=</span> make_image(<span class="dv">0</span>, seed<span class="op">=</span><span class="dv">2026</span>)</span>
+<span id="cb5-3"><a aria-hidden="true" href="#cb5-3" tabindex="-1"></a>im.save(<span class="st">'circle_example.png'</span>)</span>
+<span id="cb5-4"><a aria-hidden="true" href="#cb5-4" tabindex="-1"></a>x, y <span class="op">=</span> dataset(n_per_class<span class="op">=</span><span class="dv">40</span>)</span>
+<span id="cb5-5"><a aria-hidden="true" href="#cb5-5" tabindex="-1"></a><span class="bu">print</span>(x.shape, y.shape)</span></code></pre></div>
+<p><strong>예상 결과:</strong>
+<code>torch.Size([120, 3, 32, 32]) torch.Size([120])</code>. 이미지
+파일을 열어 원 모양이 보이는지 확인한다. <code>seed</code>를 바꾸면
+위치·크기·색이 달라지지만 클래스가 원이라는 점은 유지된다.</p>
+<p><strong>오류 점검:</strong> Pillow가 설치되지 않으면
+<code>ModuleNotFoundError: No module named 'PIL'</code>이 발생한다.
+<code>python -m pip install pillow</code>로 현재 실행 환경에 설치한다.
+실행 위치가 다르면 저장 파일의 상대경로도 달라지므로 출력 디렉터리를
+명시하는 편이 안전하다.</p>
+<h2 id="11-실습-3--학습저장결과-해석">11. 실습 3 — 학습·저장·결과
+해석</h2>
+<p>아래 명령으로 학습한다. 전체 코드는 별도 파일로 제공하며, 교재 끝의
+부록에도 빠짐없이 수록한다.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a aria-hidden="true" href="#cb6-1" tabindex="-1"></a><span class="ex">python</span> codes/ch08/image_classifier_lab.py <span class="at">--out</span> outputs/ch08 <span class="at">--epochs</span> 12</span></code></pre></div>
+<p><strong>주요 출력:</strong> 훈련 96개, 평가 24개, 클래스 3종, 평가
+정확도, 3×3 혼동행렬. 정확도는 환경에 따라 달라지므로 특정 수치를 합격
+기준으로 고정하지 않는다.</p>
+<table>
+<thead>
+<tr class="header">
+<th>출력 파일</th>
+<th>목적</th>
+<th>확인 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>tinycnn_weights.pt</code></td>
+<td>학습 가중치 저장</td>
+<td>파일 존재 확인</td>
+</tr>
+<tr class="even">
+<td><code>metrics.json</code></td>
+<td>평가 지표 저장</td>
+<td>정확도·혼동행렬 확인</td>
+</tr>
+<tr class="odd">
+<td><code>sample_circle.png</code></td>
+<td>샘플 이미지</td>
+<td>도형과 배경 확인</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주의:</strong> <code>torch.save(model.state_dict())</code>는
+모델 구조 자체를 저장하지 않는다. 다시 읽을 때 같은 <code>TinyCNN</code>
+클래스를 먼저 생성하고 <code>load_state_dict</code>를 호출해야 한다.
+출처가 불명확한 모델 파일을 무조건 로드하지 않는다.</p>
+<h2 id="12-실습-4--예측과-softmax">12. 실습 4 — 예측과 Softmax</h2>
+<p>모델의 <code>argmax(dim=1)</code>은 가장 큰 클래스 점수의 인덱스를
+반환한다. <code>torch.softmax(logits, dim=1)</code>은 클래스별 값을 합계
+1인 형태로 변환한다.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a aria-hidden="true" href="#cb7-1" tabindex="-1"></a>model.<span class="bu">eval</span>()</span>
+<span id="cb7-2"><a aria-hidden="true" href="#cb7-2" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb7-3"><a aria-hidden="true" href="#cb7-3" tabindex="-1"></a>    logits <span class="op">=</span> model(x[te])</span>
+<span id="cb7-4"><a aria-hidden="true" href="#cb7-4" tabindex="-1"></a>    pred <span class="op">=</span> logits.argmax(dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-5"><a aria-hidden="true" href="#cb7-5" tabindex="-1"></a>    probs <span class="op">=</span> torch.softmax(logits, dim<span class="op">=</span><span class="dv">1</span>)</span></code></pre></div>
+<p><code>model.eval()</code>은 평가 모드로 전환한다. 이 모델에는
+Dropout이나 BatchNorm이 없지만, 다른 모델에서는 평가 모드가 결과에 직접
+영향을 줄 수 있다. <code>torch.no_grad()</code>는 평가 중 불필요한
+기울기 추적을 방지한다.</p>
+<p><strong>확률 해석의 함정:</strong> Softmax 값 0.99가 곧 실제 환경에서
+99%의 정답 확률이라는 뜻은 아니다. 학습 데이터가 단순하거나 분포가
+달라지면 과신할 수 있다. 실제 차량 제어에는 신뢰도 보정, 미확인 클래스
+처리, 안전 규칙 등이 필요하다.</p>
+<h2 id="13-실습-5--정확도와-혼동행렬">13. 실습 5 — 정확도와
+혼동행렬</h2>
+<p>정확도는 <code>맞힌 표본 수 / 전체 평가 표본 수</code>이다.
+혼동행렬은 <strong>행이 실제 클래스, 열이 예측 클래스</strong>다. 예를
+들어 실제 삼각형 8개 중 6개를 삼각형으로 맞히고 2개를 사각형으로
+분류했다면 삼각형 행의 대각선 값은 6, 사각형 열 값은 2가 된다.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a aria-hidden="true" href="#cb8-1" tabindex="-1"></a>acc <span class="op">=</span> (pred <span class="op">==</span> y[te]).<span class="bu">float</span>().mean().item()</span>
+<span id="cb8-2"><a aria-hidden="true" href="#cb8-2" tabindex="-1"></a>cm <span class="op">=</span> confusion_matrix(y[te].tolist(), pred.tolist())</span>
+<span id="cb8-3"><a aria-hidden="true" href="#cb8-3" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'accuracy:'</span>, <span class="bu">round</span>(acc, <span class="dv">4</span>))</span>
+<span id="cb8-4"><a aria-hidden="true" href="#cb8-4" tabindex="-1"></a><span class="bu">print</span>(cm)</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th>지표</th>
+<th>의미</th>
+<th>한계</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Accuracy</td>
+<td>전체 정답 비율</td>
+<td>클래스 불균형에 취약</td>
+</tr>
+<tr class="even">
+<td>Precision</td>
+<td>해당 클래스로 예측한 것 중 정답 비율</td>
+<td>미검출을 직접 나타내지 않음</td>
+</tr>
+<tr class="odd">
+<td>Recall</td>
+<td>실제 해당 클래스 중 맞힌 비율</td>
+<td>오검출을 직접 나타내지 않음</td>
+</tr>
+<tr class="even">
+<td>Confusion Matrix</td>
+<td>어떤 클래스를 서로 혼동하는지</td>
+<td>표본 수가 적으면 불안정</td>
+</tr>
+</tbody>
+</table>
+<p><strong>실습 확인:</strong> 혼동행렬 전체 합은 평가 데이터 24개와
+같아야 한다. 클래스별 8개씩 평가했다면 각 행 합은 8이다.</p>
+<h2 id="14-실습-6--자동-테스트와-재현성">14. 실습 6 — 자동 테스트와
+재현성</h2>
+<p>자동 테스트는 이미지 생성, 데이터 차원, 픽셀 범위, 클래스별 분할,
+모델 출력 차원, 혼동행렬 계산, 저장 파일 생성 등을 확인한다.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a aria-hidden="true" href="#cb9-1" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> unittest discover <span class="at">-s</span> codes/ch08 <span class="at">-p</span> <span class="st">'test_*.py'</span> <span class="at">-v</span></span></code></pre></div>
+<p><strong>재현성:</strong> <code>torch.manual_seed(42)</code>와
+<code>np.random.seed(42)</code>는 무작위 요소를 일부 고정한다. 그러나
+모든 장비·라이브러리 버전에서 비트 단위 동일한 결과를 보장하지는 않는다.
+본 실습은 CPU 환경에서 검증하며, Jetson GPU의 성능과 결과를 대신하지
+않는다.</p>
+<p><strong>실습 변형:</strong> <code>--epochs 1</code>과
+<code>--epochs 50</code>의 결과를 비교한다. 학습 횟수가 늘어도 반드시
+평가 성능이 단조 증가하지 않는다는 점을 확인한다.</p>
+<h2 id="15-실습-7--오류-진단과-수정">15. 실습 7 — 오류 진단과 수정</h2>
+<table>
+<thead>
+<tr class="header">
+<th>증상</th>
+<th>원인 후보</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>No module named torch</code></td>
+<td>다른 Python 환경 사용</td>
+<td>활성화 환경과 <code>python -m pip</code> 확인</td>
+</tr>
+<tr class="even">
+<td><code>Expected 3 channels</code></td>
+<td>HWC/CHW 순서 혼동</td>
+<td><code>(N,3,32,32)</code> 확인</td>
+</tr>
+<tr class="odd">
+<td><code>target out of bounds</code></td>
+<td>라벨이 0~2 밖</td>
+<td>클래스 인덱스 확인</td>
+</tr>
+<tr class="even">
+<td>loss가 NaN</td>
+<td>비정상 값·학습률</td>
+<td>입력 범위·학습률 점검</td>
+</tr>
+<tr class="odd">
+<td>정확도 저하</td>
+<td>초기화·데이터·학습 부족</td>
+<td>데이터 분포·학습 곡선 점검</td>
+</tr>
+<tr class="even">
+<td>파일이 보이지 않음</td>
+<td>실행 경로가 다름</td>
+<td><code>--out</code> 절대/상대경로 확인</td>
+</tr>
+<tr class="odd">
+<td>이미지 색이 이상함</td>
+<td>RGB/BGR 혼동</td>
+<td>OpenCV 변환 여부 확인</td>
+</tr>
+</tbody>
+</table>
+<p><strong>오류 해결 순서:</strong> 입력 shape → dtype → 값 범위 → 라벨
+범위 → 손실 값 → 예측 분포 → 평가 데이터 분리 순서로 확인한다. 오류
+메시지를 무작정 숨기거나 예외를 전부 무시하지 않는다.</p>
+<h2 id="16-종합-실습--분류-결과를-안전하게-활용하기">16. 종합 실습 —
+분류 결과를 안전하게 활용하기</h2>
+<p><strong>과제:</strong> 합성 도형 이미지 120개를 생성하고 CNN으로
+분류한 뒤 <code>metrics.json</code>을 읽어 클래스별 오분류를 정리한다.
+이 결과를 09차시 객체 검출과 연결한다.</p>
+<p><strong>제출물:</strong> 실행 명령, 학습 로그, 이미지 1개,
+<code>metrics.json</code>, 혼동행렬 해석 3문장, 자동 테스트 결과.</p>
+<p><strong>판정 기준:</strong> (1) 입력과 라벨 구조 설명 가능, (2)
+훈련/평가 데이터 분리, (3) 코드 실행 및 출력 파일 생성, (4) 혼동행렬
+합계 확인, (5) 합성 데이터의 한계 설명. 정확도 100%를 필수 통과 기준으로
+사용하지 않는다.</p>
+<p><strong>선택 심화:</strong> 배경색·노이즈·회전·가림을 추가하여 성능
+변화를 비교한다. 단, 평가용 이미지를 보며 반복 조정한 경우 별도 최종
+테스트 데이터를 마련한다. 로봇 실제 주행 제어는 수행하지 않는다.</p>
+<h2 id="17-안전윤리적용-한계">17. 안전·윤리·적용 한계</h2>
+<p>합성 도형의 분류 성능은 실제 도로 표지판, 보행자, 차량, 신호등의 검출
+성능을 대변하지 않는다. 도형은 단일 객체·균일 배경·제한된 변화만
+포함한다. 실제 도로에는 역광·야간·눈비·움직임 흐림·가림·거리 변화가
+존재한다.</p>
+<p>모델 출력은 관측 자료의 하나이며, 실제 로봇에 적용하려면 (1) 센서
+상태 진단, (2) 오인식 처리, (3) 속도 제한, (4) 비상 정지, (5) 시험장
+안전 구획, (6) 운영자 감독이 필요하다. 제조사 SDK의 실제 제어 API는
+확인되지 않았으므로 본 교재는 모터·조향 명령을 포함하지 않는다.</p>
+<p>학습 이미지의 라이선스와 개인정보도 점검한다. 이 차시의 합성 도형은
+프로그램으로 직접 생성하므로 외부 인물 사진을 사용하지 않는다.</p>
+<h2 id="18-핵심-정리-및-다음-차시">18. 핵심 정리 및 다음 차시</h2>
+<ol type="1">
+<li>이미지 분류는 전체 이미지에 하나의 클래스 점수를 부여한다.</li>
+<li>RGB 이미지 배열을 <code>(N,C,H,W)</code>로 정리해야 CNN 입력과
+맞는다.</li>
+<li>학습에는 정답 라벨과 손실 함수, 역전파가 필요하다.</li>
+<li>훈련 데이터와 평가 데이터는 분리해야 한다.</li>
+<li>정확도만 보지 말고 혼동행렬로 오분류 방향을 분석한다.</li>
+<li>높은 합성 데이터 정확도는 실제 도로에서의 안전 성능이 아니다.</li>
+</ol>
+<p><strong>09차시 연결:</strong> 한 이미지 안에 객체가 여러 개 나타나면
+분류만으로 위치를 알 수 없다. 다음 차시에서는 경계 상자와 클래스 라벨을
+함께 출력하는 객체 검출을 다룬다.</p>
+<h2 id="19-공식-참고문헌-및-버전-확인">19. 공식 참고문헌 및 버전
+확인</h2>
+<ul>
+<li><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html">PyTorch
+— CrossEntropyLoss</a>: 원시 logits와 정수 라벨을 사용하는 손실
+함수.</li>
+<li><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Conv2d.html">PyTorch
+— Conv2d</a>: 합성곱 입력·출력 형상과 인자.</li>
+<li><a href="https://docs.pytorch.org/tutorials/beginner/saving_loading_models.html">PyTorch
+— Saving and Loading Models</a>: <code>state_dict</code> 저장·복원
+방식.</li>
+<li><a href="https://numpy.org/doc/stable/reference/generated/numpy.transpose.html">NumPy
+— transpose</a>: 배열 축 순서 변경.</li>
+<li><a href="https://pillow.readthedocs.io/en/stable/reference/ImageDraw.html">Pillow
+— ImageDraw</a>: 합성 도형 그리기.</li>
+<li><a href="https://docs.python.org/3/library/unittest.html">Python —
+unittest</a>: 자동 테스트.</li>
+<li><a href="https://docs.nvidia.com/jetson/">NVIDIA Jetson Developer
+Guide</a>: Jetson 설치 및 지원 환경 확인 출발점.</li>
+</ul>
+<p><strong>검증 범위:</strong> 공식 API의 일반적 사용법을 기준으로
+코드를 작성했으며, 제조사 알티노 AI SDK·Jetson 하드웨어 호환성은
+미검증이다. 링크와 문서 내용은 실제 교재 배포 시 다시 확인한다.</p>
+<h2 id="20-부록-a--전체-python-실행-코드">20. 부록 A — 전체 Python 실행
+코드</h2>
+<p>아래는 제공되는 <code>codes/ch08/image_classifier_lab.py</code>의
+전체 소스다. 실행 전 파일명과 작업 디렉터리를 확인한다.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a aria-hidden="true" href="#cb10-1" tabindex="-1"></a><span class="co">"""08차시: 외부 데이터 없이 합성 도형 3종을 학습하는 이미지 분류."""</span></span>
+<span id="cb10-2"><a aria-hidden="true" href="#cb10-2" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb10-3"><a aria-hidden="true" href="#cb10-3" tabindex="-1"></a><span class="im">import</span> argparse, json, random</span>
+<span id="cb10-4"><a aria-hidden="true" href="#cb10-4" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-5"><a aria-hidden="true" href="#cb10-5" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb10-6"><a aria-hidden="true" href="#cb10-6" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb10-7"><a aria-hidden="true" href="#cb10-7" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image, ImageDraw</span>
+<span id="cb10-8"><a aria-hidden="true" href="#cb10-8" tabindex="-1"></a></span>
+<span id="cb10-9"><a aria-hidden="true" href="#cb10-9" tabindex="-1"></a>LABELS <span class="op">=</span> (<span class="st">'circle'</span>, <span class="st">'square'</span>, <span class="st">'triangle'</span>)</span>
+<span id="cb10-10"><a aria-hidden="true" href="#cb10-10" tabindex="-1"></a></span>
+<span id="cb10-11"><a aria-hidden="true" href="#cb10-11" tabindex="-1"></a><span class="kw">def</span> make_image(label, seed, size<span class="op">=</span><span class="dv">32</span>):</span>
+<span id="cb10-12"><a aria-hidden="true" href="#cb10-12" tabindex="-1"></a>    <span class="co">"""각 클래스의 위치·크기·밝기를 달리한 RGB 합성 이미지를 생성한다."""</span></span>
+<span id="cb10-13"><a aria-hidden="true" href="#cb10-13" tabindex="-1"></a>    rng <span class="op">=</span> random.Random(seed)</span>
+<span id="cb10-14"><a aria-hidden="true" href="#cb10-14" tabindex="-1"></a>    im <span class="op">=</span> Image.new(<span class="st">'RGB'</span>, (size, size), (<span class="dv">18</span>, <span class="dv">23</span>, <span class="dv">31</span>))</span>
+<span id="cb10-15"><a aria-hidden="true" href="#cb10-15" tabindex="-1"></a>    draw <span class="op">=</span> ImageDraw.Draw(im)</span>
+<span id="cb10-16"><a aria-hidden="true" href="#cb10-16" tabindex="-1"></a>    offset_x, offset_y <span class="op">=</span> rng.randint(<span class="op">-</span><span class="dv">3</span>, <span class="dv">3</span>), rng.randint(<span class="op">-</span><span class="dv">3</span>, <span class="dv">3</span>)</span>
+<span id="cb10-17"><a aria-hidden="true" href="#cb10-17" tabindex="-1"></a>    half <span class="op">=</span> rng.randint(<span class="dv">7</span>, <span class="dv">10</span>)</span>
+<span id="cb10-18"><a aria-hidden="true" href="#cb10-18" tabindex="-1"></a>    cx, cy <span class="op">=</span> size<span class="op">//</span><span class="dv">2</span><span class="op">+</span>offset_x, size<span class="op">//</span><span class="dv">2</span><span class="op">+</span>offset_y</span>
+<span id="cb10-19"><a aria-hidden="true" href="#cb10-19" tabindex="-1"></a>    color <span class="op">=</span> (rng.randint(<span class="dv">170</span>,<span class="dv">255</span>), rng.randint(<span class="dv">160</span>,<span class="dv">245</span>), rng.randint(<span class="dv">150</span>,<span class="dv">235</span>))</span>
+<span id="cb10-20"><a aria-hidden="true" href="#cb10-20" tabindex="-1"></a>    <span class="cf">if</span> label <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb10-21"><a aria-hidden="true" href="#cb10-21" tabindex="-1"></a>        draw.ellipse((cx<span class="op">-</span>half, cy<span class="op">-</span>half, cx<span class="op">+</span>half, cy<span class="op">+</span>half), fill<span class="op">=</span>color)</span>
+<span id="cb10-22"><a aria-hidden="true" href="#cb10-22" tabindex="-1"></a>    <span class="cf">elif</span> label <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb10-23"><a aria-hidden="true" href="#cb10-23" tabindex="-1"></a>        draw.rectangle((cx<span class="op">-</span>half, cy<span class="op">-</span>half, cx<span class="op">+</span>half, cy<span class="op">+</span>half), fill<span class="op">=</span>color)</span>
+<span id="cb10-24"><a aria-hidden="true" href="#cb10-24" tabindex="-1"></a>    <span class="cf">elif</span> label <span class="op">==</span> <span class="dv">2</span>:</span>
+<span id="cb10-25"><a aria-hidden="true" href="#cb10-25" tabindex="-1"></a>        draw.polygon([(cx,cy<span class="op">-</span>half),(cx<span class="op">-</span>half,cy<span class="op">+</span>half),(cx<span class="op">+</span>half,cy<span class="op">+</span>half)],fill<span class="op">=</span>color)</span>
+<span id="cb10-26"><a aria-hidden="true" href="#cb10-26" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb10-27"><a aria-hidden="true" href="#cb10-27" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'label must be 0, 1 or 2'</span>)</span>
+<span id="cb10-28"><a aria-hidden="true" href="#cb10-28" tabindex="-1"></a>    <span class="cf">return</span> im</span>
+<span id="cb10-29"><a aria-hidden="true" href="#cb10-29" tabindex="-1"></a></span>
+<span id="cb10-30"><a aria-hidden="true" href="#cb10-30" tabindex="-1"></a><span class="kw">def</span> dataset(n_per_class<span class="op">=</span><span class="dv">40</span>, seed<span class="op">=</span><span class="dv">2026</span>):</span>
+<span id="cb10-31"><a aria-hidden="true" href="#cb10-31" tabindex="-1"></a>    <span class="co">"""학습/평가를 분리하기 전에 서로 다른 시드로 표본을 만든다."""</span></span>
+<span id="cb10-32"><a aria-hidden="true" href="#cb10-32" tabindex="-1"></a>    images, labels <span class="op">=</span> [], []</span>
+<span id="cb10-33"><a aria-hidden="true" href="#cb10-33" tabindex="-1"></a>    <span class="cf">for</span> cls <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb10-34"><a aria-hidden="true" href="#cb10-34" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_per_class):</span>
+<span id="cb10-35"><a aria-hidden="true" href="#cb10-35" tabindex="-1"></a>            im <span class="op">=</span> make_image(cls, seed<span class="op">+</span>cls<span class="op">*</span><span class="dv">10000</span><span class="op">+</span>i)</span>
+<span id="cb10-36"><a aria-hidden="true" href="#cb10-36" tabindex="-1"></a>            a <span class="op">=</span> np.asarray(im, dtype<span class="op">=</span>np.float32) <span class="op">/</span> <span class="fl">255.0</span></span>
+<span id="cb10-37"><a aria-hidden="true" href="#cb10-37" tabindex="-1"></a>            images.append(np.transpose(a, (<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">1</span>)))</span>
+<span id="cb10-38"><a aria-hidden="true" href="#cb10-38" tabindex="-1"></a>            labels.append(cls)</span>
+<span id="cb10-39"><a aria-hidden="true" href="#cb10-39" tabindex="-1"></a>    <span class="cf">return</span> torch.tensor(np.stack(images)), torch.tensor(labels, dtype<span class="op">=</span>torch.<span class="bu">long</span>)</span>
+<span id="cb10-40"><a aria-hidden="true" href="#cb10-40" tabindex="-1"></a></span>
+<span id="cb10-41"><a aria-hidden="true" href="#cb10-41" tabindex="-1"></a><span class="kw">class</span> TinyCNN(nn.Module):</span>
+<span id="cb10-42"><a aria-hidden="true" href="#cb10-42" tabindex="-1"></a>    <span class="co">"""3x32x32 → 특징맵 → 3개 클래스 점수(logits)."""</span></span>
+<span id="cb10-43"><a aria-hidden="true" href="#cb10-43" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb10-44"><a aria-hidden="true" href="#cb10-44" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb10-45"><a aria-hidden="true" href="#cb10-45" tabindex="-1"></a>        <span class="va">self</span>.features <span class="op">=</span> nn.Sequential(nn.Conv2d(<span class="dv">3</span>,<span class="dv">8</span>,<span class="dv">3</span>,padding<span class="op">=</span><span class="dv">1</span>),nn.ReLU(),</span>
+<span id="cb10-46"><a aria-hidden="true" href="#cb10-46" tabindex="-1"></a>            nn.MaxPool2d(<span class="dv">2</span>),nn.Conv2d(<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">3</span>,padding<span class="op">=</span><span class="dv">1</span>),nn.ReLU(),</span>
+<span id="cb10-47"><a aria-hidden="true" href="#cb10-47" tabindex="-1"></a>            nn.AdaptiveAvgPool2d((<span class="dv">4</span>,<span class="dv">4</span>)))</span>
+<span id="cb10-48"><a aria-hidden="true" href="#cb10-48" tabindex="-1"></a>        <span class="va">self</span>.classifier <span class="op">=</span> nn.Linear(<span class="dv">16</span><span class="op">*</span><span class="dv">4</span><span class="op">*</span><span class="dv">4</span>, <span class="dv">3</span>)</span>
+<span id="cb10-49"><a aria-hidden="true" href="#cb10-49" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>,x):</span>
+<span id="cb10-50"><a aria-hidden="true" href="#cb10-50" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.classifier(torch.flatten(<span class="va">self</span>.features(x),<span class="dv">1</span>))</span>
+<span id="cb10-51"><a aria-hidden="true" href="#cb10-51" tabindex="-1"></a></span>
+<span id="cb10-52"><a aria-hidden="true" href="#cb10-52" tabindex="-1"></a><span class="kw">def</span> split_indices(labels, train_ratio<span class="op">=</span><span class="fl">0.8</span>, seed<span class="op">=</span><span class="dv">77</span>):</span>
+<span id="cb10-53"><a aria-hidden="true" href="#cb10-53" tabindex="-1"></a>    <span class="co">"""각 클래스별 80:20 분리. 동일 원본의 증강본이 양쪽에 들어가지 않도록 설계."""</span></span>
+<span id="cb10-54"><a aria-hidden="true" href="#cb10-54" tabindex="-1"></a>    g<span class="op">=</span>torch.Generator().manual_seed(seed)</span>
+<span id="cb10-55"><a aria-hidden="true" href="#cb10-55" tabindex="-1"></a>    train, test<span class="op">=</span>[],[]</span>
+<span id="cb10-56"><a aria-hidden="true" href="#cb10-56" tabindex="-1"></a>    <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb10-57"><a aria-hidden="true" href="#cb10-57" tabindex="-1"></a>        ids<span class="op">=</span>torch.where(labels<span class="op">==</span>c)[<span class="dv">0</span>]</span>
+<span id="cb10-58"><a aria-hidden="true" href="#cb10-58" tabindex="-1"></a>        ids<span class="op">=</span>ids[torch.randperm(<span class="bu">len</span>(ids),generator<span class="op">=</span>g)].tolist()</span>
+<span id="cb10-59"><a aria-hidden="true" href="#cb10-59" tabindex="-1"></a>        cut<span class="op">=</span><span class="bu">int</span>(<span class="bu">len</span>(ids)<span class="op">*</span>train_ratio)</span>
+<span id="cb10-60"><a aria-hidden="true" href="#cb10-60" tabindex="-1"></a>        train.extend(ids[:cut])<span class="op">;</span> test.extend(ids[cut:])</span>
+<span id="cb10-61"><a aria-hidden="true" href="#cb10-61" tabindex="-1"></a>    <span class="cf">return</span> train,test</span>
+<span id="cb10-62"><a aria-hidden="true" href="#cb10-62" tabindex="-1"></a></span>
+<span id="cb10-63"><a aria-hidden="true" href="#cb10-63" tabindex="-1"></a><span class="kw">def</span> confusion_matrix(y_true,y_pred,n<span class="op">=</span><span class="dv">3</span>):</span>
+<span id="cb10-64"><a aria-hidden="true" href="#cb10-64" tabindex="-1"></a>    <span class="co">"""행은 실제 클래스, 열은 예측 클래스."""</span></span>
+<span id="cb10-65"><a aria-hidden="true" href="#cb10-65" tabindex="-1"></a>    m<span class="op">=</span>np.zeros((n,n),dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb10-66"><a aria-hidden="true" href="#cb10-66" tabindex="-1"></a>    <span class="cf">for</span> t,p <span class="kw">in</span> <span class="bu">zip</span>(y_true,y_pred): m[<span class="bu">int</span>(t),<span class="bu">int</span>(p)]<span class="op">+=</span><span class="dv">1</span></span>
+<span id="cb10-67"><a aria-hidden="true" href="#cb10-67" tabindex="-1"></a>    <span class="cf">return</span> m</span>
+<span id="cb10-68"><a aria-hidden="true" href="#cb10-68" tabindex="-1"></a></span>
+<span id="cb10-69"><a aria-hidden="true" href="#cb10-69" tabindex="-1"></a><span class="kw">def</span> train_demo(out_dir, epochs<span class="op">=</span><span class="dv">12</span>, n_per_class<span class="op">=</span><span class="dv">40</span>):</span>
+<span id="cb10-70"><a aria-hidden="true" href="#cb10-70" tabindex="-1"></a>    torch.manual_seed(<span class="dv">42</span>)<span class="op">;</span> np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb10-71"><a aria-hidden="true" href="#cb10-71" tabindex="-1"></a>    torch.set_num_threads(<span class="dv">1</span>)</span>
+<span id="cb10-72"><a aria-hidden="true" href="#cb10-72" tabindex="-1"></a>    x,y<span class="op">=</span>dataset(n_per_class<span class="op">=</span>n_per_class)</span>
+<span id="cb10-73"><a aria-hidden="true" href="#cb10-73" tabindex="-1"></a>    tr,te<span class="op">=</span>split_indices(y)</span>
+<span id="cb10-74"><a aria-hidden="true" href="#cb10-74" tabindex="-1"></a>    model<span class="op">=</span>TinyCNN()<span class="op">;</span> optimizer<span class="op">=</span>torch.optim.Adam(model.parameters(),lr<span class="op">=</span><span class="fl">0.006</span>)</span>
+<span id="cb10-75"><a aria-hidden="true" href="#cb10-75" tabindex="-1"></a>    loss_fn<span class="op">=</span>nn.CrossEntropyLoss()</span>
+<span id="cb10-76"><a aria-hidden="true" href="#cb10-76" tabindex="-1"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(epochs):</span>
+<span id="cb10-77"><a aria-hidden="true" href="#cb10-77" tabindex="-1"></a>        model.train()<span class="op">;</span> optimizer.zero_grad()</span>
+<span id="cb10-78"><a aria-hidden="true" href="#cb10-78" tabindex="-1"></a>        loss<span class="op">=</span>loss_fn(model(x[tr]),y[tr])<span class="op">;</span>loss.backward()<span class="op">;</span>optimizer.step()</span>
+<span id="cb10-79"><a aria-hidden="true" href="#cb10-79" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f'epoch </span><span class="sc">{</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">:02d}</span><span class="ss"> loss=</span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">'</span>)</span>
+<span id="cb10-80"><a aria-hidden="true" href="#cb10-80" tabindex="-1"></a>    model.<span class="bu">eval</span>()</span>
+<span id="cb10-81"><a aria-hidden="true" href="#cb10-81" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb10-82"><a aria-hidden="true" href="#cb10-82" tabindex="-1"></a>        logits<span class="op">=</span>model(x[te])<span class="op">;</span>pred<span class="op">=</span>logits.argmax(<span class="dv">1</span>)</span>
+<span id="cb10-83"><a aria-hidden="true" href="#cb10-83" tabindex="-1"></a>        acc<span class="op">=</span>(pred<span class="op">==</span>y[te]).<span class="bu">float</span>().mean().item()</span>
+<span id="cb10-84"><a aria-hidden="true" href="#cb10-84" tabindex="-1"></a>        cm<span class="op">=</span>confusion_matrix(y[te].tolist(),pred.tolist())</span>
+<span id="cb10-85"><a aria-hidden="true" href="#cb10-85" tabindex="-1"></a>        probs<span class="op">=</span>torch.softmax(logits,dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb10-86"><a aria-hidden="true" href="#cb10-86" tabindex="-1"></a>    out<span class="op">=</span>Path(out_dir)<span class="op">;</span>out.mkdir(parents<span class="op">=</span><span class="va">True</span>,exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-87"><a aria-hidden="true" href="#cb10-87" tabindex="-1"></a>    torch.save(model.state_dict(),out<span class="op">/</span><span class="st">'tinycnn_weights.pt'</span>)</span>
+<span id="cb10-88"><a aria-hidden="true" href="#cb10-88" tabindex="-1"></a>    Image.fromarray((x[<span class="dv">0</span>].permute(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">0</span>).numpy()<span class="op">*</span><span class="dv">255</span>).astype(<span class="st">'uint8'</span>)).resize((<span class="dv">256</span>,<span class="dv">256</span>)).save(out<span class="op">/</span><span class="st">'sample_circle.png'</span>)</span>
+<span id="cb10-89"><a aria-hidden="true" href="#cb10-89" tabindex="-1"></a>    report<span class="op">=</span>{<span class="st">'classes'</span>:<span class="bu">list</span>(LABELS),<span class="st">'train_count'</span>:<span class="bu">len</span>(tr),<span class="st">'test_count'</span>:<span class="bu">len</span>(te),</span>
+<span id="cb10-90"><a aria-hidden="true" href="#cb10-90" tabindex="-1"></a>        <span class="st">'accuracy'</span>:<span class="bu">round</span>(acc,<span class="dv">4</span>),<span class="st">'confusion_matrix'</span>:cm.tolist(),</span>
+<span id="cb10-91"><a aria-hidden="true" href="#cb10-91" tabindex="-1"></a>        <span class="st">'first_prediction'</span>:LABELS[<span class="bu">int</span>(pred[<span class="dv">0</span>])],</span>
+<span id="cb10-92"><a aria-hidden="true" href="#cb10-92" tabindex="-1"></a>        <span class="st">'first_confidence'</span>:<span class="bu">round</span>(<span class="bu">float</span>(probs[<span class="dv">0</span>].<span class="bu">max</span>()),<span class="dv">4</span>),</span>
+<span id="cb10-93"><a aria-hidden="true" href="#cb10-93" tabindex="-1"></a>        <span class="st">'note'</span>:<span class="st">'합성 도형 평가 정확도이며 실제 도로 객체 성능이 아님'</span>}</span>
+<span id="cb10-94"><a aria-hidden="true" href="#cb10-94" tabindex="-1"></a>    (out<span class="op">/</span><span class="st">'metrics.json'</span>).write_text(json.dumps(report,ensure_ascii<span class="op">=</span><span class="va">False</span>,indent<span class="op">=</span><span class="dv">2</span>),encoding<span class="op">=</span><span class="st">'utf-8'</span>)</span>
+<span id="cb10-95"><a aria-hidden="true" href="#cb10-95" tabindex="-1"></a>    <span class="bu">print</span>(json.dumps(report,ensure_ascii<span class="op">=</span><span class="va">False</span>,indent<span class="op">=</span><span class="dv">2</span>))</span>
+<span id="cb10-96"><a aria-hidden="true" href="#cb10-96" tabindex="-1"></a>    <span class="cf">return</span> report</span>
+<span id="cb10-97"><a aria-hidden="true" href="#cb10-97" tabindex="-1"></a></span>
+<span id="cb10-98"><a aria-hidden="true" href="#cb10-98" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span><span class="op">==</span><span class="st">'__main__'</span>:</span>
+<span id="cb10-99"><a aria-hidden="true" href="#cb10-99" tabindex="-1"></a>    parser<span class="op">=</span>argparse.ArgumentParser()</span>
+<span id="cb10-100"><a aria-hidden="true" href="#cb10-100" tabindex="-1"></a>    parser.add_argument(<span class="st">'--out'</span>,default<span class="op">=</span><span class="st">'outputs/ch08'</span>)</span>
+<span id="cb10-101"><a aria-hidden="true" href="#cb10-101" tabindex="-1"></a>    parser.add_argument(<span class="st">'--epochs'</span>,<span class="bu">type</span><span class="op">=</span><span class="bu">int</span>,default<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb10-102"><a aria-hidden="true" href="#cb10-102" tabindex="-1"></a>    args<span class="op">=</span>parser.parse_args()</span>
+<span id="cb10-103"><a aria-hidden="true" href="#cb10-103" tabindex="-1"></a>    train_demo(args.out,epochs<span class="op">=</span>args.epochs)</span></code></pre></div>
+<h2 id="21-부록-b--전체-자동-테스트-코드">21. 부록 B — 전체 자동 테스트
+코드</h2>
+<p>아래는 <code>codes/ch08/test_image_classifier_lab.py</code>의 전체
+코드다. 11개 테스트로 데이터·모델·출력을 점검한다.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a aria-hidden="true" href="#cb11-1" tabindex="-1"></a><span class="im">import</span> unittest</span>
+<span id="cb11-2"><a aria-hidden="true" href="#cb11-2" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb11-3"><a aria-hidden="true" href="#cb11-3" tabindex="-1"></a><span class="im">from</span> image_classifier_lab <span class="im">import</span> LABELS, make_image, dataset, TinyCNN, split_indices, confusion_matrix, train_demo</span>
+<span id="cb11-4"><a aria-hidden="true" href="#cb11-4" tabindex="-1"></a><span class="im">from</span> tempfile <span class="im">import</span> TemporaryDirectory</span>
+<span id="cb11-5"><a aria-hidden="true" href="#cb11-5" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb11-6"><a aria-hidden="true" href="#cb11-6" tabindex="-1"></a></span>
+<span id="cb11-7"><a aria-hidden="true" href="#cb11-7" tabindex="-1"></a><span class="kw">class</span> TestImageClassification(unittest.TestCase):</span>
+<span id="cb11-8"><a aria-hidden="true" href="#cb11-8" tabindex="-1"></a>    <span class="kw">def</span> test_classes(<span class="va">self</span>): <span class="va">self</span>.assertEqual(<span class="bu">len</span>(LABELS),<span class="dv">3</span>)</span>
+<span id="cb11-9"><a aria-hidden="true" href="#cb11-9" tabindex="-1"></a>    <span class="kw">def</span> test_image_size(<span class="va">self</span>): <span class="va">self</span>.assertEqual(make_image(<span class="dv">0</span>,<span class="dv">1</span>).size,(<span class="dv">32</span>,<span class="dv">32</span>))</span>
+<span id="cb11-10"><a aria-hidden="true" href="#cb11-10" tabindex="-1"></a>    <span class="kw">def</span> test_invalid_label(<span class="va">self</span>):</span>
+<span id="cb11-11"><a aria-hidden="true" href="#cb11-11" tabindex="-1"></a>        <span class="cf">with</span> <span class="va">self</span>.assertRaises(<span class="pp">ValueError</span>): make_image(<span class="dv">9</span>,<span class="dv">1</span>)</span>
+<span id="cb11-12"><a aria-hidden="true" href="#cb11-12" tabindex="-1"></a>    <span class="kw">def</span> test_dataset_shape(<span class="va">self</span>):</span>
+<span id="cb11-13"><a aria-hidden="true" href="#cb11-13" tabindex="-1"></a>        x,y<span class="op">=</span>dataset(<span class="dv">5</span>)<span class="op">;</span><span class="va">self</span>.assertEqual(<span class="bu">tuple</span>(x.shape),(<span class="dv">15</span>,<span class="dv">3</span>,<span class="dv">32</span>,<span class="dv">32</span>))<span class="op">;</span><span class="va">self</span>.assertEqual(<span class="bu">tuple</span>(y.shape),(<span class="dv">15</span>,))</span>
+<span id="cb11-14"><a aria-hidden="true" href="#cb11-14" tabindex="-1"></a>    <span class="kw">def</span> test_value_range(<span class="va">self</span>):</span>
+<span id="cb11-15"><a aria-hidden="true" href="#cb11-15" tabindex="-1"></a>        x,_<span class="op">=</span>dataset(<span class="dv">2</span>)<span class="op">;</span><span class="va">self</span>.assertGreaterEqual(x.<span class="bu">min</span>().item(),<span class="dv">0</span>)<span class="op">;</span><span class="va">self</span>.assertLessEqual(x.<span class="bu">max</span>().item(),<span class="dv">1</span>)</span>
+<span id="cb11-16"><a aria-hidden="true" href="#cb11-16" tabindex="-1"></a>    <span class="kw">def</span> test_model_shape(<span class="va">self</span>): <span class="va">self</span>.assertEqual(<span class="bu">tuple</span>(TinyCNN()(torch.zeros(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">32</span>,<span class="dv">32</span>)).shape),(<span class="dv">2</span>,<span class="dv">3</span>))</span>
+<span id="cb11-17"><a aria-hidden="true" href="#cb11-17" tabindex="-1"></a>    <span class="kw">def</span> test_split_disjoint(<span class="va">self</span>):</span>
+<span id="cb11-18"><a aria-hidden="true" href="#cb11-18" tabindex="-1"></a>        _,y<span class="op">=</span>dataset(<span class="dv">10</span>)<span class="op">;</span>tr,te<span class="op">=</span>split_indices(y)<span class="op">;</span><span class="va">self</span>.assertEqual(<span class="bu">len</span>(tr),<span class="dv">24</span>)<span class="op">;</span><span class="va">self</span>.assertEqual(<span class="bu">len</span>(te),<span class="dv">6</span>)<span class="op">;</span><span class="va">self</span>.assertFalse(<span class="bu">set</span>(tr)<span class="op">&amp;</span><span class="bu">set</span>(te))</span>
+<span id="cb11-19"><a aria-hidden="true" href="#cb11-19" tabindex="-1"></a>    <span class="kw">def</span> test_split_stratified(<span class="va">self</span>):</span>
+<span id="cb11-20"><a aria-hidden="true" href="#cb11-20" tabindex="-1"></a>        _,y<span class="op">=</span>dataset(<span class="dv">10</span>)<span class="op">;</span>tr,te<span class="op">=</span>split_indices(y)<span class="op">;</span><span class="va">self</span>.assertEqual([<span class="bu">int</span>((y[te]<span class="op">==</span>i).<span class="bu">sum</span>()) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>)],[<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>])</span>
+<span id="cb11-21"><a aria-hidden="true" href="#cb11-21" tabindex="-1"></a>    <span class="kw">def</span> test_confusion(<span class="va">self</span>): <span class="va">self</span>.assertEqual(confusion_matrix([<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>],[<span class="dv">0</span>,<span class="dv">2</span>,<span class="dv">2</span>]).tolist(),[[<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>],[<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>],[<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>]])</span>
+<span id="cb11-22"><a aria-hidden="true" href="#cb11-22" tabindex="-1"></a>    <span class="kw">def</span> test_deterministic_images(<span class="va">self</span>): <span class="va">self</span>.assertEqual(make_image(<span class="dv">0</span>,<span class="dv">1</span>).tobytes(),make_image(<span class="dv">0</span>,<span class="dv">1</span>).tobytes())</span>
+<span id="cb11-23"><a aria-hidden="true" href="#cb11-23" tabindex="-1"></a>    <span class="kw">def</span> test_train_outputs(<span class="va">self</span>):</span>
+<span id="cb11-24"><a aria-hidden="true" href="#cb11-24" tabindex="-1"></a>        <span class="cf">with</span> TemporaryDirectory() <span class="im">as</span> d:</span>
+<span id="cb11-25"><a aria-hidden="true" href="#cb11-25" tabindex="-1"></a>            r<span class="op">=</span>train_demo(d,epochs<span class="op">=</span><span class="dv">3</span>,n_per_class<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb11-26"><a aria-hidden="true" href="#cb11-26" tabindex="-1"></a>            <span class="va">self</span>.assertEqual(r[<span class="st">'test_count'</span>],<span class="dv">6</span>)</span>
+<span id="cb11-27"><a aria-hidden="true" href="#cb11-27" tabindex="-1"></a>            <span class="va">self</span>.assertTrue((Path(d)<span class="op">/</span><span class="st">'metrics.json'</span>).exists())</span>
+<span id="cb11-28"><a aria-hidden="true" href="#cb11-28" tabindex="-1"></a>            <span class="va">self</span>.assertTrue((Path(d)<span class="op">/</span><span class="st">'tinycnn_weights.pt'</span>).exists())</span>
+<span id="cb11-29"><a aria-hidden="true" href="#cb11-29" tabindex="-1"></a>            <span class="va">self</span>.assertTrue((Path(d)<span class="op">/</span><span class="st">'sample_circle.png'</span>).exists())</span>
+<span id="cb11-30"><a aria-hidden="true" href="#cb11-30" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span><span class="op">==</span><span class="st">'__main__'</span>: unittest.main()</span></code></pre></div>
+<h2 id="22-부록-c--추가-실험-기록표">22. 부록 C — 추가 실험 기록표</h2>
+<p>아래 표를 복사해 학습 실험을 기록한다. 학습 횟수와 데이터 수가 다르면
+평가셋 크기와 성능 변동도 함께 기록한다.</p>
+<table>
+<thead>
+<tr class="header">
+<th>실험</th>
+<th style="text-align: right;">epoch</th>
+<th style="text-align: right;">클래스당 이미지</th>
+<th style="text-align: right;">평가 개수</th>
+<th style="text-align: right;">Accuracy</th>
+<th>관찰</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>기본</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">실행값 기입</td>
+<td>기본 기준</td>
+</tr>
+<tr class="even">
+<td>실험 A</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">실행값 기입</td>
+<td>과소학습 확인</td>
+</tr>
+<tr class="odd">
+<td>실험 B</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">실행값 기입</td>
+<td>학습 횟수 영향</td>
+</tr>
+<tr class="even">
+<td>실험 C</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">실행값 기입</td>
+<td>표본 수 영향</td>
+</tr>
+</tbody>
+</table>
+<p><strong>분석 질문:</strong> 정확도가 동일해도 혼동행렬이 달라질 수
+있는가? 그렇다. 같은 정답 개수라도 어떤 클래스를 틀렸는지에 따라
+혼동행렬은 달라진다. 실제 자율주행 시스템에서는 위험한 클래스를 놓치는
+비용이 서로 다를 수 있으므로 정확도 하나로 평가하지 않는다.</p>
+<nav aria-label="차시 이동" class="audit-chapter-nav"><a href="ch07.html">← 07차시</a><a href="../index.html">전체 목차</a><a href="ch09.html">09차시 →</a></nav></body>
+</html>

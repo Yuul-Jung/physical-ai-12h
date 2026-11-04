@@ -1,0 +1,73 @@
+{
+  "pages": [
+    {
+      "chapter": 1,
+      "md_a4_pages": 10,
+      "html_a4_pages": 11
+    },
+    {
+      "chapter": 2,
+      "md_a4_pages": 11,
+      "html_a4_pages": 10
+    },
+    {
+      "chapter": 3,
+      "md_a4_pages": 10,
+      "html_a4_pages": 16
+    },
+    {
+      "chapter": 4,
+      "md_a4_pages": 10,
+      "html_a4_pages": 16
+    },
+    {
+      "chapter": 5,
+      "md_a4_pages": 10,
+      "html_a4_pages": 11
+    },
+    {
+      "chapter": 6,
+      "md_a4_pages": 10,
+      "html_a4_pages": 17
+    },
+    {
+      "chapter": 7,
+      "md_a4_pages": 11,
+      "html_a4_pages": 12
+    },
+    {
+      "chapter": 8,
+      "md_a4_pages": 10,
+      "html_a4_pages": 10
+    },
+    {
+      "chapter": 9,
+      "md_a4_pages": 12,
+      "html_a4_pages": 17
+    },
+    {
+      "chapter": 10,
+      "md_a4_pages": 12,
+      "html_a4_pages": 14
+    },
+    {
+      "chapter": 11,
+      "md_a4_pages": 11,
+      "html_a4_pages": 11
+    },
+    {
+      "chapter": 12,
+      "md_a4_pages": 12,
+      "html_a4_pages": 12
+    }
+  ],
+  "assets_verified": 24,
+  "issues": [
+    [
+      "index",
+      "missing path",
+      "reports/ADVERSARIAL_AUDIT.md"
+    ]
+  ],
+  "security_flags": []
+}

@@ -1,0 +1,73 @@
+{
+  "predictions": [
+    {
+      "label": "red",
+      "box": [
+        45,
+        60,
+        125,
+        145
+      ],
+      "area": 6800,
+      "score": null
+    },
+    {
+      "label": "green",
+      "box": [
+        190,
+        80,
+        275,
+        160
+      ],
+      "area": 6800,
+      "score": null
+    },
+    {
+      "label": "blue",
+      "box": [
+        325,
+        190,
+        435,
+        285
+      ],
+      "area": 10450,
+      "score": null
+    }
+  ],
+  "truth": [
+    {
+      "label": "red",
+      "box": [
+        45,
+        60,
+        125,
+        145
+      ]
+    },
+    {
+      "label": "green",
+      "box": [
+        190,
+        80,
+        275,
+        160
+      ]
+    },
+    {
+      "label": "blue",
+      "box": [
+        325,
+        190,
+        435,
+        285
+      ]
+    }
+  ],
+  "metrics": {
+    "TP": 3,
+    "FP": 0,
+    "FN": 0,
+    "precision": 1.0,
+    "recall": 1.0
+  }
+}
