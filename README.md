@@ -59,6 +59,7 @@ done
 ## 6. 공개 저장소 안내
 
 - 웹 교재 시작: [`index.html`](index.html)
-- GitHub Pages: Settings → Pages → Deploy from a branch → `main` / `(root)` 선택
+- GitHub Pages 최초 설정: Settings → Pages → Build and deployment → Source를 `GitHub Actions`로 선택한다.
+- 이후 `main` 갱신 시 `.github/workflows/deploy-pages.yml`이 사이트를 자동 게시한다. 최초 설정 전에는 사이트 주소가 열리지 않을 수 있다.
 - 외부 서비스 계정·개인 문서·실제 장비 로그는 공개 저장소에 업로드하지 않는다.
 - 본 자료는 교육용 코드 및 합성 데이터 검증본이며 실물 자율주행 안전성 인증 자료가 아니다.
